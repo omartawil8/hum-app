@@ -112,24 +112,8 @@ app.post('/api/identify', upload.single('audio'), async (req, res) => {
         
         res.json({
           success: true,
-          songs: topMatches,  // Return array of songs
-          primaryMatch: topMatches[0]  // Keep backward compatibility
+          songs: topMatches
         });
-      res.json({
-        success: true,
-        song: {
-          title: match.title,
-          artist: match.artists?.[0]?.name || 'Unknown Artist',
-          album: match.album?.name || '',
-          releaseDate: match.release_date || '',
-          duration: match.duration_ms || 0,
-          confidence: Math.round((match.score || 0) * 100),
-          externalIds: {
-            spotify: match.external_ids?.spotify || null,
-            youtube: match.external_metadata?.youtube?.vid || null
-          }
-        }
-      });
     } else {
       res.json({
         success: false,
