@@ -103,7 +103,7 @@ export default function HumApp() {
       const formData = new FormData();
       formData.append('audio', audioBlob, 'recording.webm');
       
-      const response = await fetch('http://your-railway-url.railway.app/api/identify', {
+      const response = await fetch('https://hum-app-production.up.railway.app/api/identify', {
         method: 'POST',
         body: formData
       });
