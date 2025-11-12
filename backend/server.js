@@ -63,7 +63,58 @@ app.post('/api/identify', upload.single('audio'), async (req, res) => {
     console.log('ACRCloud response:', JSON.stringify(result, null, 2));
     
     if (result.status.code === 0 && (result.metadata?.music?.length > 0 || result.metadata?.humming?.length > 0)) {
-        const match = result.metadata.music?.[0] || result.metadata.humming?.[0];
+        const matches = result.metadata.music || result.metadata.humming;
+        
+        // Priority scoring function
+        const getPriority = (match) => {
+          const title = match.title || '';
+          const artist = match.artists?.[0]?.name || '';
+          const label = match.label || '';
+          const combined = title + artist + label;
+          
+          // Check for different language scripts
+          const hasAsianChars = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf\uac00-\ud7a3]/.test(combined);
+          const hasArabicChars = /[\u0600-\u06ff]/.test(combined);
+          const hasSpanishIndicators = /spanish|español|latina|latino|reggaeton/i.test(label + combined);
+          const hasFrenchIndicators = /french|français|francais/i.test(label + combined);
+          const isAsianLabel = /japan|korea|jpop|kpop|mandarin|cantonese/i.test(label);
+          
+          // Priority: English/Western (3) > Spanish/French/Arabic (2) > Asian (0)
+          if (hasAsianChars || isAsianLabel) return 0;
+          if (hasArabicChars || hasSpanishIndicators || hasFrenchIndicators) return 2;
+          return 3; // English/Western default
+        };
+        
+        // Sort by priority first, then by confidence score
+        const sortedMatches = matches
+          .map(match => ({
+            ...match,
+            priority: getPriority(match)
+          }))
+          .sort((a, b) => {
+            if (b.priority !== a.priority) return b.priority - a.priority;
+            return (b.score || 0) - (a.score || 0);
+          });
+        
+        // Return top 3 matches
+        const topMatches = sortedMatches.slice(0, 3).map(match => ({
+          title: match.title,
+          artist: match.artists?.[0]?.name || 'Unknown Artist',
+          album: match.album?.name || '',
+          releaseDate: match.release_date || '',
+          duration: match.duration_ms || 0,
+          confidence: Math.round((match.score || 0) * 100),
+          externalIds: {
+            spotify: match.external_ids?.spotify || null,
+            youtube: match.external_metadata?.youtube?.vid || null
+          }
+        }));
+        
+        res.json({
+          success: true,
+          songs: topMatches,  // Return array of songs
+          primaryMatch: topMatches[0]  // Keep backward compatibility
+        });
       res.json({
         success: true,
         song: {

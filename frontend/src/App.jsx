@@ -28,9 +28,9 @@ export default function HumApp() {
   }, []);
 
   useEffect(() => {
-    if (matchData) {
+    if (matchData && matchData[0]) {
       const isSongSaved = savedSongs.some(
-        song => song.title === matchData.title && song.artist === matchData.artist
+        song => song.title === matchData[0].title && song.artist === matchData[0].artist
       );
       setIsSaved(isSongSaved);
     }
@@ -110,8 +110,8 @@ export default function HumApp() {
       
       const data = await response.json();
       
-      if (data.success) {
-        setMatchData(data.song);
+      if (data.success && data.songs && data.songs.length > 0) {
+        setMatchData(data.songs);
         setHasResult(true);
         setError(null);
       } else {
@@ -121,7 +121,7 @@ export default function HumApp() {
       }
     } catch (err) {
       console.error('Error identifying song:', err);
-      setError('Failed to connect to server. Make sure backend is running on port 3001.');
+      setError('Failed to connect to server. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -142,16 +142,18 @@ export default function HumApp() {
     const newSavedState = !isSaved;
     setIsSaved(newSavedState);
     
-    if (newSavedState && matchData) {
+    const primarySong = matchData?.[0];
+    
+    if (newSavedState && primarySong) {
       const updatedSongs = [...savedSongs, {
-        ...matchData,
+        ...primarySong,
         savedAt: new Date().toISOString()
       }];
       setSavedSongs(updatedSongs);
       localStorage.setItem('hum-saved-songs', JSON.stringify(updatedSongs));
-    } else {
+    } else if (primarySong) {
       const updatedSongs = savedSongs.filter(
-        song => !(song.title === matchData?.title && song.artist === matchData?.artist)
+        song => !(song.title === primarySong.title && song.artist === primarySong.artist)
       );
       setSavedSongs(updatedSongs);
       localStorage.setItem('hum-saved-songs', JSON.stringify(updatedSongs));
@@ -295,7 +297,7 @@ export default function HumApp() {
                   </div>
                   <div className="flex items-center justify-center gap-4 mb-4">
                     <h2 className="text-5xl font-light tracking-wide">
-                      {matchData?.title || 'Unknown Song'}
+                      {matchData?.[0]?.title || 'Unknown Song'}
                     </h2>
                     <button 
                       onClick={toggleSave}
@@ -308,7 +310,7 @@ export default function HumApp() {
                     </button>
                   </div>
                   <p className="text-xl text-white/50 font-light">
-                    {matchData?.artist || 'Unknown Artist'}
+                    {matchData?.[0]?.artist || 'Unknown Artist'}
                   </p>
                 </div>
 
@@ -322,20 +324,51 @@ export default function HumApp() {
                 <div className="bg-white/[0.02] backdrop-blur-sm rounded-2xl p-8 mb-8 border border-white/5">
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-sm text-white/40 tracking-wide uppercase text-xs">Confidence</span>
-                    <span className="text-2xl font-light">{matchData?.confidence || 0}%</span>
+                    <span className="text-2xl font-light">{matchData?.[0]?.confidence || 0}%</span>
                   </div>
                   <div className="w-full bg-white/5 rounded-full h-1 overflow-hidden">
                     <div 
                       className="bg-gradient-to-r from-rose-400 to-orange-400 h-full rounded-full transition-all duration-1000" 
-                      style={{ width: `${matchData?.confidence || 0}%` }}
+                      style={{ width: `${matchData?.[0]?.confidence || 0}%` }}
                     ></div>
                   </div>
                 </div>
 
+                {matchData && matchData.length > 1 && (
+                  <div className="mb-8">
+                    <h3 className="text-sm tracking-widest uppercase text-white/30 mb-4 font-light">Other Possible Matches</h3>
+                    <div className="space-y-3">
+                      {matchData.slice(1).map((song, idx) => (
+                        <div 
+                          key={idx}
+                          onClick={() => {
+                            const newMatches = [song, matchData[0], ...matchData.slice(2)];
+                            setMatchData(newMatches);
+                          }}
+                          className="bg-white/[0.02] backdrop-blur-sm rounded-2xl p-5 hover:bg-white/[0.04] transition-all cursor-pointer border border-white/5 group"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center border border-white/5 group-hover:bg-white/10 transition-colors">
+                                <Music className="w-5 h-5 opacity-40" strokeWidth={1} />
+                              </div>
+                              <div>
+                                <p className="font-light mb-0.5">{song.title}</p>
+                                <p className="text-sm text-white/40 font-light">{song.artist}</p>
+                              </div>
+                            </div>
+                            <span className="text-sm text-white/40 font-light">{song.confidence}%</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-4 mb-8">
-                  {matchData?.externalIds?.spotify ? (
+                  {matchData?.[0]?.externalIds?.spotify ? (
                     <a 
-                      href={`https://open.spotify.com/track/${matchData.externalIds.spotify}`}
+                      href={`https://open.spotify.com/track/${matchData[0].externalIds.spotify}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="bg-white/[0.02] backdrop-blur-sm hover:bg-white/5 transition-all py-5 rounded-2xl font-light tracking-wide border border-white/5 text-center"
