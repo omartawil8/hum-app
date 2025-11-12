@@ -10,7 +10,9 @@ require('dotenv').config();
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
-app.use(cors());
+app.use(cors({
+    origin: '*'  // Allow all origins for now (we'll restrict this later)
+  }));
 app.use(express.json());
 
 // ACRCloud identification function
