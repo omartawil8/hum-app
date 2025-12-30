@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+.env
+.env.local
+users.json
+training-data
+temp
+*.log
+.git
+.gitignore
+

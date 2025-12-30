@@ -1,0 +1,7 @@
+node_modules/
+.env
+users.json
+training-data/
+temp/
+*.log
+
