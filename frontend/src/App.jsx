@@ -667,7 +667,10 @@ export default function HumApp() {
       }
       
       const formData = new FormData();
-      formData.append('audio', audioBlob, 'recording.webm');
+      // Use appropriate file extension based on blob type
+      const extension = audioBlob.type.includes('mp4') ? 'mp4' : 
+                       audioBlob.type.includes('aac') ? 'aac' : 'webm';
+      formData.append('audio', audioBlob, `recording.${extension}`);
       
       // Verify FormData
       console.log('   FormData created, checking audio field...');
