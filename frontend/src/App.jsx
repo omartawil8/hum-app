@@ -453,6 +453,7 @@ export default function HumApp() {
     localStorage.removeItem('hum-auth-token');
     setUser(null);
     setSearchCount(0);
+    setShowUserDropdown(false); // Close dropdown on logout
     // Don't reset anonymousSearchCount - if they used it, it stays used
     // localStorage.removeItem('hum-anonymous-search-count'); // Keep this so they can't get another free search
     localStorage.removeItem('hum-search-count');
