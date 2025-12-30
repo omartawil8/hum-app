@@ -28,6 +28,14 @@ app.use(cors({
   credentials: true
 }));
 
+// Request logging middleware - log all incoming requests
+app.use((req, res, next) => {
+  console.log(`📥 [${new Date().toISOString()}] ${req.method} ${req.path}`);
+  console.log(`   Origin: ${req.headers.origin || 'none'}`);
+  console.log(`   User-Agent: ${req.headers['user-agent']?.substring(0, 50) || 'none'}`);
+  next();
+});
+
 // Increase body size limit for audio file uploads (50MB)
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -935,6 +943,9 @@ function saveTrainingData(audioBuffer, acrResult) {
 // SMART LYRICS SEARCH (Natural Flow)
 // =========================
 app.post('/api/search-lyrics', authenticateToken, checkSearchLimit, async (req, res) => {
+  console.log('🔍 /api/search-lyrics endpoint reached');
+  console.log('   Lyrics:', req.body?.lyrics?.substring(0, 50) || 'NO LYRICS');
+  console.log('   User:', req.user ? req.user.userId : 'anonymous');
   try {
     const { lyrics } = req.body;
     
@@ -1207,6 +1218,9 @@ app.post('/api/search-lyrics', authenticateToken, checkSearchLimit, async (req, 
 // =========================
 // IMPORTANT: upload.single('audio') must come FIRST to parse the file before other middlewares
 app.post('/api/identify', upload.single('audio'), authenticateToken, checkSearchLimit, async (req, res) => {
+  console.log('🎤 /api/identify endpoint reached');
+  console.log('   File received:', req.file ? `${req.file.size} bytes` : 'NO FILE');
+  console.log('   User:', req.user ? req.user.userId : 'anonymous');
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No audio file provided' });
@@ -1811,8 +1825,10 @@ app.post('/api/admin/send-welcome-email', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🎵 hüm backend running on port ${PORT}`);
+  console.log(`   🌐 Listening on 0.0.0.0 (all interfaces)`);
   console.log(`   ✅ Lyrics search: Scrapingdog → Spotify (field search)`);
   console.log(`   ✅ Humming: ACRCloud + Spotify enrichment`);
+  console.log(`   📡 CORS enabled for all origins`);
 });
