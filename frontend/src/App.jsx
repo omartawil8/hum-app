@@ -8,6 +8,9 @@ import avidListenerIcon from './assets/Avid_Listener.png';
 // API base URL - use environment variable or default to localhost for development
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
+// Log API URL for debugging (remove in production if needed)
+console.log('🌐 API Base URL:', API_BASE_URL);
+
 export default function HumApp() {
   const [isListening, setIsListening] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
@@ -605,6 +608,7 @@ export default function HumApp() {
 
   const identifySong = async (audioBlob) => {
     setIsProcessing(true);
+    setError(null);
     try {
       const formData = new FormData();
       formData.append('audio', audioBlob, 'recording.webm');
@@ -615,13 +619,26 @@ export default function HumApp() {
         headers['Authorization'] = `Bearer ${token}`;
       }
       
+      console.log('🎤 Sending request to:', `${API_BASE_URL}/api/identify`);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      
       const response = await fetch(`${API_BASE_URL}/api/identify`, {
         method: 'POST',
         headers,
-        body: formData
+        body: formData,
+        signal: controller.signal
       });
       
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        console.error('❌ Response not OK:', response.status, response.statusText);
+      }
+      
       const data = await response.json();
+      console.log('✅ Response received:', data);
       
       if (response.status === 403 && data.requiresLogin) {
         setShowAuthModal(true);
@@ -671,9 +688,14 @@ export default function HumApp() {
         setMatchData(null);
       }
     } catch (err) {
-      console.error('Error identifying song:', err);
-      setError('Failed to connect to server. Please try again.');
-    } finally {
+      console.error('❌ Error identifying song:', err);
+      if (err.name === 'AbortError') {
+        setError('Request timed out. The server may be slow to respond. Please try again.');
+      } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+        setError(`Cannot connect to server. Please check your internet connection. API URL: ${API_BASE_URL}`);
+      } else {
+        setError(`Failed to identify song: ${err.message}. Please try again.`);
+      }
       setIsProcessing(false);
     }
   };
@@ -698,13 +720,26 @@ export default function HumApp() {
         headers['Authorization'] = `Bearer ${token}`;
       }
       
+      console.log('🔍 Sending lyrics search to:', `${API_BASE_URL}/api/search-lyrics`);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      
       const response = await fetch(`${API_BASE_URL}/api/search-lyrics`, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ lyrics: lyricsInput })
+        body: JSON.stringify({ lyrics: lyricsInput }),
+        signal: controller.signal
       });
       
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        console.error('❌ Response not OK:', response.status, response.statusText);
+      }
+      
       const data = await response.json();
+      console.log('✅ Lyrics search response:', data);
       
       if (response.status === 403 && data.requiresLogin) {
         setShowAuthModal(true);
@@ -789,8 +824,14 @@ export default function HumApp() {
         setMatchData(null);
       }
     } catch (err) {
-      console.error('Error searching lyrics:', err);
-      setError('Failed to search. Please try again.');
+      console.error('❌ Error searching lyrics:', err);
+      if (err.name === 'AbortError') {
+        setError('Request timed out. The server may be slow to respond. Please try again.');
+      } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+        setError(`Cannot connect to server. Please check your internet connection. API URL: ${API_BASE_URL}`);
+      } else {
+        setError(`Failed to search: ${err.message}. Please try again.`);
+      }
     } finally {
       setIsSearchingLyrics(false);
     }
