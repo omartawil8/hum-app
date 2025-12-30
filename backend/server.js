@@ -1600,9 +1600,18 @@ app.post('/api/general-feedback', async (req, res) => {
       // User needs to set up app password in Gmail settings
       const transporter = nodemailer.createTransport({
         service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
         auth: {
           user: process.env.FEEDBACK_EMAIL_USER,
           pass: process.env.FEEDBACK_EMAIL_PASSWORD
+        },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 10000,
+        tls: {
+          rejectUnauthorized: false
         }
       });
 
