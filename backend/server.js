@@ -286,7 +286,7 @@ async function sendWelcomeEmail(email, remainingSearches) {
               <p>you've got <strong>${remainingSearches} free searches</strong> to start with. hum a tune, type some lyrics, or just sing whatever's stuck in your head - we'll figure it out.</p>
               
               <div class="highlight-box">
-                <p>💡 tip: the clearer you hum, the better the results. but honestly, even our messy hums work pretty well.</p>
+                <p>💡 tip: hum as clearly as you can. we're still improving, but so far we're doing pretty well!</p>
               </div>
               
               <p>if you run into any issues or have ideas, just hit reply. we actually read these emails.</p>
@@ -298,7 +298,7 @@ async function sendWelcomeEmail(email, remainingSearches) {
             
             <div class="signature">
               <p class="name">omar</p>
-              <p>co-founder, hüm</p>
+              <p>founder, hüm</p>
             </div>
           </div>
         </body>
@@ -310,7 +310,7 @@ async function sendWelcomeEmail(email, remainingSearches) {
       to: email,
       subject: 'hey, welcome to hüm 👋',
       html: welcomeHtml,
-      text: `hey 👋\n\nthanks for signing up! you've got ${remainingSearches} free searches to start with.\n\nhum a tune, type some lyrics, or just sing whatever's stuck in your head - we'll figure it out.\n\nstart at http://localhost:5173\n\n- omar, co-founder`
+      text: `hey 👋\n\nthanks for signing up! you've got ${remainingSearches} free searches to start with.\n\nhum a tune, type some lyrics, or just sing whatever's stuck in your head - we'll figure it out.\n\nstart at http://localhost:5173\n\n- omar, founder`
     };
 
     await transporter.sendMail(mailOptions);
