@@ -931,7 +931,9 @@ export default function HumApp() {
       setFeedbackSuccess(false);
 
       const formData = new FormData();
-      formData.append('audio', audioBlob, 'recording.webm');
+      const extension = audioBlob.type.includes('mp4') ? 'mp4' : 
+                       audioBlob.type.includes('aac') ? 'aac' : 'webm';
+      formData.append('audio', audioBlob, `recording.${extension}`);
       formData.append('songId', correctSong.id);
       formData.append('title', correctSong.title);
       formData.append('artist', correctSong.artist);
