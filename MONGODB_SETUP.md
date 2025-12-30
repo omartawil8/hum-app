@@ -38,7 +38,21 @@
 3. Choose "Connect your application"
 4. Copy the connection string (looks like: `mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority`)
 5. Replace `<username>` and `<password>` with your database user credentials
-6. Add database name at the end: `...mongodb.net/hum-app?retryWrites=true&w=majority`
+6. **IMPORTANT**: If your password contains special characters, you MUST URL-encode them:
+   - `@` becomes `%40`
+   - `#` becomes `%23`
+   - `$` becomes `%24`
+   - `%` becomes `%25`
+   - `&` becomes `%26`
+   - `+` becomes `%2B`
+   - `/` becomes `%2F`
+   - `=` becomes `%3D`
+   - `?` becomes `%3F`
+   - `:` becomes `%3A`
+   - Space becomes `%20`
+   
+   Example: If your password is `P@ssw0rd#123`, it should be `P%40ssw0rd%23123` in the connection string
+7. Add database name at the end: `...mongodb.net/hum-app?retryWrites=true&w=majority`
 
 ## Step 6: Add to Render
 
