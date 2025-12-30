@@ -633,21 +633,28 @@ export default function HumApp() {
       
       clearTimeout(timeoutId);
       
-      if (!response.ok) {
-        console.error('❌ Response not OK:', response.status, response.statusText);
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error('❌ Failed to parse JSON response:', jsonError);
+        throw new Error(`Server error: ${response.status} ${response.statusText}`);
       }
       
-      const data = await response.json();
       console.log('✅ Response received:', data);
       
-      if (response.status === 403 && data.requiresLogin) {
-        setShowAuthModal(true);
-        setError('Please create an account or login to continue searching.');
-        setIsProcessing(false);
-        // Sync with backend - anonymous search was used
-        setAnonymousSearchCount(ANONYMOUS_SEARCH_LIMIT);
-        localStorage.setItem('hum-anonymous-search-count', ANONYMOUS_SEARCH_LIMIT.toString());
-        return;
+      if (!response.ok) {
+        console.error('❌ Response not OK:', response.status, response.statusText, data);
+        // Handle error responses
+        if (response.status === 403 && data.requiresLogin) {
+          setShowAuthModal(true);
+          setError('Please create an account or login to continue searching.');
+          setIsProcessing(false);
+          setAnonymousSearchCount(ANONYMOUS_SEARCH_LIMIT);
+          localStorage.setItem('hum-anonymous-search-count', ANONYMOUS_SEARCH_LIMIT.toString());
+          return;
+        }
+        throw new Error(data.error || data.message || `Server error: ${response.status}`);
       }
       
       if (data.success && data.songs && data.songs.length > 0) {
@@ -734,21 +741,27 @@ export default function HumApp() {
       
       clearTimeout(timeoutId);
       
-      if (!response.ok) {
-        console.error('❌ Response not OK:', response.status, response.statusText);
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error('❌ Failed to parse JSON response:', jsonError);
+        throw new Error(`Server error: ${response.status} ${response.statusText}`);
       }
       
-      const data = await response.json();
       console.log('✅ Lyrics search response:', data);
       
-      if (response.status === 403 && data.requiresLogin) {
-        setShowAuthModal(true);
-        setError('Please create an account or login to continue searching.');
-        setIsSearchingLyrics(false);
-        // Sync with backend - anonymous search was used
-        setAnonymousSearchCount(ANONYMOUS_SEARCH_LIMIT);
-        localStorage.setItem('hum-anonymous-search-count', ANONYMOUS_SEARCH_LIMIT.toString());
-        return;
+      if (!response.ok) {
+        console.error('❌ Response not OK:', response.status, response.statusText, data);
+        if (response.status === 403 && data.requiresLogin) {
+          setShowAuthModal(true);
+          setError('Please create an account or login to continue searching.');
+          setIsSearchingLyrics(false);
+          setAnonymousSearchCount(ANONYMOUS_SEARCH_LIMIT);
+          localStorage.setItem('hum-anonymous-search-count', ANONYMOUS_SEARCH_LIMIT.toString());
+          return;
+        }
+        throw new Error(data.error || data.message || `Server error: ${response.status}`);
       }
       
       if (data.success && data.songs && data.songs.length > 0) {
