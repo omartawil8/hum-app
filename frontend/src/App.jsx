@@ -600,11 +600,37 @@ export default function HumApp() {
       }
       
       console.log('🎤 Creating MediaRecorder with mimeType:', mimeType);
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: mimeType
-      });
+      console.log('   Stream active:', stream.active);
+      console.log('   Audio tracks:', stream.getAudioTracks().length);
+      
+      // Check if MediaRecorder is supported
+      if (!window.MediaRecorder) {
+        throw new Error('MediaRecorder is not supported in this browser. Please use a modern browser.');
+      }
+      
+      let mediaRecorder;
+      try {
+        mediaRecorder = new MediaRecorder(stream, {
+          mimeType: mimeType
+        });
+      } catch (recorderError) {
+        console.error('❌ Failed to create MediaRecorder:', recorderError);
+        // Try without mimeType specification
+        console.log('   Trying without mimeType specification...');
+        mediaRecorder = new MediaRecorder(stream);
+        console.log('   Using default mimeType:', mediaRecorder.mimeType);
+      }
+      
+      mediaRecorder.onerror = (event) => {
+        console.error('❌ MediaRecorder error:', event.error);
+        setError(`Recording error: ${event.error?.message || 'Unknown error'}. Please try again.`);
+        setIsListening(false);
+        setIsProcessing(false);
+        stream.getTracks().forEach(track => track.stop());
+      };
       
       mediaRecorder.ondataavailable = (event) => {
+        console.log('📦 Data available:', event.data.size, 'bytes');
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
         }
@@ -619,14 +645,21 @@ export default function HumApp() {
         
         console.log('🎤 Recording stopped');
         console.log('   Audio chunks:', audioChunksRef.current.length);
+        console.log('   Total chunks size:', audioChunksRef.current.reduce((sum, chunk) => sum + chunk.size, 0), 'bytes');
         console.log('   Blob size:', blob.size, 'bytes');
         console.log('   Blob type:', blob.type);
+        console.log('   MediaRecorder state:', mediaRecorder.state);
         
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach(track => {
+          track.stop();
+          console.log('   Track stopped:', track.kind, track.readyState);
+        });
         
         if (blob.size < 100) {
           console.error('❌ Audio blob too small:', blob.size, 'bytes');
-          setError('Recording failed. Please try again and make sure to hum or sing.');
+          console.error('   Chunks received:', audioChunksRef.current.length);
+          console.error('   MediaRecorder mimeType:', mediaRecorder.mimeType);
+          setError('Recording failed. The microphone may not be working. Please check permissions and try again.');
           setIsProcessing(false);
           return;
         }
@@ -636,16 +669,48 @@ export default function HumApp() {
       };
       
       mediaRecorderRef.current = mediaRecorder;
-      mediaRecorder.start(100);
+      
+      // Store interval ID for cleanup
+      let dataInterval = null;
+      
+      // For iOS, try starting without timeslice first, then request data
+      if (isIOS) {
+        console.log('📱 iOS: Starting MediaRecorder without timeslice');
+        mediaRecorder.start();
+        // Request data periodically for iOS
+        dataInterval = setInterval(() => {
+          if (mediaRecorder.state === 'recording') {
+            try {
+              mediaRecorder.requestData();
+            } catch (e) {
+              console.warn('Could not request data:', e);
+            }
+          } else {
+            if (dataInterval) clearInterval(dataInterval);
+          }
+        }, 500);
+        // Store interval on recorder for cleanup
+        mediaRecorder._dataInterval = dataInterval;
+      } else {
+        // For other platforms, use timeslice
+        mediaRecorder.start(100);
+      }
       setIsListening(true);
       setError(null);
       
-      setTimeout(() => {
+      const stopTimeout = setTimeout(() => {
         if (mediaRecorder.state === 'recording') {
           mediaRecorder.stop();
           setIsListening(false);
         }
+        // Clean up interval
+        if (dataInterval) {
+          clearInterval(dataInterval);
+        }
       }, 15000);
+      
+      // Store timeout for cleanup
+      mediaRecorderRef.current._stopTimeout = stopTimeout;
       
     } catch (err) {
       console.error('Error accessing microphone:', err);
