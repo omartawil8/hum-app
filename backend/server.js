@@ -58,20 +58,38 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 
 // Initialize users file if it doesn't exist
 if (!fs.existsSync(USERS_FILE)) {
+  console.log('📝 Creating new users.json file');
   fs.writeFileSync(USERS_FILE, JSON.stringify({ users: [], anonymousSearches: {} }, null, 2));
+} else {
+  const existingData = fs.readFileSync(USERS_FILE, 'utf8');
+  const parsed = JSON.parse(existingData);
+  console.log(`📊 Loaded users.json: ${parsed.users.length} users, ${Object.keys(parsed.anonymousSearches).length} anonymous IPs`);
 }
 
 function getUsersData() {
   try {
+    if (!fs.existsSync(USERS_FILE)) {
+      console.warn('⚠️  users.json does not exist! Creating new file...');
+      const initialData = { users: [], anonymousSearches: {} };
+      fs.writeFileSync(USERS_FILE, JSON.stringify(initialData, null, 2));
+      return initialData;
+    }
     const data = fs.readFileSync(USERS_FILE, 'utf8');
     return JSON.parse(data);
   } catch (error) {
+    console.error('❌ Error reading users.json:', error);
     return { users: [], anonymousSearches: {} };
   }
 }
 
 function saveUsersData(data) {
-  fs.writeFileSync(USERS_FILE, JSON.stringify(data, null, 2));
+  try {
+    fs.writeFileSync(USERS_FILE, JSON.stringify(data, null, 2));
+    console.log(`💾 Saved users.json: ${data.users.length} users`);
+  } catch (error) {
+    console.error('❌ Error saving users.json:', error);
+    throw error;
+  }
 }
 
 // Middleware to verify JWT token
@@ -295,7 +313,12 @@ async function sendWelcomeEmail(email, remainingSearches) {
     await transporter.sendMail(mailOptions);
     console.log(`   ✅ Welcome email sent to ${email}`);
   } catch (emailError) {
-    console.log(`   ⚠️  Failed to send welcome email: ${emailError.message}`);
+    console.error(`   ❌ Failed to send welcome email to ${email}:`, emailError.message);
+    console.error(`   Error details:`, emailError);
+    // Check if it's an authentication error
+    if (emailError.code === 'EAUTH' || emailError.message.includes('Invalid login')) {
+      console.error(`   ⚠️  Email authentication failed. Check FEEDBACK_EMAIL_USER and FEEDBACK_EMAIL_PASSWORD`);
+    }
     // Don't fail the signup if email fails
   }
 }
@@ -380,10 +403,14 @@ app.post('/api/auth/login', async (req, res) => {
 
     const data = getUsersData();
     const user = data.users.find(u => u.email === email.toLowerCase());
-
+    
     if (!user) {
+      console.log(`⚠️  Login attempt for non-existent user: ${email}`);
+      console.log(`   Total users in database: ${data.users.length}`);
       return res.status(401).json({ error: 'Invalid email or password' });
     }
+    
+    console.log(`🔐 Login attempt for user: ${email} (found in database)`);
 
     // Verify password
     const validPassword = await bcrypt.compare(password, user.password);
