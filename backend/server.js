@@ -1232,7 +1232,8 @@ app.post('/api/identify', upload.single('audio'), authenticateToken, checkSearch
       }
     }
     
-    saveTrainingData(req.file.buffer, acrResult);
+    // Training data saving disabled
+    // saveTrainingData(req.file.buffer, acrResult);
     
     // Process ACRCloud results
     if (acrResult.status.code === 0 && (acrResult.metadata?.music?.length > 0 || acrResult.metadata?.humming?.length > 0)) {
