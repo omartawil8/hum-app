@@ -724,6 +724,7 @@ export default function HumApp() {
       if (data.success && data.songs && data.songs.length > 0) {
         setMatchData(data.songs);
         setHasResult(true);
+        setIsProcessing(false); // Clear loading state immediately
         setError(null);
         
         // Update search counts
@@ -856,6 +857,7 @@ export default function HumApp() {
         }
         
         setHasResult(true);
+        setIsSearchingLyrics(false); // Clear loading state immediately
         setLyricsInput('');
         
         // Update search counts
@@ -899,6 +901,7 @@ export default function HumApp() {
         setError(errorMessage + suggestion);
         setHasResult(false);
         setMatchData(null);
+        setIsSearchingLyrics(false); // Clear loading state on error too
       }
     } catch (err) {
       console.error('❌ Error searching lyrics:', err);
@@ -2216,8 +2219,8 @@ export default function HumApp() {
               </div>
             )}
 
-            {/* Processing State */}
-            {(isProcessing || isSearchingLyrics) && (
+            {/* Processing State - only show if we don't have results yet */}
+            {(isProcessing || isSearchingLyrics) && !hasResult && (
               <div className="flex flex-col items-center justify-center min-h-[70vh]">
                 <div className="flex gap-3 mb-8">
                   <div 
