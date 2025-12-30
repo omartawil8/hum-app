@@ -567,8 +567,41 @@ export default function HumApp() {
       });
       
       audioChunksRef.current = [];
+      
+      // Detect supported mimeType (iOS Safari doesn't support webm)
+      let mimeType = 'audio/webm';
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      
+      if (isIOS) {
+        // Try to find a supported mimeType for iOS
+        const possibleTypes = [
+          'audio/mp4',
+          'audio/aac',
+          'audio/mpeg',
+          'audio/webm'
+        ];
+        
+        for (const type of possibleTypes) {
+          if (MediaRecorder.isTypeSupported(type)) {
+            mimeType = type;
+            console.log('📱 iOS detected, using mimeType:', mimeType);
+            break;
+          }
+        }
+      } else {
+        // For non-iOS, prefer webm but fallback to others
+        if (!MediaRecorder.isTypeSupported('audio/webm')) {
+          if (MediaRecorder.isTypeSupported('audio/mp4')) {
+            mimeType = 'audio/mp4';
+          } else if (MediaRecorder.isTypeSupported('audio/aac')) {
+            mimeType = 'audio/aac';
+          }
+        }
+      }
+      
+      console.log('🎤 Creating MediaRecorder with mimeType:', mimeType);
       const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm'
+        mimeType: mimeType
       });
       
       mediaRecorder.ondataavailable = (event) => {
@@ -578,11 +611,26 @@ export default function HumApp() {
       };
       
       mediaRecorder.onstop = async () => {
+        // Use the same mimeType that was used for recording
+        const blobType = mediaRecorder.mimeType || 'audio/webm';
         const blob = new Blob(audioChunksRef.current, { 
-          type: 'audio/webm' 
+          type: blobType
         });
         
+        console.log('🎤 Recording stopped');
+        console.log('   Audio chunks:', audioChunksRef.current.length);
+        console.log('   Blob size:', blob.size, 'bytes');
+        console.log('   Blob type:', blob.type);
+        
         stream.getTracks().forEach(track => track.stop());
+        
+        if (blob.size < 100) {
+          console.error('❌ Audio blob too small:', blob.size, 'bytes');
+          setError('Recording failed. Please try again and make sure to hum or sing.');
+          setIsProcessing(false);
+          return;
+        }
+        
         setAudioBlob(blob);
         await identifySong(blob);
       };
@@ -610,8 +658,21 @@ export default function HumApp() {
     setIsProcessing(true);
     setError(null);
     try {
+      console.log('🎤 identifySong called');
+      console.log('   Blob size:', audioBlob.size, 'bytes');
+      console.log('   Blob type:', audioBlob.type);
+      
+      if (!audioBlob || audioBlob.size < 100) {
+        throw new Error('Invalid audio recording. Please try again.');
+      }
+      
       const formData = new FormData();
       formData.append('audio', audioBlob, 'recording.webm');
+      
+      // Verify FormData
+      console.log('   FormData created, checking audio field...');
+      const audioField = formData.get('audio');
+      console.log('   Audio field in FormData:', audioField ? `${audioField.size} bytes` : 'MISSING');
       
       const token = localStorage.getItem('hum-auth-token');
       const headers = {};
