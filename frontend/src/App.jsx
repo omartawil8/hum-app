@@ -1624,7 +1624,7 @@ export default function HumApp() {
             <div className="flex flex-col items-center gap-0.5">
               <span className="text-sm text-white/70 group-hover:hidden transition-opacity">
                 {searchCount >= FREE_SEARCH_LIMIT
-                  ? "no more searches"
+                  ? "no more searches :("
                   : `${FREE_SEARCH_LIMIT - searchCount}/${FREE_SEARCH_LIMIT} free searches left`
                 }
               </span>
