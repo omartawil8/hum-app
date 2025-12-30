@@ -113,12 +113,19 @@ If you want everything on Render:
 2. Connect same GitHub repo
 3. Configure:
    - **Name**: `hum-frontend`
-   - **Root Directory**: `frontend`
-   - **Build Command**: `npm install && npm run build`
-   - **Publish Directory**: `frontend/dist`
+   - **Root Directory**: `frontend` ⚠️ **This makes Render run commands FROM the frontend directory**
+   - **Build Command**: `npm install && npm run build` (NO `cd frontend` - you're already there!)
+   - **Publish Directory**: `dist` (NOT `frontend/dist` - you're already in frontend directory)
 4. Add environment variable:
    - `VITE_API_URL` = `https://hum-backend.onrender.com`
 5. Deploy!
+
+**If you get "cd frontend" error:**
+   - The error means you used `cd frontend` in the build command
+   - **Fix**: Remove `cd frontend &&` from Build Command
+   - Use: `npm install && npm run build`
+   - Keep Root Directory as `frontend`
+   - Keep Publish Directory as `dist`
 
 ## Render Free Tier Details
 

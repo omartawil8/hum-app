@@ -1,0 +1,7 @@
+crepe==0.0.13
+tensorflow==2.13.0
+librosa==0.10.1
+numpy==1.24.3
+dtaidistance==2.3.10
+flask==3.0.0
+scipy==1.11.3

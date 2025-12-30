@@ -9,7 +9,12 @@ const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 require('dotenv').config();
+
+// Import models
+const User = require('./models/User');
+const AnonymousSearch = require('./models/AnonymousSearch');
 
 const app = express();
 // Configure multer for larger audio files (50MB limit)
@@ -53,43 +58,11 @@ if (process.env.STRIPE_SECRET_KEY) {
 // =========================
 // AUTHENTICATION & USER STORAGE
 // =========================
-const USERS_FILE = path.join(__dirname, 'users.json');
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
-// Initialize users file if it doesn't exist
-if (!fs.existsSync(USERS_FILE)) {
-  console.log('📝 Creating new users.json file');
-  fs.writeFileSync(USERS_FILE, JSON.stringify({ users: [], anonymousSearches: {} }, null, 2));
-} else {
-  const existingData = fs.readFileSync(USERS_FILE, 'utf8');
-  const parsed = JSON.parse(existingData);
-  console.log(`📊 Loaded users.json: ${parsed.users.length} users, ${Object.keys(parsed.anonymousSearches).length} anonymous IPs`);
-}
-
-function getUsersData() {
-  try {
-    if (!fs.existsSync(USERS_FILE)) {
-      console.warn('⚠️  users.json does not exist! Creating new file...');
-      const initialData = { users: [], anonymousSearches: {} };
-      fs.writeFileSync(USERS_FILE, JSON.stringify(initialData, null, 2));
-      return initialData;
-    }
-    const data = fs.readFileSync(USERS_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('❌ Error reading users.json:', error);
-    return { users: [], anonymousSearches: {} };
-  }
-}
-
-function saveUsersData(data) {
-  try {
-    fs.writeFileSync(USERS_FILE, JSON.stringify(data, null, 2));
-    console.log(`💾 Saved users.json: ${data.users.length} users`);
-  } catch (error) {
-    console.error('❌ Error saving users.json:', error);
-    throw error;
-  }
+// Check if MongoDB is connected
+function isMongoConnected() {
+  return mongoose.connection.readyState === 1;
 }
 
 // Middleware to verify JWT token
@@ -127,36 +100,66 @@ function getAnonymousId(req) {
 }
 
 // Check search limits
-function checkSearchLimit(req, res, next) {
-  const data = getUsersData();
+async function checkSearchLimit(req, res, next) {
   const ANONYMOUS_LIMIT = 1; // 1 free search without login
   const FREE_SEARCH_LIMIT = 5; // Total free searches (1 anonymous + 4 authenticated)
 
+  if (!isMongoConnected()) {
+    // Fallback: allow request if MongoDB not connected (will fail gracefully)
+    console.warn('⚠️  MongoDB not connected - allowing request (may fail)');
+    return next();
+  }
+
   if (req.user) {
     // Authenticated user - check their search count (total of 5 free searches)
-    const user = data.users.find(u => u.id === req.user.userId);
-    if (user) {
-      const searchCount = user.searchCount || 0;
-      if (searchCount >= FREE_SEARCH_LIMIT) {
-        return res.status(403).json({
-          success: false,
-          error: 'Search limit reached',
-          message: 'You have reached your free search limit. Please upgrade to continue.',
-          requiresUpgrade: true
-        });
+    try {
+      const user = await User.findById(req.user.userId);
+      if (user) {
+        const searchCount = user.searchCount || 0;
+        if (user.tier === 'free' && searchCount >= FREE_SEARCH_LIMIT) {
+          return res.status(403).json({
+            success: false,
+            error: 'Search limit reached',
+            message: 'You have reached your free search limit. Please upgrade to continue.',
+            requiresUpgrade: true
+          });
+        }
+        // Avid tier: 100 searches per month (we'll implement monthly reset later)
+        if (user.tier === 'avid' && searchCount >= 100) {
+          return res.status(403).json({
+            success: false,
+            error: 'Search limit reached',
+            message: 'You have reached your monthly search limit. Please upgrade to unlimited.',
+            requiresUpgrade: true
+          });
+        }
+        // Unlimited tier has no limit
       }
+    } catch (error) {
+      console.error('Error checking user search limit:', error);
+      return res.status(500).json({ error: 'Failed to check search limit' });
     }
   } else {
     // Anonymous user - check anonymous search count
-    const anonymousId = getAnonymousId(req);
-    const anonymousCount = data.anonymousSearches[anonymousId] || 0;
-    if (anonymousCount >= ANONYMOUS_LIMIT) {
-      return res.status(403).json({
-        success: false,
-        error: 'Login required',
-        message: 'You have used your free search. Please create an account or login to continue.',
-        requiresLogin: true
-      });
+    try {
+      const anonymousId = getAnonymousId(req);
+      let anonymousSearch = await AnonymousSearch.findOne({ ipAddress: anonymousId });
+      
+      if (!anonymousSearch) {
+        anonymousSearch = new AnonymousSearch({ ipAddress: anonymousId, searchCount: 0 });
+      }
+      
+      if (anonymousSearch.searchCount >= ANONYMOUS_LIMIT) {
+        return res.status(403).json({
+          success: false,
+          error: 'Login required',
+          message: 'You have used your free search. Please create an account or login to continue.',
+          requiresLogin: true
+        });
+      }
+    } catch (error) {
+      console.error('Error checking anonymous search limit:', error);
+      // Allow the request to proceed if database check fails
     }
   }
   next();
@@ -336,12 +339,19 @@ app.post('/api/auth/signup', async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
-    const data = getUsersData();
+    if (!isMongoConnected()) {
+      return res.status(503).json({ error: 'Database not available. Please try again later.' });
+    }
     
     // Check if user already exists
-    if (data.users.find(u => u.email === email.toLowerCase())) {
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      console.log(`⚠️  Signup attempt for existing user: ${email}`);
       return res.status(400).json({ error: 'User already exists' });
     }
+    
+    const userCount = await User.countDocuments();
+    console.log(`📝 Creating new user: ${email} (${userCount} existing users)`);
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -352,21 +362,19 @@ app.post('/api/auth/signup', async (req, res) => {
     const remainingSearches = 5 - initialSearchCount;
 
     // Create new user - always start on free tier
-    const newUser = {
-      id: crypto.randomUUID(),
+    const newUser = new User({
       email: email.toLowerCase(),
       password: hashedPassword,
       searchCount: initialSearchCount,
-      tier: 'free', // Always start on free tier
-      createdAt: new Date().toISOString()
-    };
+      tier: 'free' // Always start on free tier
+    });
 
-    data.users.push(newUser);
-    saveUsersData(data);
+    await newUser.save();
+    console.log(`✅ User created: ${newUser._id}`);
 
     // Generate JWT token
     const token = jwt.sign(
-      { userId: newUser.id, email: newUser.email },
+      { userId: newUser._id.toString(), email: newUser.email },
       JWT_SECRET,
       { expiresIn: '30d' }
     );
@@ -380,7 +388,7 @@ app.post('/api/auth/signup', async (req, res) => {
       success: true,
       token,
       user: {
-        id: newUser.id,
+        id: newUser._id.toString(),
         email: newUser.email,
         searchCount: newUser.searchCount,
         tier: newUser.tier
@@ -401,12 +409,16 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const data = getUsersData();
-    const user = data.users.find(u => u.email === email.toLowerCase());
+    if (!isMongoConnected()) {
+      return res.status(503).json({ error: 'Database not available. Please try again later.' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
     
     if (!user) {
+      const userCount = await User.countDocuments();
       console.log(`⚠️  Login attempt for non-existent user: ${email}`);
-      console.log(`   Total users in database: ${data.users.length}`);
+      console.log(`   Total users in database: ${userCount}`);
       return res.status(401).json({ error: 'Invalid email or password' });
     }
     
@@ -420,7 +432,7 @@ app.post('/api/auth/login', async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: user._id.toString(), email: user.email },
       JWT_SECRET,
       { expiresIn: '30d' }
     );
@@ -429,7 +441,7 @@ app.post('/api/auth/login', async (req, res) => {
       success: true,
       token,
       user: {
-        id: user.id,
+        id: user._id.toString(),
         email: user.email,
         searchCount: user.searchCount || 0,
         tier: user.tier || 'free' // Default to free if not set
@@ -442,40 +454,65 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 // Check auth status endpoint
-app.get('/api/auth/me', authenticateToken, (req, res) => {
+app.get('/api/auth/me', authenticateToken, async (req, res) => {
   if (!req.user) {
     return res.json({ authenticated: false });
   }
 
-  const data = getUsersData();
-  const user = data.users.find(u => u.id === req.user.userId);
-
-  if (!user) {
+  if (!isMongoConnected()) {
     return res.json({ authenticated: false });
   }
 
-  res.json({
-    authenticated: true,
-    user: {
-      id: user.id,
-      email: user.email,
-      searchCount: user.searchCount || 0,
-      tier: user.tier || 'free' // Default to free if not set
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.json({ authenticated: false });
     }
-  });
+
+    res.json({
+      authenticated: true,
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        searchCount: user.searchCount || 0,
+        tier: user.tier || 'free' // Default to free if not set
+      }
+    });
+  } catch (error) {
+    console.error('Error checking auth status:', error);
+    res.json({ authenticated: false });
+  }
 });
 
 // Check anonymous search status endpoint
-app.get('/api/auth/anonymous-status', (req, res) => {
-  const data = getUsersData();
-  const anonymousId = getAnonymousId(req);
-  const anonymousCount = data.anonymousSearches[anonymousId] || 0;
+app.get('/api/auth/anonymous-status', async (req, res) => {
   const ANONYMOUS_LIMIT = 1;
   
-  res.json({
-    hasAnonymousSearch: anonymousCount < ANONYMOUS_LIMIT,
-    anonymousCount: anonymousCount
-  });
+  if (!isMongoConnected()) {
+    // Fallback: assume no anonymous search used if DB not available
+    return res.json({
+      hasAnonymousSearch: true,
+      anonymousCount: 0
+    });
+  }
+
+  try {
+    const anonymousId = getAnonymousId(req);
+    let anonymousSearch = await AnonymousSearch.findOne({ ipAddress: anonymousId });
+    
+    const anonymousCount = anonymousSearch ? anonymousSearch.searchCount : 0;
+    
+    res.json({
+      hasAnonymousSearch: anonymousCount < ANONYMOUS_LIMIT,
+      anonymousCount: anonymousCount
+    });
+  } catch (error) {
+    console.error('Error checking anonymous status:', error);
+    res.json({
+      hasAnonymousSearch: true,
+      anonymousCount: 0
+    });
+  }
 });
 
 // =========================
@@ -1235,17 +1272,23 @@ app.post('/api/search-lyrics', authenticateToken, checkSearchLimit, async (req, 
     console.log(`   Top match: "${topMatch.title}" by ${topMatch.artist} (${source}, Confidence: ${topMatch.confidence}%)`);
     
     // Increment search count
-    const data = getUsersData();
-    if (req.user) {
-      const user = data.users.find(u => u.id === req.user.userId);
-      if (user) {
-        user.searchCount = (user.searchCount || 0) + 1;
-        saveUsersData(data);
+    if (isMongoConnected()) {
+      try {
+        if (req.user) {
+          await User.findByIdAndUpdate(req.user.userId, {
+            $inc: { searchCount: 1 }
+          });
+        } else {
+          const anonymousId = getAnonymousId(req);
+          await AnonymousSearch.findOneAndUpdate(
+            { ipAddress: anonymousId },
+            { $inc: { searchCount: 1 }, $set: { lastSearchAt: new Date() } },
+            { upsert: true, new: true }
+          );
+        }
+      } catch (error) {
+        console.error('Error updating search count:', error);
       }
-    } else {
-      const anonymousId = getAnonymousId(req);
-      data.anonymousSearches[anonymousId] = (data.anonymousSearches[anonymousId] || 0) + 1;
-      saveUsersData(data);
     }
     
     return res.json({
@@ -1440,17 +1483,23 @@ app.post('/api/identify', upload.single('audio'), authenticateToken, checkSearch
       }));
       
       // Increment search count
-      const data = getUsersData();
-      if (req.user) {
-        const user = data.users.find(u => u.id === req.user.userId);
-        if (user) {
-          user.searchCount = (user.searchCount || 0) + 1;
-          saveUsersData(data);
+      if (isMongoConnected()) {
+        try {
+          if (req.user) {
+            await User.findByIdAndUpdate(req.user.userId, {
+              $inc: { searchCount: 1 }
+            });
+          } else {
+            const anonymousId = getAnonymousId(req);
+            await AnonymousSearch.findOneAndUpdate(
+              { ipAddress: anonymousId },
+              { $inc: { searchCount: 1 }, $set: { lastSearchAt: new Date() } },
+              { upsert: true, new: true }
+            );
+          }
+        } catch (error) {
+          console.error('Error updating search count:', error);
         }
-      } else {
-        const anonymousId = getAnonymousId(req);
-        data.anonymousSearches[anonymousId] = (data.anonymousSearches[anonymousId] || 0) + 1;
-        saveUsersData(data);
       }
       
       const response = {
@@ -1622,8 +1671,12 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
     };
 
     const selectedPlan = planDetails[plan];
-    const data = getUsersData();
-    const user = data.users.find(u => u.id === req.user.userId);
+    
+    if (!isMongoConnected()) {
+      return res.status(503).json({ error: 'Database not available' });
+    }
+    
+    const user = await User.findById(req.user.userId);
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -1650,10 +1703,10 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       mode: 'subscription',
       success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}?payment=canceled`,
-      client_reference_id: user.id,
+      client_reference_id: user._id.toString(),
       customer_email: user.email,
       metadata: {
-        userId: user.id,
+        userId: user._id.toString(),
         plan: plan,
       },
     });
@@ -1700,30 +1753,34 @@ app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), asy
     const userId = session.metadata?.userId;
     const plan = session.metadata?.plan;
 
-    if (userId && plan) {
-      const data = getUsersData();
-      const user = data.users.find(u => u.id === userId);
-      
-      if (user) {
-        user.tier = plan;
-        user.searchCount = 0; // Reset search count for new subscription
-        user.subscriptionId = session.subscription;
-        user.subscriptionStatus = 'active';
-        saveUsersData(data);
-        console.log(`✅ User ${user.email} upgraded to ${plan} tier`);
+    if (userId && plan && isMongoConnected()) {
+      try {
+        const user = await User.findById(userId);
+        if (user) {
+          user.tier = plan;
+          user.searchCount = 0; // Reset search count for new subscription
+          user.stripeSubscriptionId = session.subscription;
+          await user.save();
+          console.log(`✅ User ${user.email} upgraded to ${plan} tier`);
+        }
+      } catch (error) {
+        console.error('Error updating user tier:', error);
       }
     }
   } else if (event.type === 'customer.subscription.deleted') {
     const subscription = event.data.object;
-    const data = getUsersData();
-    const user = data.users.find(u => u.subscriptionId === subscription.id);
-    
-    if (user) {
-      user.tier = 'free';
-      user.subscriptionId = null;
-      user.subscriptionStatus = 'canceled';
-      saveUsersData(data);
-      console.log(`⚠️ User ${user.email} subscription canceled, downgraded to free`);
+    if (isMongoConnected()) {
+      try {
+        const user = await User.findOne({ stripeSubscriptionId: subscription.id });
+        if (user) {
+          user.tier = 'free';
+          user.stripeSubscriptionId = null;
+          await user.save();
+          console.log(`⚠️ User ${user.email} subscription canceled, downgraded to free`);
+        }
+      } catch (error) {
+        console.error('Error downgrading user:', error);
+      }
     }
   }
 
@@ -1757,8 +1814,12 @@ app.post('/api/payments/create-paypal-order', authenticateToken, async (req, res
     };
 
     const selectedPlan = planDetails[plan];
-    const data = getUsersData();
-    const user = data.users.find(u => u.id === req.user.userId);
+    
+    if (!isMongoConnected()) {
+      return res.status(503).json({ error: 'Database not available' });
+    }
+    
+    const user = await User.findById(req.user.userId);
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -1767,7 +1828,7 @@ app.post('/api/payments/create-paypal-order', authenticateToken, async (req, res
     // For now, return a simple redirect URL
     // In production, you'd integrate with PayPal SDK
     // This is a placeholder - you'll need to set up PayPal SDK
-    const paypalUrl = `https://www.paypal.com/checkoutnow?token=PLACEHOLDER&userId=${user.id}&plan=${plan}`;
+    const paypalUrl = `https://www.paypal.com/checkoutnow?token=PLACEHOLDER&userId=${user._id.toString()}&plan=${plan}`;
     
     res.json({
       success: true,
@@ -1802,25 +1863,31 @@ app.post('/api/payments/verify-payment', authenticateToken, async (req, res) => 
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     
     if (session.payment_status === 'paid' && session.metadata?.userId && session.metadata?.plan) {
-      const data = getUsersData();
-      const user = data.users.find(u => u.id === session.metadata.userId);
+      if (!isMongoConnected()) {
+        return res.status(503).json({ error: 'Database not available' });
+      }
       
-      if (user) {
-        user.tier = session.metadata.plan;
-        user.searchCount = 0;
-        user.subscriptionId = session.subscription;
-        user.subscriptionStatus = 'active';
-        saveUsersData(data);
-        
-        console.log(`✅ User ${user.email} upgraded to ${session.metadata.plan} tier`);
-        
-        res.json({
-          success: true,
-          message: 'Payment verified and account upgraded',
-          tier: user.tier
-        });
-      } else {
-        res.status(404).json({ error: 'User not found' });
+      try {
+        const user = await User.findById(session.metadata.userId);
+        if (user) {
+          user.tier = session.metadata.plan;
+          user.searchCount = 0;
+          user.stripeSubscriptionId = session.subscription;
+          await user.save();
+          
+          console.log(`✅ User ${user.email} upgraded to ${session.metadata.plan} tier`);
+          
+          res.json({
+            success: true,
+            message: 'Payment verified and account upgraded',
+            tier: user.tier
+          });
+        } else {
+          res.status(404).json({ error: 'User not found' });
+        }
+      } catch (error) {
+        console.error('Error verifying payment:', error);
+        res.status(500).json({ error: 'Failed to verify payment' });
       }
     } else {
       res.status(400).json({ error: 'Payment not completed or invalid session' });
@@ -1838,8 +1905,11 @@ app.get('/api/payments/status', authenticateToken, async (req, res) => {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    const data = getUsersData();
-    const user = data.users.find(u => u.id === req.user.userId);
+    if (!isMongoConnected()) {
+      return res.status(503).json({ error: 'Database not available' });
+    }
+    
+    const user = await User.findById(req.user.userId);
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -1847,8 +1917,8 @@ app.get('/api/payments/status', authenticateToken, async (req, res) => {
 
     res.json({
       tier: user.tier || 'free',
-      subscriptionStatus: user.subscriptionStatus || null,
-      hasActiveSubscription: user.subscriptionStatus === 'active'
+      subscriptionStatus: user.stripeSubscriptionId ? 'active' : null,
+      hasActiveSubscription: !!user.stripeSubscriptionId
     });
   } catch (error) {
     console.error('Payment status error:', error);
@@ -1865,8 +1935,11 @@ app.post('/api/admin/send-welcome-email', async (req, res) => {
       return res.status(400).json({ error: 'Email is required' });
     }
 
-    const data = getUsersData();
-    const user = data.users.find(u => u.email === email.toLowerCase());
+    if (!isMongoConnected()) {
+      return res.status(503).json({ error: 'Database not available' });
+    }
+    
+    const user = await User.findOne({ email: email.toLowerCase() });
     
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -1885,11 +1958,33 @@ app.post('/api/admin/send-welcome-email', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🎵 hüm backend running on port ${PORT}`);
-  console.log(`   🌐 Listening on 0.0.0.0 (all interfaces)`);
-  console.log(`   ✅ Lyrics search: Scrapingdog → Spotify (field search)`);
-  console.log(`   ✅ Humming: ACRCloud + Spotify enrichment`);
-  console.log(`   📡 CORS enabled for all origins`);
-});
+// Connect to MongoDB
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hum-app';
+
+mongoose.connect(MONGODB_URI)
+  .then(() => {
+    console.log('✅ Connected to MongoDB');
+    
+    // Start server after MongoDB connection
+    const PORT = process.env.PORT || 3001;
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🎵 hüm backend running on port ${PORT}`);
+      console.log(`   🌐 Listening on 0.0.0.0 (all interfaces)`);
+      console.log(`   ✅ Lyrics search: Scrapingdog → Spotify (field search)`);
+      console.log(`   ✅ Humming: ACRCloud + Spotify enrichment`);
+      console.log(`   📡 CORS enabled for all origins`);
+      console.log(`   💾 Using MongoDB for persistent storage`);
+    });
+  })
+  .catch((error) => {
+    console.error('❌ MongoDB connection error:', error);
+    console.error('   Make sure MONGODB_URI is set in environment variables');
+    console.error('   Falling back to file-based storage (users will be lost on restart)');
+    
+    // Fallback: start server anyway (will use file-based storage)
+    const PORT = process.env.PORT || 3001;
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🎵 hüm backend running on port ${PORT} (file-based storage - NOT PERSISTENT)`);
+      console.log(`   ⚠️  WARNING: Users will be lost on restart without MongoDB!`);
+    });
+  });
