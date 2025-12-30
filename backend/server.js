@@ -879,6 +879,12 @@ function combineWithSpotify(rankedMatches) {
 // ACRCLOUD IDENTIFICATION
 // =========================
 async function identifyAudio(audioBuffer) {
+  // Check if ACR Cloud credentials are configured
+  if (!process.env.ACR_ACCESS_KEY || !process.env.ACR_ACCESS_SECRET || !process.env.ACR_HOST) {
+    console.error('❌ ACR Cloud credentials not configured!');
+    throw new Error('ACR Cloud API credentials are missing. Please check environment variables.');
+  }
+
   const timestamp = Math.floor(Date.now() / 1000);
   const stringToSign = `POST\n/v1/identify\n${process.env.ACR_ACCESS_KEY}\naudio\n1\n${timestamp}`;
   
@@ -900,13 +906,31 @@ async function identifyAudio(audioBuffer) {
   formData.append('data_type', 'audio');
   formData.append('signature_version', '1');
 
-  const response = await axios.post(
-    `https://${process.env.ACR_HOST}/v1/identify`,
-    formData,
-    { headers: formData.getHeaders() }
-  );
+  console.log('   📡 Calling ACR Cloud API...');
+  console.log('   🔑 Access Key:', process.env.ACR_ACCESS_KEY ? 'Set' : 'MISSING');
+  console.log('   🔑 Access Secret:', process.env.ACR_ACCESS_SECRET ? 'Set' : 'MISSING');
+  console.log('   🌐 Host:', process.env.ACR_HOST || 'MISSING');
 
-  return response.data;
+  try {
+    const response = await axios.post(
+      `https://${process.env.ACR_HOST}/v1/identify`,
+      formData,
+      { 
+        headers: formData.getHeaders(),
+        timeout: 30000 // 30 second timeout
+      }
+    );
+
+    console.log('   ✅ ACR Cloud API responded');
+    return response.data;
+  } catch (error) {
+    console.error('   ❌ ACR Cloud API error:', error.message);
+    if (error.response) {
+      console.error('   Status:', error.response.status);
+      console.error('   Data:', error.response.data);
+    }
+    throw error;
+  }
 }
 
 // =========================
@@ -1229,9 +1253,19 @@ app.post('/api/identify', upload.single('audio'), authenticateToken, checkSearch
     console.log('🎤 Received audio file:', req.file.size, 'bytes');
     console.log('🔄 Running ACRCloud identification...');
     
-    const acrResult = await identifyAudio(req.file.buffer);
-    
-    console.log('📊 ACRCloud status:', acrResult.status?.code === 0 ? 'SUCCESS' : 'NO MATCH');
+    let acrResult;
+    try {
+      acrResult = await identifyAudio(req.file.buffer);
+      console.log('📊 ACRCloud status:', acrResult.status?.code === 0 ? 'SUCCESS' : 'NO MATCH');
+    } catch (acrError) {
+      console.error('❌ ACRCloud error:', acrError.message);
+      console.error('   Stack:', acrError.stack);
+      // Continue with empty result instead of crashing
+      acrResult = {
+        status: { code: -1, msg: 'ACRCloud API error' },
+        metadata: {}
+      };
+    }
     
     // Log ACRCloud's raw response structure for debugging
     if (acrResult.status.code === 0) {
