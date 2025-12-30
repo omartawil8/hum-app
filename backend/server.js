@@ -1205,7 +1205,8 @@ app.post('/api/search-lyrics', authenticateToken, checkSearchLimit, async (req, 
 // =========================
 // MAIN HYBRID ENDPOINT
 // =========================
-app.post('/api/identify', authenticateToken, checkSearchLimit, upload.single('audio'), async (req, res) => {
+// IMPORTANT: upload.single('audio') must come FIRST to parse the file before other middlewares
+app.post('/api/identify', upload.single('audio'), authenticateToken, checkSearchLimit, async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No audio file provided' });
