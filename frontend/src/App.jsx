@@ -226,7 +226,14 @@ export default function HumApp() {
           setSavedSongs(data.user.bookmarks);
         }
         if (data.user.recentSearches && data.user.recentSearches.length > 0) {
-          setRecentSearches(data.user.recentSearches);
+          // Transform database format to UI format
+          const transformedSearches = data.user.recentSearches.map(search => ({
+            song: search.result?.title || search.song || '',
+            artist: search.result?.artist || search.artist || '',
+            albumArt: search.result?.albumArt || search.albumArt || null,
+            timestamp: search.timestamp ? (typeof search.timestamp === 'string' ? new Date(search.timestamp).getTime() : search.timestamp) : Date.now()
+          }));
+          setRecentSearches(transformedSearches);
         }
       } else {
         localStorage.removeItem('hum-auth-token');
@@ -400,7 +407,14 @@ export default function HumApp() {
           setSavedSongs(data.user.bookmarks);
         }
         if (data.user.recentSearches && data.user.recentSearches.length > 0) {
-          setRecentSearches(data.user.recentSearches);
+          // Transform database format to UI format
+          const transformedSearches = data.user.recentSearches.map(search => ({
+            song: search.result?.title || search.song || '',
+            artist: search.result?.artist || search.artist || '',
+            albumArt: search.result?.albumArt || search.albumArt || null,
+            timestamp: search.timestamp ? (typeof search.timestamp === 'string' ? new Date(search.timestamp).getTime() : search.timestamp) : Date.now()
+          }));
+          setRecentSearches(transformedSearches);
         }
         
         // Don't clear anonymous search count - it's tracked on backend now
@@ -471,7 +485,14 @@ export default function HumApp() {
           setSavedSongs(data.user.bookmarks);
         }
         if (data.user.recentSearches && data.user.recentSearches.length > 0) {
-          setRecentSearches(data.user.recentSearches);
+          // Transform database format to UI format
+          const transformedSearches = data.user.recentSearches.map(search => ({
+            song: search.result?.title || search.song || '',
+            artist: search.result?.artist || search.artist || '',
+            albumArt: search.result?.albumArt || search.albumArt || null,
+            timestamp: search.timestamp ? (typeof search.timestamp === 'string' ? new Date(search.timestamp).getTime() : search.timestamp) : Date.now()
+          }));
+          setRecentSearches(transformedSearches);
         }
         setShowAuthModal(false);
         setAuthEmail('');
@@ -527,13 +548,26 @@ export default function HumApp() {
     
     try {
       const token = localStorage.getItem('hum-auth-token');
+      // Convert UI format to database format
+      const dbFormatSearches = searches.map(search => ({
+        query: search.song || '',
+        result: {
+          title: search.song || '',
+          artist: search.artist || '',
+          albumArt: search.albumArt || null,
+          album: null,
+          spotifyUrl: null
+        },
+        timestamp: search.timestamp ? new Date(search.timestamp) : new Date()
+      }));
+      
       await fetch(`${API_BASE_URL}/api/user/recent-searches`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ recentSearches: searches })
+        body: JSON.stringify({ recentSearches: dbFormatSearches })
       });
     } catch (error) {
       console.error('Error saving recent searches to API:', error);
