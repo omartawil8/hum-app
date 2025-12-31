@@ -1162,7 +1162,7 @@ export default function HumApp() {
   };
 
   const insertEmoji = (emoji) => {
-    setLyricsInput(prev => prev + emoji);
+    setNicknameInput(prev => prev + emoji);
     setShowEmojiDropdown(false);
   };
 
@@ -2413,7 +2413,7 @@ export default function HumApp() {
                   <p className="text-sm text-white/40 font-light">pick a nickname to show instead of your email</p>
                 </div>
 
-                <div className="mb-7">
+                <div className="mb-7 relative">
                   <input
                     type="text"
                     value={nicknameInput}
@@ -2425,9 +2425,37 @@ export default function HumApp() {
                     }}
                     placeholder="what should we call you?"
                     maxLength={16}
-                    className="w-full px-5 py-3.5 bg-white/[0.05] border border-white/15 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-purple-400/40 focus:bg-white/[0.08] transition-all text-base font-light tracking-wide backdrop-blur-sm"
+                    className="w-full px-5 py-3.5 pr-12 bg-white/[0.05] border border-white/15 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-purple-400/40 focus:bg-white/[0.08] transition-all text-base font-light tracking-wide backdrop-blur-sm"
                     autoFocus
                   />
+                  
+                  {/* Emoji dropdown button */}
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2" ref={emojiDropdownRef}>
+                    <button
+                      onClick={() => setShowEmojiDropdown(!showEmojiDropdown)}
+                      className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all group"
+                      title="Add emoji"
+                    >
+                      <span className="text-sm opacity-50 group-hover:opacity-80 transition-opacity">😊</span>
+                    </button>
+
+                    {/* Emoji dropdown */}
+                    {showEmojiDropdown && (
+                      <div className="absolute bottom-full right-0 mb-2 bg-white/[0.08] backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl p-2 w-48 max-h-64 overflow-y-auto z-50">
+                        <div className="grid grid-cols-4 gap-1">
+                          {popularEmojis.map((emoji, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => insertEmoji(emoji)}
+                              className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors text-xl"
+                            >
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex gap-3 justify-end">
@@ -2525,36 +2553,8 @@ export default function HumApp() {
                         }
                       }}
                       disabled={isSearchingLyrics}
-                      className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-full py-4 pl-14 pr-20 text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-all disabled:opacity-50"
+                      className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-full py-4 pl-14 pr-14 text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-all disabled:opacity-50"
                     />
-                    
-                    {/* Emoji dropdown button */}
-                    <div className="absolute right-12 top-1/2 -translate-y-1/2" ref={emojiDropdownRef}>
-                      <button
-                        onClick={() => setShowEmojiDropdown(!showEmojiDropdown)}
-                        className="w-7 h-7 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all group"
-                        title="Add emoji"
-                      >
-                        <span className="text-sm opacity-60 group-hover:opacity-90 transition-opacity">😊</span>
-                      </button>
-
-                      {/* Emoji dropdown */}
-                      {showEmojiDropdown && (
-                        <div className="absolute bottom-full right-0 mb-2 bg-white/[0.08] backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl p-2 w-48 max-h-64 overflow-y-auto z-50">
-                          <div className="grid grid-cols-4 gap-1">
-                            {popularEmojis.map((emoji, idx) => (
-                              <button
-                                key={idx}
-                                onClick={() => insertEmoji(emoji)}
-                                className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors text-xl"
-                              >
-                                {emoji}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
                     
                     {/* Loading spinner OR Submit arrow */}
                     {isSearchingLyrics ? (
