@@ -130,13 +130,15 @@ export default function HumApp() {
       setSavedSongs(JSON.parse(saved));
     }
     
-    // Load recent searches from localStorage only if not logged in
-    // (logged in users will get data from API in checkAuthStatus)
-    const token = localStorage.getItem('hum-auth-token');
-    if (!token) {
-      const searches = localStorage.getItem('hum-recent-searches');
-      if (searches) {
-        setRecentSearches(JSON.parse(searches));
+    // Load recent searches from localStorage as initial state
+    // (will be overridden by database data if user is logged in)
+    const searches = localStorage.getItem('hum-recent-searches');
+    if (searches) {
+      try {
+        const parsedSearches = JSON.parse(searches);
+        setRecentSearches(parsedSearches);
+      } catch (e) {
+        console.error('Error parsing recent searches from localStorage:', e);
       }
     }
 
@@ -272,8 +274,8 @@ export default function HumApp() {
           }
         } else {
           console.log('📭 No recent searches in database');
-          // If no recent searches from database, clear localStorage too
-          localStorage.removeItem('hum-recent-searches');
+          // Don't clear localStorage immediately - might have old data to preserve
+          // Only set empty if we're sure there's nothing
           setRecentSearches([]);
         }
       } else {
@@ -482,8 +484,8 @@ export default function HumApp() {
           }
         } else {
           console.log('📭 No recent searches in database');
-          // If no recent searches from database, clear localStorage too
-          localStorage.removeItem('hum-recent-searches');
+          // Don't clear localStorage immediately - might have old data to preserve
+          // Only set empty if we're sure there's nothing
           setRecentSearches([]);
         }
         
@@ -589,8 +591,8 @@ export default function HumApp() {
           }
         } else {
           console.log('📭 No recent searches in database');
-          // If no recent searches from database, clear localStorage too
-          localStorage.removeItem('hum-recent-searches');
+          // Don't clear localStorage immediately - might have old data to preserve
+          // Only set empty if we're sure there's nothing
           setRecentSearches([]);
         }
         setShowAuthModal(false);
@@ -2733,7 +2735,7 @@ export default function HumApp() {
                 <div className="w-full max-w-md">
                   <h2 className="text-lg font-bold text-white mb-4">Recent searches</h2>
                   <div className="space-y-3">
-                    {(recentSearches.length > 0 ? recentSearches : defaultSearches)
+                    {(recentSearches.length > 0 ? recentSearches : (!user ? defaultSearches : []))
                       .slice(0, showAllSearches ? 8 : 3)
                       .map((search, idx) => (
                         <div 
@@ -2769,7 +2771,7 @@ export default function HumApp() {
                   </div>
                   
                   {/* Show More/Less Button */}
-                  {(recentSearches.length > 3 || (!recentSearches.length && defaultSearches.length > 3)) && (
+                  {((recentSearches.length > 3) || (!recentSearches.length && !user && defaultSearches.length > 3)) && (
                     <button
                       onClick={() => setShowAllSearches(!showAllSearches)}
                       className="w-full mt-3 py-3 text-sm text-white/60 hover:text-white/80 hover:bg-white/5 rounded-2xl transition-all border border-white/10 hover:border-white/20"
