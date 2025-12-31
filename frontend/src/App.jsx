@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, LogOut } from 'lucide-react';
+import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, LogOut, User } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
 import wizardGuyIcon from './assets/Wizard_guy.png';
@@ -56,6 +56,9 @@ export default function HumApp() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [authError, setAuthError] = useState('');
   const [user, setUser] = useState(null);
+  const [nickname, setNickname] = useState('');
+  const [showNicknameModal, setShowNicknameModal] = useState(false);
+  const [nicknameInput, setNicknameInput] = useState('');
   const [anonymousSearchCount, setAnonymousSearchCount] = useState(0);
   const [isClosingAuth, setIsClosingAuth] = useState(false);
   const [welcomeMessage, setWelcomeMessage] = useState(null);
@@ -184,6 +187,12 @@ export default function HumApp() {
         setSearchCount(FREE_SEARCH_LIMIT);
         localStorage.setItem('hum-search-count', FREE_SEARCH_LIMIT.toString());
       }
+    }
+
+    // Load nickname
+    const savedNickname = localStorage.getItem('hum-user-nickname');
+    if (savedNickname) {
+      setNickname(savedNickname);
     }
     
     // Debug log
@@ -457,6 +466,23 @@ export default function HumApp() {
     // Don't reset anonymousSearchCount - if they used it, it stays used
     // localStorage.removeItem('hum-anonymous-search-count'); // Keep this so they can't get another free search
     localStorage.removeItem('hum-search-count');
+  };
+
+  const handleSaveNickname = () => {
+    const trimmedNickname = nicknameInput.trim();
+    if (trimmedNickname) {
+      setNickname(trimmedNickname);
+      localStorage.setItem('hum-user-nickname', trimmedNickname);
+      setShowNicknameModal(false);
+      setNicknameInput('');
+      setShowUserDropdown(false);
+    }
+  };
+
+  const handleRemoveNickname = () => {
+    setNickname('');
+    localStorage.removeItem('hum-user-nickname');
+    setShowUserDropdown(false);
   };
 
   const handleCloseAuth = () => {
@@ -1551,13 +1577,33 @@ export default function HumApp() {
                 onClick={() => setShowUserDropdown(!showUserDropdown)}
                 className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 backdrop-blur-sm border border-white/10 rounded-full text-sm text-white/70 transition-all"
               >
-                <span className="truncate max-w-[150px]">{user.email}</span>
+                <span className="truncate max-w-[150px]">{nickname || user.email}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform ${showUserDropdown ? 'rotate-180' : ''}`} />
               </button>
 
               {/* Dropdown Menu */}
               {showUserDropdown && (
-                <div className="absolute top-full right-0 mt-2 w-48 bg-white/[0.08] backdrop-blur-xl rounded-xl border border-white/20 shadow-2xl z-50 overflow-hidden animate-slide-down">
+                <div className="absolute top-full right-0 mt-2 w-56 bg-white/[0.08] backdrop-blur-xl rounded-xl border border-white/20 shadow-2xl z-50 overflow-hidden animate-slide-down">
+                  <button
+                    onClick={() => {
+                      setNicknameInput(nickname);
+                      setShowNicknameModal(true);
+                      setShowUserDropdown(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-white/80 hover:bg-white/10 transition-colors border-b border-white/10"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>{nickname ? 'Change nickname' : 'Set nickname'}</span>
+                  </button>
+                  {nickname && (
+                    <button
+                      onClick={handleRemoveNickname}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-white/60 hover:bg-white/10 transition-colors border-b border-white/10"
+                    >
+                      <X className="w-4 h-4" />
+                      <span>Remove nickname</span>
+                    </button>
+                  )}
                   <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-white/80 hover:bg-white/10 transition-colors"
@@ -2186,6 +2232,75 @@ export default function HumApp() {
                     title="Send feedback"
                   >
                     <Send className="w-5 h-5" strokeWidth={1.5} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Nickname Modal */}
+        {showNicknameModal && (
+          <div 
+            className={`fixed inset-0 bg-black/60 backdrop-blur-lg flex items-center justify-center z-50 p-4 ${isClosingAuth ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'}`}
+            onClick={() => {
+              setShowNicknameModal(false);
+              setNicknameInput('');
+            }}
+          >
+            <div 
+              className={`relative ${isClosingAuth ? 'animate-modal-content-out' : 'animate-modal-content'}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-3xl blur-3xl"></div>
+              
+              {/* Modal */}
+              <div className="relative bg-[#2A2D3A]/95 backdrop-blur-2xl rounded-3xl p-8 max-w-md w-full border border-white/10 shadow-2xl">
+                <button 
+                  onClick={() => {
+                    setShowNicknameModal(false);
+                    setNicknameInput('');
+                  }}
+                  className="absolute -top-4 -right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+
+                <h2 className="text-2xl font-bold mb-2">Set Nickname</h2>
+                <p className="text-white/60 mb-6 text-sm">Choose a nickname to display instead of your email</p>
+
+                <input
+                  type="text"
+                  value={nicknameInput}
+                  onChange={(e) => setNicknameInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSaveNickname();
+                    }
+                  }}
+                  placeholder="Enter nickname..."
+                  maxLength={30}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-white/40 focus:bg-white/10 transition-all mb-4"
+                  autoFocus
+                />
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setShowNicknameModal(false);
+                      setNicknameInput('');
+                    }}
+                    className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/20 rounded-xl text-sm transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveNickname}
+                    disabled={!nicknameInput.trim()}
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-xl font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Save
                   </button>
                 </div>
               </div>
