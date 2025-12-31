@@ -2441,7 +2441,7 @@ export default function HumApp() {
                     </div>
                     <p className="text-xl font-medium mb-2 text-white/70">no bookmarks yet...</p>
                     <p className="text-base text-white/40 font-light leading-relaxed">
-                      songs you bookmark will appear here
+                      songs you save will appear here
                     </p>
                   </div>
                 ) : (
