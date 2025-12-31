@@ -576,6 +576,29 @@ app.put('/api/user/recent-searches', authenticateToken, async (req, res) => {
   }
 });
 
+// Reset search count endpoint (for debugging)
+app.post('/api/user/reset-search-count', authenticateToken, async (req, res) => {
+  try {
+    if (!isMongoConnected()) {
+      return res.status(503).json({ error: 'Database not available' });
+    }
+
+    const user = await User.findById(req.user.userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    user.searchCount = 0;
+    await user.save();
+
+    res.json({ success: true, searchCount: 0 });
+  } catch (error) {
+    console.error('Error resetting search count:', error);
+    res.status(500).json({ error: 'Failed to reset search count' });
+  }
+});
+
 // Check anonymous search status endpoint
 app.get('/api/auth/anonymous-status', async (req, res) => {
   const ANONYMOUS_LIMIT = 1;
