@@ -1873,12 +1873,10 @@ export default function HumApp() {
           onClick={() => setShowBookmarks(!showBookmarks)}
           className="fixed top-6 left-6 z-40 flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all group"
         >
-          <Bookmark className="w-5 h-5" strokeWidth={1.5} />
-          {savedSongs.length > 0 && (
-            <span className="px-2 py-0.5 bg-slate-700/60 text-slate-200 text-xs font-bold rounded-full">
-              {savedSongs.length}
-            </span>
-          )}
+          <Bookmark 
+            className={`w-5 h-5 transition-all duration-300 ${bookmarkAnimating ? 'scale-150 fill-purple-400/80 text-purple-400 animate-pulse' : ''}`} 
+            strokeWidth={1.5}
+          />
         </button>
 
         {/* Top Right - User Account & Help Button */}
@@ -2015,7 +2013,7 @@ export default function HumApp() {
             <div className="flex flex-col items-center gap-0.5">
               <span className="text-sm text-white/70 group-hover:hidden transition-opacity">
                 {searchCount >= FREE_SEARCH_LIMIT
-                  ? "no more searches"
+                  ? "no more searches :("
                   : `${FREE_SEARCH_LIMIT - searchCount}/${FREE_SEARCH_LIMIT} free searches left`
                 }
               </span>
