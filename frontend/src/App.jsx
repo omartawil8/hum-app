@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, ChevronDown, LogOut, CreditCard } from 'lucide-react';
+import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, ChevronDown, LogOut } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
 import wizardGuyIcon from './assets/Wizard_guy.png';
@@ -1194,13 +1194,6 @@ export default function HumApp() {
   const handleSelectPlan = (plan) => {
     // Just select the plan, don't upgrade yet
     setSelectedPlan(plan);
-    // Scroll to payment area after a brief delay to allow animation
-    setTimeout(() => {
-      const paymentSection = document.getElementById('payment-section');
-      if (paymentSection) {
-        paymentSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    }, 100);
   };
 
   const handleContinueUpgrade = async () => {
@@ -1763,11 +1756,11 @@ export default function HumApp() {
         {/* Upgrade Modal */}
         {showUpgradeModal && (
           <div 
-            className={`fixed inset-0 bg-black/70 backdrop-blur-lg flex items-center justify-center z-50 p-4 overflow-y-auto ${isClosingUpgrade ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'}`}
+            className={`fixed inset-0 bg-black/70 backdrop-blur-lg flex items-center justify-center z-50 p-4 ${isClosingUpgrade ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'}`}
             onClick={handleCloseUpgrade}
           >
             <div 
-              className={`relative my-8 ${isClosingUpgrade ? 'animate-modal-content-out' : 'animate-modal-content'}`}
+              className={`relative ${isClosingUpgrade ? 'animate-modal-content-out' : 'animate-modal-content'}`}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close button */}
@@ -1782,7 +1775,7 @@ export default function HumApp() {
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-3xl blur-3xl"></div>
               
               {/* Modal */}
-              <div className="relative bg-[#2A2D3A]/95 backdrop-blur-2xl rounded-3xl p-8 max-w-4xl w-full border border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto">
+              <div className="relative bg-[#2A2D3A]/95 backdrop-blur-2xl rounded-3xl p-8 max-w-4xl w-full border border-white/10 shadow-2xl">
                 <h2 className="text-4xl font-bold text-center mb-2">Wanna keep humming?</h2>
                 <p className="text-xl text-white/60 text-center mb-8">Select a plan</p>
 
@@ -1792,17 +1785,13 @@ export default function HumApp() {
                     onClick={() => handleSelectPlan('Avid Listener')}
                     className={`relative group rounded-3xl overflow-hidden transition-all duration-300 ${
                       selectedPlan === 'Avid Listener' 
-                        ? 'scale-[1.02]' 
+                        ? 'ring-4 ring-teal-500 scale-[1.02]' 
                         : 'hover:scale-[1.02]'
                     }`}
                   >
                     {/* Card background */}
                     <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 to-cyan-500/10 backdrop-blur-sm"></div>
-                    <div className={`relative rounded-3xl transition-all ${
-                      selectedPlan === 'Avid Listener'
-                        ? 'border-4 border-teal-500 shadow-[0_0_20px_rgba(20,184,166,0.5)] p-5'
-                        : 'border-2 border-teal-500/30 hover:border-teal-500/50 p-6'
-                    }`}>
+                    <div className="relative border-2 border-teal-500/30 rounded-3xl p-6 hover:border-teal-500/50 transition-all">
                       {/* Star badge */}
                       <div className="absolute top-6 left-6">
                         <Star className="w-6 h-6 text-teal-400 fill-teal-400" />
@@ -1829,20 +1818,12 @@ export default function HumApp() {
                       </div>
 
                       {/* Price */}
-                      <div className={`text-center mt-4 mb-6 transition-all ${
-                        selectedPlan === 'Avid Listener' ? 'mb-4' : ''
-                      }`}>
-                        <div className={`font-bold mb-1 transition-all ${
-                          selectedPlan === 'Avid Listener' ? 'text-4xl' : 'text-5xl'
-                        }`}>$1<span className={`text-white/60 transition-all ${
-                          selectedPlan === 'Avid Listener' ? 'text-xl' : 'text-2xl'
-                        }`}>/month</span></div>
+                      <div className="text-center mt-4 mb-6">
+                        <div className="text-5xl font-bold mb-1">$1<span className="text-2xl text-white/60">/month</span></div>
                       </div>
 
                       {/* Character illustration */}
-                      <div className={`relative flex items-center justify-center mb-6 transition-all ${
-                        selectedPlan === 'Avid Listener' ? 'h-48' : 'h-64'
-                      }`}>
+                      <div className="relative h-64 flex items-center justify-center mb-6">
                         <img 
                           src={avidListenerIcon} 
                           alt="Avid Listener" 
@@ -1870,17 +1851,13 @@ export default function HumApp() {
                     onClick={() => handleSelectPlan('Eat, Breath, Music')}
                     className={`relative group rounded-3xl overflow-hidden transition-all duration-300 ${
                       selectedPlan === 'Eat, Breath, Music' 
-                        ? 'scale-[1.02]' 
+                        ? 'ring-4 ring-purple-500 scale-[1.02]' 
                         : 'hover:scale-[1.02]'
                     }`}
                   >
                     {/* Card background */}
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 backdrop-blur-sm"></div>
-                    <div className={`relative rounded-3xl transition-all ${
-                      selectedPlan === 'Eat, Breath, Music'
-                        ? 'border-4 border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.5)] p-5'
-                        : 'border-2 border-purple-500/30 hover:border-purple-500/50 p-6'
-                    }`}>
+                    <div className="relative border-2 border-purple-500/30 rounded-3xl p-6 hover:border-purple-500/50 transition-all">
                       {/* Info icon */}
                       <div 
                         className="absolute top-6 right-6 group/info"
@@ -1902,20 +1879,12 @@ export default function HumApp() {
                       </div>
 
                       {/* Price */}
-                      <div className={`text-center mt-4 mb-6 transition-all ${
-                        selectedPlan === 'Eat, Breath, Music' ? 'mb-4' : ''
-                      }`}>
-                        <div className={`font-bold mb-1 transition-all ${
-                          selectedPlan === 'Eat, Breath, Music' ? 'text-4xl' : 'text-5xl'
-                        }`}>$4<span className={`text-white/60 transition-all ${
-                          selectedPlan === 'Eat, Breath, Music' ? 'text-xl' : 'text-2xl'
-                        }`}>/month</span></div>
+                      <div className="text-center mt-4 mb-6">
+                        <div className="text-5xl font-bold mb-1">$4<span className="text-2xl text-white/60">/month</span></div>
                       </div>
 
                       {/* Character illustration */}
-                      <div className={`relative flex items-center justify-center mb-6 transition-all ${
-                        selectedPlan === 'Eat, Breath, Music' ? 'h-48' : 'h-64'
-                      }`}>
+                      <div className="relative h-64 flex items-center justify-center mb-6">
                         <img 
                           src={wizardGuyIcon} 
                           alt="Music Wizard" 
@@ -1942,35 +1911,21 @@ export default function HumApp() {
 
                 {/* Payment options (shows when plan selected) */}
                 {selectedPlan && (
-                  <div id="payment-section" className="mt-8 animate-fade-in-up">
-                    {/* Visual separator */}
-                    <div className="relative mb-6">
-                      <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-white/10"></div>
-                      </div>
-                      <div className="relative flex justify-center">
-                        <div className="bg-[#2A2D3A] px-4">
-                          <p className="text-center text-white/80 mb-1 text-base font-semibold">Ready to upgrade?</p>
-                          <p className="text-center text-white/50 text-sm">Choose your preferred payment method</p>
-                        </div>
-                      </div>
-                    </div>
-                    
+                  <div className="mt-8 animate-fade-in-up">
+                    <p className="text-center text-white/60 mb-4 text-sm">Choose payment method:</p>
                     <div className="flex flex-col gap-3">
                       <button
                         onClick={handleContinueUpgrade}
-                        className="w-full px-6 py-4 bg-gradient-to-r from-purple-500/20 to-blue-500/20 hover:from-purple-500/30 hover:to-blue-500/30 border-2 border-purple-500/40 hover:border-purple-500/60 rounded-xl font-semibold text-base transition-all hover:scale-[1.02] shadow-lg flex items-center justify-center gap-3 text-white backdrop-blur-sm"
+                        className="w-full px-6 py-4 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-xl font-bold text-lg transition-all hover:scale-105 shadow-lg flex items-center justify-center gap-3"
                       >
-                        <CreditCard className="w-5 h-5" />
+                        <span>💳</span>
                         <span>Pay with Card, Apple Pay, or Google Pay</span>
                       </button>
                       <button
                         onClick={() => handlePayPalPayment(selectedPlan)}
-                        className="w-full px-6 py-4 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30 border-2 border-blue-500/40 hover:border-blue-500/60 rounded-xl font-semibold text-base transition-all hover:scale-[1.02] shadow-lg flex items-center justify-center gap-3 text-white backdrop-blur-sm"
+                        className="w-full px-6 py-4 bg-[#0070ba] hover:bg-[#005ea6] rounded-xl font-bold text-lg transition-all hover:scale-105 shadow-lg flex items-center justify-center gap-3"
                       >
-                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.174 1.305 1.06 3.1.93 4.79l-.003.02-.107 4.4c-.09 3.728-.217 5.304-1.223 6.64-1.06 1.401-2.906 2.278-5.502 2.278H9.67a.804.804 0 0 0-.796.68l-1.798 8.338z"/>
-                        </svg>
+                        <span>🅿️</span>
                         <span>Pay with PayPal</span>
                       </button>
                     </div>
