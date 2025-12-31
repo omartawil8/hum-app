@@ -35,11 +35,12 @@ STRIPE_WEBHOOK_SECRET=[add after webhook setup in Stripe]
 ```
 *Note: Update `STRIPE_WEBHOOK_SECRET` after setting up webhook in Stripe (Step 3 of deployment)*
 
-### Email (Welcome Emails)
+### Email (Welcome Emails - Resend)
 ```
-FEEDBACK_EMAIL_USER=[copy from backend/.env]
-FEEDBACK_EMAIL_PASSWORD=[copy from backend/.env]
+RESEND_API_KEY=[get from https://resend.com/api-keys]
+RESEND_FROM_EMAIL=[optional - defaults to onboarding@resend.dev for testing]
 ```
+*Note: `RESEND_FROM_EMAIL` is optional. For production, verify your domain in Resend and use your own email (e.g., `hello@yourdomain.com`)*
 
 ### Frontend URL
 ```
@@ -69,9 +70,9 @@ FRONTEND_URL=[update after deploying frontend on Vercel]
 - [ ] JWT_SECRET
 - [ ] STRIPE_SECRET_KEY
 - [ ] STRIPE_WEBHOOK_SECRET (update after webhook setup)
-- [ ] FEEDBACK_EMAIL_USER
-- [ ] FEEDBACK_EMAIL_PASSWORD
-- [ ] FRONTEND_URL (update after frontend deployment)
+- [ ] RESEND_API_KEY
+- [ ] RESEND_FROM_EMAIL (optional - for production)
+- [ ] FRONTEND_URL (update after deploying frontend)
 
 ## Important Notes
 

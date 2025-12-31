@@ -168,34 +168,20 @@ async function checkSearchLimit(req, res, next) {
 // Send welcome email function
 async function sendWelcomeEmail(email, remainingSearches) {
   try {
-    const nodemailer = require('nodemailer');
+    const { Resend } = require('resend');
     
-    if (!process.env.FEEDBACK_EMAIL_USER || !process.env.FEEDBACK_EMAIL_PASSWORD) {
+    if (!process.env.RESEND_API_KEY) {
       console.error('   ⚠️  EMAIL NOT CONFIGURED - Welcome email skipped');
-      console.error('   📧 Missing: FEEDBACK_EMAIL_USER or FEEDBACK_EMAIL_PASSWORD');
-      console.error('   💡 Set these environment variables in your deployment platform (Render/Vercel)');
+      console.error('   📧 Missing: RESEND_API_KEY');
+      console.error('   💡 Set this environment variable in your deployment platform (Render)');
+      console.error('   📖 Get your API key from: https://resend.com/api-keys');
       return;
     }
 
     console.log(`   📧 Attempting to send welcome email to: ${email}`);
-    console.log(`   📧 Using email account: ${process.env.FEEDBACK_EMAIL_USER}`);
+    console.log(`   📧 Using Resend email service`);
 
-    // Use direct SMTP configuration with increased timeouts
-    // This is more reliable than the 'gmail' service shortcut
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: process.env.FEEDBACK_EMAIL_USER,
-        pass: process.env.FEEDBACK_EMAIL_PASSWORD
-      },
-      connectionTimeout: 20000, // 20 seconds
-      greetingTimeout: 20000, // 20 seconds
-      socketTimeout: 20000, // 20 seconds
-      // Don't verify connection - just try to send
-      // This avoids an extra connection attempt that might timeout
-    });
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
     const welcomeHtml = `
       <!DOCTYPE html>
@@ -319,52 +305,40 @@ async function sendWelcomeEmail(email, remainingSearches) {
       </html>
     `;
 
-    const mailOptions = {
-      from: `"omar from hüm" <${process.env.FEEDBACK_EMAIL_USER}>`,
+    // Get the "from" email address - use RESEND_FROM_EMAIL if set, otherwise use a default
+    // Resend requires a verified domain or you can use their default domain for testing
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+    
+    const { data, error } = await resend.emails.send({
+      from: `omar from hüm <${fromEmail}>`,
       to: email,
       subject: 'hey, welcome to hüm 👋',
       html: welcomeHtml,
-      text: `hey 👋\n\nthanks for signing up! you've got ${remainingSearches} free searches to start with.\n\nhum a tune, type some lyrics, or just sing whatever's stuck in your head - we'll figure it out.\n\nstart at http://localhost:5173\n\n- omar, founder`
-    };
+      text: `hey 👋\n\nthanks for signing up! you've got ${remainingSearches} free searches to start with.\n\nhum a tune, type some lyrics, or just sing whatever's stuck in your head - we'll figure it out.\n\nstart at ${process.env.FRONTEND_URL || 'http://localhost:5173'}\n\n- omar, founder`
+    });
 
-    // Send email with timeout
-    const sendPromise = transporter.sendMail(mailOptions);
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Email send timeout after 25 seconds')), 25000)
-    );
-    
-    await Promise.race([sendPromise, timeoutPromise]);
+    if (error) {
+      throw new Error(`Resend API error: ${error.message}`);
+    }
+
     console.log(`   ✅ Welcome email successfully sent to ${email}`);
+    console.log(`   📧 Email ID: ${data?.id || 'N/A'}`);
   } catch (emailError) {
     console.error(`   ❌❌❌ FAILED TO SEND WELCOME EMAIL ❌❌❌`);
     console.error(`   📧 Recipient: ${email}`);
     console.error(`   ❌ Error: ${emailError.message}`);
-    console.error(`   📋 Error code: ${emailError.code || 'N/A'}`);
     
-    // Check if it's a timeout error
-    if (emailError.code === 'ETIMEDOUT' || emailError.message.includes('timeout') || emailError.message.includes('Timeout')) {
-      console.error(`   ⚠️  CONNECTION TIMEOUT - Gmail SMTP server not reachable`);
-      console.error(`   💡 Possible causes:`);
-      console.error(`      - Render/hosting provider blocking SMTP connections`);
-      console.error(`      - Gmail blocking connections from server IP`);
-      console.error(`      - Network/firewall issues`);
-      console.error(`   💡 Solutions:`);
-      console.error(`      1. Check Render logs for network restrictions`);
-      console.error(`      2. Consider using a transactional email service (SendGrid, Resend, Mailgun)`);
-      console.error(`      3. Try using OAuth2 instead of App Password (more complex setup)`);
-    } else if (emailError.code === 'EAUTH' || emailError.message.includes('Invalid login') || emailError.message.includes('authentication')) {
-      console.error(`   ⚠️  GMAIL AUTHENTICATION FAILED`);
-      console.error(`   💡 Solution: Use a Gmail App Password, not your regular password`);
-      console.error(`   📖 Steps:`);
-      console.error(`      1. Go to Google Account → Security`);
-      console.error(`      2. Enable 2-Step Verification (if not already enabled)`);
-      console.error(`      3. Go to App Passwords`);
-      console.error(`      4. Create a new app password for "Mail"`);
-      console.error(`      5. Use that 16-character password as FEEDBACK_EMAIL_PASSWORD`);
-    } else if (emailError.code === 'ECONNECTION' || emailError.message.includes('connection')) {
-      console.error(`   ⚠️  CONNECTION ERROR - Check network/firewall settings`);
+    if (emailError.message.includes('API key') || emailError.message.includes('Unauthorized')) {
+      console.error(`   ⚠️  RESEND API KEY INVALID`);
+      console.error(`   💡 Check that RESEND_API_KEY is set correctly in Render environment variables`);
+      console.error(`   📖 Get your API key from: https://resend.com/api-keys`);
+    } else if (emailError.message.includes('domain') || emailError.message.includes('not verified')) {
+      console.error(`   ⚠️  EMAIL DOMAIN NOT VERIFIED`);
+      console.error(`   💡 For production, verify your domain in Resend dashboard`);
+      console.error(`   💡 For testing, you can use 'onboarding@resend.dev' (default)`);
     } else if (emailError.message.includes('rate limit') || emailError.message.includes('quota')) {
       console.error(`   ⚠️  RATE LIMIT EXCEEDED - Too many emails sent`);
+      console.error(`   💡 Resend free tier: 3,000 emails/month`);
     }
     
     // Don't fail the signup if email fails
