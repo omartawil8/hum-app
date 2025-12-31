@@ -263,7 +263,13 @@ export default function HumApp() {
             }
             
             return { song, artist, albumArt, timestamp };
-          }).filter(search => search.song && search.artist); // Filter out invalid entries
+          }).filter(search => {
+            // Only filter out if both song AND artist are missing
+            // Allow entries with just song or just artist to pass through
+            const hasSong = search.song && search.song.trim().length > 0;
+            const hasArtist = search.artist && search.artist.trim().length > 0;
+            return hasSong || hasArtist; // Keep if at least one exists
+          });
           
           console.log('✨ Transformed recent searches:', transformedSearches);
           
@@ -473,7 +479,13 @@ export default function HumApp() {
             }
             
             return { song, artist, albumArt, timestamp };
-          }).filter(search => search.song && search.artist); // Filter out invalid entries
+          }).filter(search => {
+            // Only filter out if both song AND artist are missing
+            // Allow entries with just song or just artist to pass through
+            const hasSong = search.song && search.song.trim().length > 0;
+            const hasArtist = search.artist && search.artist.trim().length > 0;
+            return hasSong || hasArtist; // Keep if at least one exists
+          });
           
           console.log('✨ Transformed recent searches:', transformedSearches);
           
@@ -580,7 +592,13 @@ export default function HumApp() {
             }
             
             return { song, artist, albumArt, timestamp };
-          }).filter(search => search.song && search.artist); // Filter out invalid entries
+          }).filter(search => {
+            // Only filter out if both song AND artist are missing
+            // Allow entries with just song or just artist to pass through
+            const hasSong = search.song && search.song.trim().length > 0;
+            const hasArtist = search.artist && search.artist.trim().length > 0;
+            return hasSong || hasArtist; // Keep if at least one exists
+          });
           
           console.log('✨ Transformed recent searches:', transformedSearches);
           
