@@ -68,6 +68,8 @@ export default function HumApp() {
   const audioChunksRef = useRef([]);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const userDropdownRef = useRef(null);
+  const [showEmojiDropdown, setShowEmojiDropdown] = useState(false);
+  const emojiDropdownRef = useRef(null);
   
   const ANONYMOUS_SEARCH_LIMIT = 1; // 1 free search without login
   const FREE_SEARCH_LIMIT = 5; // Total free searches (1 anonymous + 4 authenticated)
@@ -634,16 +636,19 @@ export default function HumApp() {
       if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
         setShowUserDropdown(false);
       }
+      if (emojiDropdownRef.current && !emojiDropdownRef.current.contains(event.target)) {
+        setShowEmojiDropdown(false);
+      }
     };
 
-    if (showUserDropdown) {
+    if (showUserDropdown || showEmojiDropdown) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showUserDropdown]);
+  }, [showUserDropdown, showEmojiDropdown]);
 
   useEffect(() => {
     if (matchData && matchData[0]) {
@@ -1155,6 +1160,13 @@ export default function HumApp() {
       searchByLyrics();
     }
   };
+
+  const insertEmoji = (emoji) => {
+    setLyricsInput(prev => prev + emoji);
+    setShowEmojiDropdown(false);
+  };
+
+  const popularEmojis = ['🎵', '🎶', '🎤', '🎧', '🎸', '🎹', '🥁', '🎺', '🎻', '🎷', '💿', '📻', '🎙️', '🎚️', '🎛️', '🎼'];
 
   const sendFeedback = async (correctSong) => {
     try {
@@ -2513,8 +2525,36 @@ export default function HumApp() {
                         }
                       }}
                       disabled={isSearchingLyrics}
-                      className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-full py-4 pl-14 pr-14 text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-all disabled:opacity-50"
+                      className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-full py-4 pl-14 pr-20 text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-all disabled:opacity-50"
                     />
+                    
+                    {/* Emoji dropdown button */}
+                    <div className="absolute right-12 top-1/2 -translate-y-1/2" ref={emojiDropdownRef}>
+                      <button
+                        onClick={() => setShowEmojiDropdown(!showEmojiDropdown)}
+                        className="w-7 h-7 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all group"
+                        title="Add emoji"
+                      >
+                        <span className="text-sm opacity-60 group-hover:opacity-90 transition-opacity">😊</span>
+                      </button>
+
+                      {/* Emoji dropdown */}
+                      {showEmojiDropdown && (
+                        <div className="absolute bottom-full right-0 mb-2 bg-white/[0.08] backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl p-2 w-48 max-h-64 overflow-y-auto z-50">
+                          <div className="grid grid-cols-4 gap-1">
+                            {popularEmojis.map((emoji, idx) => (
+                              <button
+                                key={idx}
+                                onClick={() => insertEmoji(emoji)}
+                                className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors text-xl"
+                              >
+                                {emoji}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     
                     {/* Loading spinner OR Submit arrow */}
                     {isSearchingLyrics ? (
