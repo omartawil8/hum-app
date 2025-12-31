@@ -2204,7 +2204,7 @@ export default function HumApp() {
             ></div>
             
             {/* Panel */}
-            <div className={`fixed top-0 left-0 h-full w-96 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f15] to-[#0a0a0f] backdrop-blur-2xl border-r border-white/[0.08] z-50 overflow-hidden flex flex-col ${isClosingBookmarks ? 'animate-slide-out' : 'animate-slide-in'}`}>
+            <div className={`fixed top-0 left-0 h-full w-96 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f15] to-[#0a0a0f] backdrop-blur-2xl border-r border-white/[0.08] z-50 overflow-hidden flex flex-col rounded-tr-2xl rounded-br-2xl ${isClosingBookmarks ? 'animate-slide-out' : 'animate-slide-in'}`}>
               {/* Header */}
               <div className="p-6 border-b border-white/[0.06]">
                 <div className="flex items-center justify-between mb-3">
@@ -2221,9 +2221,9 @@ export default function HumApp() {
                   </div>
                   <button 
                     onClick={handleCloseBookmarks}
-                    className="p-1.5 hover:bg-white/5 rounded-lg transition-all hover:scale-105"
+                    className="p-2 hover:bg-white/5 rounded-lg transition-all hover:scale-105"
                   >
-                    <X className="w-4 h-4 text-white/40" />
+                    <X className="w-5 h-5 text-white/40" />
                   </button>
                 </div>
               </div>
