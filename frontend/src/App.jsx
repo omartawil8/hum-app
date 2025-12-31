@@ -1752,15 +1752,15 @@ export default function HumApp() {
                   {/* Avid Listener Plan */}
                   <button
                     onClick={() => handleSelectPlan('Avid Listener')}
-                    className={`relative group rounded-3xl overflow-hidden transition-all duration-300 ${
-                      selectedPlan === 'Avid Listener' 
-                        ? 'ring-4 ring-teal-500 scale-[1.02]' 
-                        : 'hover:scale-[1.02]'
-                    }`}
+                    className="relative group rounded-3xl overflow-hidden transition-all duration-300 hover:scale-[1.02]"
                   >
                     {/* Card background */}
                     <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 to-cyan-500/10 backdrop-blur-sm"></div>
-                    <div className="relative border-2 border-teal-500/30 rounded-3xl p-6 hover:border-teal-500/50 transition-all">
+                    <div className={`relative rounded-3xl p-6 transition-all ${
+                      selectedPlan === 'Avid Listener' 
+                        ? 'border-4 border-teal-500' 
+                        : 'border-2 border-teal-500/30 hover:border-teal-500/50'
+                    }`}>
                       {/* Star badge */}
                       <div className="absolute top-6 left-6">
                         <Star className="w-6 h-6 text-teal-400 fill-teal-400" />
@@ -1818,15 +1818,15 @@ export default function HumApp() {
                   {/* Eat, Breath, Music Plan */}
                   <button
                     onClick={() => handleSelectPlan('Eat, Breath, Music')}
-                    className={`relative group rounded-3xl overflow-hidden transition-all duration-300 ${
-                      selectedPlan === 'Eat, Breath, Music' 
-                        ? 'ring-4 ring-purple-500 scale-[1.02]' 
-                        : 'hover:scale-[1.02]'
-                    }`}
+                    className="relative group rounded-3xl overflow-hidden transition-all duration-300 hover:scale-[1.02]"
                   >
                     {/* Card background */}
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 backdrop-blur-sm"></div>
-                    <div className="relative border-2 border-purple-500/30 rounded-3xl p-6 hover:border-purple-500/50 transition-all">
+                    <div className={`relative rounded-3xl p-6 transition-all ${
+                      selectedPlan === 'Eat, Breath, Music' 
+                        ? 'border-4 border-purple-500' 
+                        : 'border-2 border-purple-500/30 hover:border-purple-500/50'
+                    }`}>
                       {/* Info icon */}
                       <div 
                         className="absolute top-6 right-6 group/info"
