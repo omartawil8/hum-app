@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null,
     trim: true,
-    maxlength: 30
+    maxlength: 16
   },
   bookmarks: [{
     title: String,

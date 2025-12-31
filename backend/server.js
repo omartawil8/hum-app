@@ -505,8 +505,8 @@ app.put('/api/user/nickname', authenticateToken, async (req, res) => {
     }
 
     // Validate nickname length
-    if (nickname && nickname.length > 30) {
-      return res.status(400).json({ error: 'Nickname must be 30 characters or less' });
+    if (nickname && nickname.length > 16) {
+      return res.status(400).json({ error: 'Nickname must be 16 characters or less' });
     }
 
     user.nickname = nickname && nickname.trim() ? nickname.trim() : null;
@@ -565,8 +565,8 @@ app.put('/api/user/recent-searches', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Recent searches must be an array' });
     }
 
-    // Limit to last 20 searches
-    user.recentSearches = recentSearches.slice(-20);
+    // Limit to last 8 searches
+    user.recentSearches = recentSearches.slice(-8);
     await user.save();
 
     res.json({ success: true, recentSearches: user.recentSearches });

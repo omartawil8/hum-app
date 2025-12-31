@@ -974,7 +974,7 @@ export default function HumApp() {
         };
         
         // Add to beginning of array, keep max 10
-        const updatedSearches = [newSearch, ...recentSearches].slice(0, 10);
+        const updatedSearches = [newSearch, ...recentSearches].slice(0, 8);
         setRecentSearches(updatedSearches);
         // Save to API if logged in, otherwise localStorage
         if (user) {
@@ -1119,7 +1119,7 @@ export default function HumApp() {
           timestamp: Date.now()
         };
         
-        const updatedSearches = [newSearch, ...recentSearches].slice(0, 10);
+        const updatedSearches = [newSearch, ...recentSearches].slice(0, 8);
         setRecentSearches(updatedSearches);
         // Save to API if logged in, otherwise localStorage
         if (user) {
@@ -2412,7 +2412,7 @@ export default function HumApp() {
                     }
                   }}
                   placeholder="Enter nickname..."
-                  maxLength={30}
+                  maxLength={16}
                   className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-white/40 focus:bg-white/10 transition-all mb-4"
                   autoFocus
                 />
