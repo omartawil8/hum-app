@@ -1756,10 +1756,10 @@ export default function HumApp() {
                   >
                     {/* Card background */}
                     <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 to-cyan-500/10 backdrop-blur-sm"></div>
-                    <div className={`relative rounded-3xl p-6 transition-all ${
+                    <div className={`relative rounded-3xl p-6 border-2 transition-all ${
                       selectedPlan === 'Avid Listener' 
-                        ? 'border-4 border-teal-500' 
-                        : 'border-2 border-teal-500/30 hover:border-teal-500/50'
+                        ? 'border-teal-500 shadow-[0_0_0_2px_rgba(20,184,166,0.5)]' 
+                        : 'border-teal-500/30 hover:border-teal-500/50'
                     }`}>
                       {/* Star badge */}
                       <div className="absolute top-6 left-6">
@@ -1822,10 +1822,10 @@ export default function HumApp() {
                   >
                     {/* Card background */}
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 backdrop-blur-sm"></div>
-                    <div className={`relative rounded-3xl p-6 transition-all ${
+                    <div className={`relative rounded-3xl p-6 border-2 transition-all ${
                       selectedPlan === 'Eat, Breath, Music' 
-                        ? 'border-4 border-purple-500' 
-                        : 'border-2 border-purple-500/30 hover:border-purple-500/50'
+                        ? 'border-purple-500 shadow-[0_0_0_2px_rgba(168,85,247,0.5)]' 
+                        : 'border-purple-500/30 hover:border-purple-500/50'
                     }`}>
                       {/* Info icon */}
                       <div 
