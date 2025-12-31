@@ -1166,7 +1166,7 @@ export default function HumApp() {
     setShowEmojiDropdown(false);
   };
 
-  const popularEmojis = ['🎵', '🎶', '🎤', '🎧', '🎸', '🎹', '🥁', '🎺', '🎻', '🎷', '💿', '📻', '🎙️', '🎚️', '🎛️', '🎼'];
+  const popularEmojis = ['😎', '🔥', '✨', '💫', '⭐', '🌟', '🎯', '💯', '🚀', '🎨', '🌈', '💜', '🦋', '🌸', '🌙', '⚡'];
 
   const sendFeedback = async (correctSong) => {
     try {
