@@ -130,15 +130,18 @@ export default function HumApp() {
       setSavedSongs(JSON.parse(saved));
     }
     
-    // Load recent searches from localStorage as initial state
-    // (will be overridden by database data if user is logged in)
-    const searches = localStorage.getItem('hum-recent-searches');
-    if (searches) {
-      try {
-        const parsedSearches = JSON.parse(searches);
-        setRecentSearches(parsedSearches);
-      } catch (e) {
-        console.error('Error parsing recent searches from localStorage:', e);
+    // Only load from localStorage if user is NOT logged in
+    // For logged-in users, wait for database data to avoid flash
+    const token = localStorage.getItem('hum-auth-token');
+    if (!token) {
+      const searches = localStorage.getItem('hum-recent-searches');
+      if (searches) {
+        try {
+          const parsedSearches = JSON.parse(searches);
+          setRecentSearches(parsedSearches);
+        } catch (e) {
+          console.error('Error parsing recent searches from localStorage:', e);
+        }
       }
     }
 
