@@ -1854,19 +1854,28 @@ export default function HumApp() {
               try {
                 const token = localStorage.getItem('hum-auth-token');
                 // Update user's searchCount to 0 on backend
-                await fetch(`${API_BASE_URL}/api/user/reset-search-count`, {
+                const response = await fetch(`${API_BASE_URL}/api/user/reset-search-count`, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                   }
                 });
+                
+                if (response.ok) {
+                  // Reload user data to get updated searchCount
+                  await checkAuthStatus(token);
+                  alert('Reset complete! Search count has been reset.');
+                } else {
+                  alert('Error resetting search count. Please refresh the page.');
+                }
               } catch (error) {
                 console.error('Error resetting backend search count:', error);
+                alert('Error resetting search count. Please refresh the page.');
               }
+            } else {
+              alert('Reset! Refresh the page.');
             }
-            
-            alert('Reset! Refresh the page.');
           }}
           className="fixed bottom-6 left-6 z-50 px-3 py-2 bg-red-500/20 hover:bg-red-500/30 backdrop-blur-sm border border-red-500/30 rounded-full text-xs transition-all"
         >
