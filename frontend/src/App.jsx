@@ -203,12 +203,15 @@ export default function HumApp() {
 
   const checkAuthStatus = async (token) => {
     try {
+      console.log('🔐 [checkAuthStatus] Starting auth check...');
       const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
       const data = await response.json();
+      console.log('🔐 [checkAuthStatus] Response:', { authenticated: data.authenticated, hasUser: !!data.user, hasRecentSearches: !!(data.user?.recentSearches?.length) });
+      
       if (data.authenticated) {
         setUser(data.user);
         setSearchCount(data.user.searchCount || 0);
@@ -229,6 +232,11 @@ export default function HumApp() {
         if (data.user.bookmarks && data.user.bookmarks.length > 0) {
           setSavedSongs(data.user.bookmarks);
         }
+        console.log('📚 [checkAuthStatus] Recent searches check:', { 
+          hasRecentSearches: !!(data.user.recentSearches?.length),
+          count: data.user.recentSearches?.length || 0,
+          raw: data.user.recentSearches 
+        });
         if (data.user.recentSearches && data.user.recentSearches.length > 0) {
           console.log('📥 Raw recent searches from API:', data.user.recentSearches);
           // Transform database format to UI format
