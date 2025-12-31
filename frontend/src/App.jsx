@@ -2536,7 +2536,7 @@ export default function HumApp() {
                   <h2 className="text-lg font-bold text-white mb-4">Recent searches</h2>
                   <div className="space-y-3">
                     {(recentSearches.length > 0 ? recentSearches : defaultSearches)
-                      .slice(0, showAllSearches ? 10 : 3)
+                      .slice(0, showAllSearches ? 8 : 3)
                       .map((search, idx) => (
                         <div 
                           key={idx} 
