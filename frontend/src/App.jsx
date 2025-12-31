@@ -1689,19 +1689,26 @@ export default function HumApp() {
         }
 
         @keyframes bookmarkPulse {
-          0% {
-            transform: scale(1);
+          0%, 100% {
+            transform: scale(1) rotate(0deg);
+            opacity: 1;
+          }
+          25% {
+            transform: scale(1.15) rotate(-8deg);
+            opacity: 0.9;
           }
           50% {
-            transform: scale(1.2);
+            transform: scale(1.2) rotate(0deg);
+            opacity: 1;
           }
-          100% {
-            transform: scale(1);
+          75% {
+            transform: scale(1.15) rotate(8deg);
+            opacity: 0.9;
           }
         }
 
         .animate-bookmark-pulse {
-          animation: bookmarkPulse 0.3s ease-out;
+          animation: bookmarkPulse 0.6s ease-in-out;
         }
 
         @keyframes fadeOutDown {
