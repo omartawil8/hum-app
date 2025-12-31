@@ -643,9 +643,13 @@ export default function HumApp() {
 
   // Helper function to save recent searches to API
   const saveRecentSearchesToAPI = async (searches) => {
-    if (!user) return; // Only save if logged in
+    if (!user) {
+      console.log('💾 [saveRecentSearchesToAPI] Skipping - user not logged in');
+      return; // Only save if logged in
+    }
     
     try {
+      console.log('💾 [saveRecentSearchesToAPI] Saving searches:', searches);
       const token = localStorage.getItem('hum-auth-token');
       // Convert UI format to database format
       const dbFormatSearches = searches.map(search => ({
@@ -660,7 +664,9 @@ export default function HumApp() {
         timestamp: search.timestamp ? new Date(search.timestamp) : new Date()
       }));
       
-      await fetch(`${API_BASE_URL}/api/user/recent-searches`, {
+      console.log('💾 [saveRecentSearchesToAPI] Converted to DB format:', dbFormatSearches);
+      
+      const response = await fetch(`${API_BASE_URL}/api/user/recent-searches`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -668,8 +674,15 @@ export default function HumApp() {
         },
         body: JSON.stringify({ recentSearches: dbFormatSearches })
       });
+      
+      const result = await response.json();
+      console.log('💾 [saveRecentSearchesToAPI] API response:', result);
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to save recent searches');
+      }
     } catch (error) {
-      console.error('Error saving recent searches to API:', error);
+      console.error('❌ [saveRecentSearchesToAPI] Error saving recent searches to API:', error);
       // Fallback to localStorage if API fails
       localStorage.setItem('hum-recent-searches', JSON.stringify(searches));
     }
