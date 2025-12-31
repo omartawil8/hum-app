@@ -2756,9 +2756,14 @@ export default function HumApp() {
                 <div className="w-full max-w-md">
                   <h2 className="text-lg font-bold text-white mb-4">Recent searches</h2>
                   <div className="space-y-3">
-                    {(recentSearches.length > 0 ? recentSearches : (!user ? defaultSearches : []))
-                      .slice(0, showAllSearches ? 8 : 3)
-                      .map((search, idx) => (
+                    {(() => {
+                      // Check if user has a token (might be logged in but user state not set yet)
+                      const hasToken = localStorage.getItem('hum-auth-token');
+                      // Only show defaultSearches if user is definitely not logged in (no token AND no user)
+                      const shouldShowDefaults = !hasToken && !user && recentSearches.length === 0;
+                      const searchesToShow = recentSearches.length > 0 ? recentSearches : (shouldShowDefaults ? defaultSearches : []);
+                      return searchesToShow.slice(0, showAllSearches ? 8 : 3);
+                    })().map((search, idx) => (
                         <div 
                           key={idx} 
                           className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 hover:bg-white/10 transition-all cursor-pointer border border-white/10 flex items-center justify-between"
@@ -2792,12 +2797,22 @@ export default function HumApp() {
                   </div>
                   
                   {/* Show More/Less Button */}
-                  {((recentSearches.length > 3) || (!recentSearches.length && !user && defaultSearches.length > 3)) && (
+                  {(() => {
+                    const hasToken = localStorage.getItem('hum-auth-token');
+                    const shouldShowDefaults = !hasToken && !user && recentSearches.length === 0;
+                    const totalSearches = recentSearches.length || (shouldShowDefaults ? defaultSearches.length : 0);
+                    return totalSearches > 3;
+                  })() && (
                     <button
                       onClick={() => setShowAllSearches(!showAllSearches)}
                       className="w-full mt-3 py-3 text-sm text-white/60 hover:text-white/80 hover:bg-white/5 rounded-2xl transition-all border border-white/10 hover:border-white/20"
                     >
-                      {showAllSearches ? 'Show less' : `Show more (${Math.min((recentSearches.length || defaultSearches.length) - 3, 7)} more)`}
+                      {(() => {
+                        const hasToken = localStorage.getItem('hum-auth-token');
+                        const shouldShowDefaults = !hasToken && !user && recentSearches.length === 0;
+                        const totalSearches = recentSearches.length || (shouldShowDefaults ? defaultSearches.length : 0);
+                        return showAllSearches ? 'Show less' : `Show more (${Math.min(totalSearches - 3, 7)} more)`;
+                      })()}
                     </button>
                   )}
                 </div>
