@@ -1445,7 +1445,7 @@ export default function HumApp() {
     } else {
       // Bookmarking - trigger animation
       setBookmarkAnimating(true);
-      setTimeout(() => setBookmarkAnimating(false), 300);
+      setTimeout(() => setBookmarkAnimating(false), 600);
       
       newSavedSongs = [songData, ...savedSongs];
     }
@@ -1901,7 +1901,7 @@ export default function HumApp() {
           className="fixed top-6 left-6 z-40 flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all group"
         >
           <Bookmark 
-            className={`w-5 h-5 transition-all duration-300 ${bookmarkAnimating ? 'scale-150 fill-purple-400/80 text-purple-400 animate-pulse' : ''}`} 
+            className={`w-5 h-5 transition-all duration-500 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse fill-purple-400/90 text-purple-400' : ''}`} 
             strokeWidth={1.5}
           />
         </button>
