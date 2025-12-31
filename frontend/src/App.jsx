@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, ChevronDown, LogOut } from 'lucide-react';
+import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, ChevronDown, LogOut, CreditCard } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
 import wizardGuyIcon from './assets/Wizard_guy.png';
@@ -1756,11 +1756,11 @@ export default function HumApp() {
         {/* Upgrade Modal */}
         {showUpgradeModal && (
           <div 
-            className={`fixed inset-0 bg-black/70 backdrop-blur-lg flex items-center justify-center z-50 p-4 ${isClosingUpgrade ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'}`}
+            className={`fixed inset-0 bg-black/70 backdrop-blur-lg flex items-center justify-center z-50 p-4 overflow-y-auto ${isClosingUpgrade ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'}`}
             onClick={handleCloseUpgrade}
           >
             <div 
-              className={`relative ${isClosingUpgrade ? 'animate-modal-content-out' : 'animate-modal-content'}`}
+              className={`relative my-8 ${isClosingUpgrade ? 'animate-modal-content-out' : 'animate-modal-content'}`}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close button */}
@@ -1775,7 +1775,7 @@ export default function HumApp() {
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-3xl blur-3xl"></div>
               
               {/* Modal */}
-              <div className="relative bg-[#2A2D3A]/95 backdrop-blur-2xl rounded-3xl p-8 max-w-4xl w-full border border-white/10 shadow-2xl">
+              <div className="relative bg-[#2A2D3A]/95 backdrop-blur-2xl rounded-3xl p-8 max-w-4xl w-full border border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto">
                 <h2 className="text-4xl font-bold text-center mb-2">Wanna keep humming?</h2>
                 <p className="text-xl text-white/60 text-center mb-8">Select a plan</p>
 
@@ -1916,16 +1916,18 @@ export default function HumApp() {
                     <div className="flex flex-col gap-3">
                       <button
                         onClick={handleContinueUpgrade}
-                        className="w-full px-6 py-4 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-xl font-bold text-lg transition-all hover:scale-105 shadow-lg flex items-center justify-center gap-3"
+                        className="w-full px-6 py-4 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/30 rounded-xl font-semibold text-base transition-all hover:scale-[1.02] shadow-lg flex items-center justify-center gap-3 text-white backdrop-blur-sm"
                       >
-                        <span>💳</span>
+                        <CreditCard className="w-5 h-5" />
                         <span>Pay with Card, Apple Pay, or Google Pay</span>
                       </button>
                       <button
                         onClick={() => handlePayPalPayment(selectedPlan)}
-                        className="w-full px-6 py-4 bg-[#0070ba] hover:bg-[#005ea6] rounded-xl font-bold text-lg transition-all hover:scale-105 shadow-lg flex items-center justify-center gap-3"
+                        className="w-full px-6 py-4 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/30 rounded-xl font-semibold text-base transition-all hover:scale-[1.02] shadow-lg flex items-center justify-center gap-3 text-white backdrop-blur-sm"
                       >
-                        <span>🅿️</span>
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.174 1.305 1.06 3.1.93 4.79l-.003.02-.107 4.4c-.09 3.728-.217 5.304-1.223 6.64-1.06 1.401-2.906 2.278-5.502 2.278H9.67a.804.804 0 0 0-.796.68l-1.798 8.338z"/>
+                        </svg>
                         <span>Pay with PayPal</span>
                       </button>
                     </div>
