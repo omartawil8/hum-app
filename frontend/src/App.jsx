@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard } from 'lucide-react';
+import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, LogOut } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
 import wizardGuyIcon from './assets/Wizard_guy.png';
@@ -63,6 +63,8 @@ export default function HumApp() {
   
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const userDropdownRef = useRef(null);
   
   const ANONYMOUS_SEARCH_LIMIT = 1; // 1 free search without login
   const FREE_SEARCH_LIMIT = 5; // Total free searches (1 anonymous + 4 authenticated)
@@ -451,6 +453,7 @@ export default function HumApp() {
     localStorage.removeItem('hum-auth-token');
     setUser(null);
     setSearchCount(0);
+    setShowUserDropdown(false); // Close dropdown on logout
     // Don't reset anonymousSearchCount - if they used it, it stays used
     // localStorage.removeItem('hum-anonymous-search-count'); // Keep this so they can't get another free search
     localStorage.removeItem('hum-search-count');
@@ -486,6 +489,23 @@ export default function HumApp() {
     
     return () => clearInterval(interval);
   }, []);
+
+  // Close user dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
+        setShowUserDropdown(false);
+      }
+    };
+
+    if (showUserDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserDropdown]);
 
   useEffect(() => {
     if (matchData && matchData[0]) {
@@ -1524,19 +1544,30 @@ export default function HumApp() {
 
         {/* Top Right - User Account & Help Button */}
         <div className="fixed top-6 right-6 z-40 flex items-center gap-2">
-          {/* User Account (if logged in) */}
+          {/* User Account Dropdown (if logged in) */}
           {user && (
-            <>
-              <div className="px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full text-sm text-white/70">
-                {user.email}
-              </div>
+            <div className="relative" ref={userDropdownRef}>
               <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-white/5 hover:bg-white/10 backdrop-blur-sm border border-white/10 rounded-full text-sm transition-all"
+                onClick={() => setShowUserDropdown(!showUserDropdown)}
+                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 backdrop-blur-sm border border-white/10 rounded-full text-sm text-white/70 transition-all"
               >
-                Logout
+                <span className="truncate max-w-[150px]">{user.email}</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${showUserDropdown ? 'rotate-180' : ''}`} />
               </button>
-            </>
+
+              {/* Dropdown Menu */}
+              {showUserDropdown && (
+                <div className="absolute top-full right-0 mt-2 w-48 bg-white/[0.08] backdrop-blur-xl rounded-xl border border-white/20 shadow-2xl z-50 overflow-hidden animate-slide-down">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-white/80 hover:bg-white/10 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              )}
+            </div>
           )}
 
           {/* Help Button */}
