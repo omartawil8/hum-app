@@ -2407,8 +2407,8 @@ export default function HumApp() {
                     <div className="w-24 h-24 rounded-full bg-white/5 backdrop-blur-sm flex items-center justify-center mb-5">
                       <Bookmark className="w-12 h-12 text-white/30" strokeWidth={1.5} fill="none" />
                     </div>
-                    <p className="text-lg font-medium mb-1.5 text-white/70">no bookmarks yet</p>
-                    <p className="text-sm text-white/40 font-light leading-relaxed">
+                    <p className="text-xl font-medium mb-2 text-white/70">no bookmarks yet</p>
+                    <p className="text-base text-white/40 font-light leading-relaxed">
                       songs you bookmark will appear here
                     </p>
                   </div>
