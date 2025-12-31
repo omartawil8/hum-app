@@ -1890,12 +1890,18 @@ export default function HumApp() {
                 <div 
                   className={`mt-8 overflow-hidden transition-all duration-300 ease-in-out ${
                     selectedPlan 
-                      ? 'max-h-48 opacity-100 pb-4' 
+                      ? 'max-h-64 opacity-100 pb-4' 
                       : 'max-h-0 opacity-0 pb-0'
                   }`}
                 >
                   <div>
-                    <p className="text-center text-white/60 mb-4 text-sm">Choose payment method:</p>
+                    {/* Header with decorative lines */}
+                    <div className="flex items-center justify-center gap-4 mb-3">
+                      <div className="flex-1 h-px bg-white/20"></div>
+                      <h3 className="text-xl font-semibold text-white/90 whitespace-nowrap">Ready to upgrade?</h3>
+                      <div className="flex-1 h-px bg-white/20"></div>
+                    </div>
+                    <p className="text-center text-white/60 mb-6 text-sm">Choose your preferred payment method</p>
                     <div className="flex flex-col gap-3">
                       <button
                         onClick={handleContinueUpgrade}
