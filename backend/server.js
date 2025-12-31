@@ -1111,17 +1111,17 @@ async function identifyAudio(audioBuffer) {
   console.log('   🌐 Host:', process.env.ACR_HOST || 'MISSING');
 
   try {
-    const response = await axios.post(
-      `https://${process.env.ACR_HOST}/v1/identify`,
-      formData,
+  const response = await axios.post(
+    `https://${process.env.ACR_HOST}/v1/identify`,
+    formData,
       { 
         headers: formData.getHeaders(),
         timeout: 30000 // 30 second timeout
       }
-    );
+  );
 
     console.log('   ✅ ACR Cloud API responded');
-    return response.data;
+  return response.data;
   } catch (error) {
     console.error('   ❌ ACR Cloud API error:', error.message);
     if (error.response) {
@@ -1461,7 +1461,7 @@ app.post('/api/identify', upload.single('audio'), authenticateToken, checkSearch
     let acrResult;
     try {
       acrResult = await identifyAudio(req.file.buffer);
-      console.log('📊 ACRCloud status:', acrResult.status?.code === 0 ? 'SUCCESS' : 'NO MATCH');
+    console.log('📊 ACRCloud status:', acrResult.status?.code === 0 ? 'SUCCESS' : 'NO MATCH');
     } catch (acrError) {
       console.error('❌ ACRCloud error:', acrError.message);
       console.error('   Stack:', acrError.stack);
@@ -2093,6 +2093,38 @@ app.post('/api/admin/send-welcome-email', async (req, res) => {
   }
 });
 
+// Delete user by email (admin endpoint)
+app.delete('/api/admin/delete-user', async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    if (!isMongoConnected()) {
+      return res.status(503).json({ error: 'Database not available' });
+    }
+    
+    const user = await User.findOne({ email: email.toLowerCase() });
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    await User.deleteOne({ email: email.toLowerCase() });
+    console.log(`🗑️  User deleted: ${email}`);
+    
+    res.json({
+      success: true,
+      message: `User ${email} has been deleted`
+    });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+});
+
 // Connect to MongoDB
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hum-app';
 
@@ -2101,12 +2133,12 @@ mongoose.connect(MONGODB_URI)
     console.log('✅ Connected to MongoDB');
     
     // Start server after MongoDB connection
-    const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3001;
     app.listen(PORT, '0.0.0.0', () => {
-      console.log(`🎵 hüm backend running on port ${PORT}`);
+  console.log(`🎵 hüm backend running on port ${PORT}`);
       console.log(`   🌐 Listening on 0.0.0.0 (all interfaces)`);
-      console.log(`   ✅ Lyrics search: Scrapingdog → Spotify (field search)`);
-      console.log(`   ✅ Humming: ACRCloud + Spotify enrichment`);
+  console.log(`   ✅ Lyrics search: Scrapingdog → Spotify (field search)`);
+  console.log(`   ✅ Humming: ACRCloud + Spotify enrichment`);
       console.log(`   📡 CORS enabled for all origins`);
       console.log(`   💾 Using MongoDB for persistent storage`);
     });
@@ -2122,4 +2154,4 @@ mongoose.connect(MONGODB_URI)
       console.log(`🎵 hüm backend running on port ${PORT} (file-based storage - NOT PERSISTENT)`);
       console.log(`   ⚠️  WARNING: Users will be lost on restart without MongoDB!`);
     });
-  });
+});
