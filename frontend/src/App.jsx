@@ -230,6 +230,7 @@ export default function HumApp() {
           setSavedSongs(data.user.bookmarks);
         }
         if (data.user.recentSearches && data.user.recentSearches.length > 0) {
+          console.log('📥 Raw recent searches from API:', data.user.recentSearches);
           // Transform database format to UI format
           const transformedSearches = data.user.recentSearches.map(search => {
             // Handle both database format (with result object) and UI format (direct properties)
@@ -251,12 +252,18 @@ export default function HumApp() {
             return { song, artist, albumArt, timestamp };
           }).filter(search => search.song && search.artist); // Filter out invalid entries
           
+          console.log('✨ Transformed recent searches:', transformedSearches);
+          
           if (transformedSearches.length > 0) {
             setRecentSearches(transformedSearches);
             // Also save to localStorage as backup
             localStorage.setItem('hum-recent-searches', JSON.stringify(transformedSearches));
+          } else {
+            console.warn('⚠️ All recent searches were filtered out - no valid entries');
+            setRecentSearches([]);
           }
         } else {
+          console.log('📭 No recent searches in database');
           // If no recent searches from database, clear localStorage too
           localStorage.removeItem('hum-recent-searches');
           setRecentSearches([]);
@@ -433,6 +440,7 @@ export default function HumApp() {
           setSavedSongs(data.user.bookmarks);
         }
         if (data.user.recentSearches && data.user.recentSearches.length > 0) {
+          console.log('📥 Raw recent searches from API:', data.user.recentSearches);
           // Transform database format to UI format
           const transformedSearches = data.user.recentSearches.map(search => {
             // Handle both database format (with result object) and UI format (direct properties)
@@ -454,12 +462,18 @@ export default function HumApp() {
             return { song, artist, albumArt, timestamp };
           }).filter(search => search.song && search.artist); // Filter out invalid entries
           
+          console.log('✨ Transformed recent searches:', transformedSearches);
+          
           if (transformedSearches.length > 0) {
             setRecentSearches(transformedSearches);
             // Also save to localStorage as backup
             localStorage.setItem('hum-recent-searches', JSON.stringify(transformedSearches));
+          } else {
+            console.warn('⚠️ All recent searches were filtered out - no valid entries');
+            setRecentSearches([]);
           }
         } else {
+          console.log('📭 No recent searches in database');
           // If no recent searches from database, clear localStorage too
           localStorage.removeItem('hum-recent-searches');
           setRecentSearches([]);
@@ -533,6 +547,7 @@ export default function HumApp() {
           setSavedSongs(data.user.bookmarks);
         }
         if (data.user.recentSearches && data.user.recentSearches.length > 0) {
+          console.log('📥 Raw recent searches from API:', data.user.recentSearches);
           // Transform database format to UI format
           const transformedSearches = data.user.recentSearches.map(search => {
             // Handle both database format (with result object) and UI format (direct properties)
@@ -554,12 +569,18 @@ export default function HumApp() {
             return { song, artist, albumArt, timestamp };
           }).filter(search => search.song && search.artist); // Filter out invalid entries
           
+          console.log('✨ Transformed recent searches:', transformedSearches);
+          
           if (transformedSearches.length > 0) {
             setRecentSearches(transformedSearches);
             // Also save to localStorage as backup
             localStorage.setItem('hum-recent-searches', JSON.stringify(transformedSearches));
+          } else {
+            console.warn('⚠️ All recent searches were filtered out - no valid entries');
+            setRecentSearches([]);
           }
         } else {
+          console.log('📭 No recent searches in database');
           // If no recent searches from database, clear localStorage too
           localStorage.removeItem('hum-recent-searches');
           setRecentSearches([]);
