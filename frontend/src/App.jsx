@@ -2204,83 +2204,94 @@ export default function HumApp() {
             ></div>
             
             {/* Panel */}
-            <div className={`fixed top-0 left-0 h-full w-96 bg-gradient-to-br from-[#1a1d3a]/95 to-[#0A0E27]/95 backdrop-blur-xl border-r border-white/10 z-50 overflow-hidden flex flex-col ${isClosingBookmarks ? 'animate-slide-out' : 'animate-slide-in'}`}>
+            <div className={`fixed top-0 left-0 h-full w-96 bg-gradient-to-br from-[#0f0f0f] via-[#1a1a1a] to-[#0f0f0f] backdrop-blur-2xl border-r border-white/[0.08] z-50 overflow-hidden flex flex-col ${isClosingBookmarks ? 'animate-slide-out' : 'animate-slide-in'}`}>
               {/* Header */}
-              <div className="p-6 border-b border-white/10">
-                <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-2xl font-bold">Bookmarks</h2>
+              <div className="p-6 border-b border-white/[0.06]">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center border border-white/10">
+                      <Bookmark className="w-5 h-5 text-purple-300" strokeWidth={1.5} fill="currentColor" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-semibold tracking-tight">bookmarks</h2>
+                      <p className="text-xs text-white/40 font-light mt-0.5">
+                        {savedSongs.length} {savedSongs.length === 1 ? 'song' : 'songs'}
+                      </p>
+                    </div>
+                  </div>
                   <button 
                     onClick={handleCloseBookmarks}
-                    className="p-2 hover:bg-white/5 rounded-full transition-all"
+                    className="p-1.5 hover:bg-white/5 rounded-lg transition-all hover:scale-105"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4 text-white/40" />
                   </button>
                 </div>
-                <p className="text-sm text-white/60">
-                  {savedSongs.length} {savedSongs.length === 1 ? 'song' : 'songs'} saved
-                </p>
               </div>
 
               {/* Bookmarks List */}
-              <div className="flex-1 overflow-y-auto p-4">
+              <div className="flex-1 overflow-y-auto p-5">
                 {savedSongs.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center px-8">
-                    <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                      <Bookmark className="w-10 h-10 opacity-40" strokeWidth={1} />
+                    <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-purple-500/10 to-blue-500/10 border border-white/5 flex items-center justify-center mb-5">
+                      <Bookmark className="w-12 h-12 text-white/20" strokeWidth={1} />
                     </div>
-                    <p className="text-lg font-bold mb-2">No bookmarks yet</p>
-                    <p className="text-sm text-white/60">
-                      Songs you bookmark will appear here
+                    <p className="text-base font-medium mb-1.5 text-white/70">no bookmarks yet</p>
+                    <p className="text-xs text-white/40 font-light leading-relaxed">
+                      songs you bookmark will appear here
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     {savedSongs.map((song, idx) => (
                       <div 
                         key={idx}
-                        className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:bg-white/10 transition-all group"
+                        className="group relative bg-white/[0.03] backdrop-blur-sm rounded-xl p-3 border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-200 hover:scale-[1.01] cursor-pointer"
                       >
                         <div className="flex items-center gap-3">
                           {/* Album Art */}
-                          <div className="w-14 h-14 bg-white/10 rounded-xl overflow-hidden flex-shrink-0">
+                          <div className="w-16 h-16 bg-white/[0.05] rounded-lg overflow-hidden flex-shrink-0 border border-white/[0.08] group-hover:border-white/[0.15] transition-all">
                             {song.albumArt ? (
                               <img 
                                 src={song.albumArt} 
                                 alt={song.title}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <Music className="w-6 h-6 opacity-40" strokeWidth={1} />
+                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-500/10 to-blue-500/10">
+                                <Music className="w-7 h-7 opacity-30" strokeWidth={1} />
                               </div>
                             )}
                           </div>
 
                           {/* Song Info */}
                           <div className="flex-1 min-w-0">
-                            <p className="font-bold truncate mb-1">{song.title}</p>
-                            <p className="text-sm text-white/60 truncate">{song.artist}</p>
+                            <p className="font-medium text-sm truncate mb-0.5 text-white/90 group-hover:text-white transition-colors">{song.title}</p>
+                            <p className="text-xs text-white/50 truncate font-light">{song.artist}</p>
                           </div>
 
                           {/* Actions */}
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             {song.spotifyUrl && (
                               <a
                                 href={song.spotifyUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="p-2 hover:bg-white/10 rounded-full transition-all opacity-0 group-hover:opacity-100"
+                                onClick={(e) => e.stopPropagation()}
+                                className="p-1.5 hover:bg-white/10 rounded-lg transition-all hover:scale-110"
                                 title="Open in Spotify"
                               >
-                                <Music className="w-4 h-4" strokeWidth={1.5} />
+                                <Music className="w-4 h-4 text-white/60" strokeWidth={1.5} />
                               </a>
                             )}
                             <button
-                              onClick={() => removeBookmark(song)}
-                              className="p-2 hover:bg-red-500/20 rounded-full transition-all opacity-0 group-hover:opacity-100"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeBookmark(song);
+                              }}
+                              className="p-1.5 hover:bg-red-500/20 rounded-lg transition-all hover:scale-110"
                               title="Remove bookmark"
                             >
-                              <X className="w-4 h-4 text-red-400" strokeWidth={1.5} />
+                              <X className="w-4 h-4 text-red-400/70" strokeWidth={1.5} />
                             </button>
                           </div>
                         </div>
