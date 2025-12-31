@@ -160,7 +160,7 @@ export default function HumApp() {
     }
 
     // Load authentication token and user
-    const token = localStorage.getItem('hum-auth-token');
+    // (token already declared above, reuse it)
     if (token) {
       checkAuthStatus(token);
     } else {
