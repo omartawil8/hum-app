@@ -177,18 +177,9 @@ async function sendWelcomeEmail(email, remainingSearches) {
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false, // true for 465, false for other ports
       auth: {
         user: process.env.FEEDBACK_EMAIL_USER,
         pass: process.env.FEEDBACK_EMAIL_PASSWORD
-      },
-      connectionTimeout: 10000, // 10 seconds
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
-      tls: {
-        rejectUnauthorized: false
       }
     });
 
@@ -453,7 +444,10 @@ app.post('/api/auth/login', async (req, res) => {
         id: user._id.toString(),
         email: user.email,
         searchCount: user.searchCount || 0,
-        tier: user.tier || 'free' // Default to free if not set
+        tier: user.tier || 'free', // Default to free if not set
+        nickname: user.nickname || null,
+        bookmarks: user.bookmarks || [],
+        recentSearches: user.recentSearches || []
       }
     });
   } catch (error) {
@@ -484,12 +478,101 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
         id: user._id.toString(),
         email: user.email,
         searchCount: user.searchCount || 0,
-        tier: user.tier || 'free' // Default to free if not set
+        tier: user.tier || 'free', // Default to free if not set
+        nickname: user.nickname || null,
+        bookmarks: user.bookmarks || [],
+        recentSearches: user.recentSearches || []
       }
     });
   } catch (error) {
     console.error('Error checking auth status:', error);
     res.json({ authenticated: false });
+  }
+});
+
+// Update nickname endpoint
+app.put('/api/user/nickname', authenticateToken, async (req, res) => {
+  try {
+    if (!isMongoConnected()) {
+      return res.status(503).json({ error: 'Database not available' });
+    }
+
+    const { nickname } = req.body;
+    const user = await User.findById(req.user.userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Validate nickname length
+    if (nickname && nickname.length > 30) {
+      return res.status(400).json({ error: 'Nickname must be 30 characters or less' });
+    }
+
+    user.nickname = nickname && nickname.trim() ? nickname.trim() : null;
+    await user.save();
+
+    res.json({ success: true, nickname: user.nickname });
+  } catch (error) {
+    console.error('Error updating nickname:', error);
+    res.status(500).json({ error: 'Failed to update nickname' });
+  }
+});
+
+// Update bookmarks endpoint
+app.put('/api/user/bookmarks', authenticateToken, async (req, res) => {
+  try {
+    if (!isMongoConnected()) {
+      return res.status(503).json({ error: 'Database not available' });
+    }
+
+    const { bookmarks } = req.body;
+    const user = await User.findById(req.user.userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (!Array.isArray(bookmarks)) {
+      return res.status(400).json({ error: 'Bookmarks must be an array' });
+    }
+
+    user.bookmarks = bookmarks;
+    await user.save();
+
+    res.json({ success: true, bookmarks: user.bookmarks });
+  } catch (error) {
+    console.error('Error updating bookmarks:', error);
+    res.status(500).json({ error: 'Failed to update bookmarks' });
+  }
+});
+
+// Update recent searches endpoint
+app.put('/api/user/recent-searches', authenticateToken, async (req, res) => {
+  try {
+    if (!isMongoConnected()) {
+      return res.status(503).json({ error: 'Database not available' });
+    }
+
+    const { recentSearches } = req.body;
+    const user = await User.findById(req.user.userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (!Array.isArray(recentSearches)) {
+      return res.status(400).json({ error: 'Recent searches must be an array' });
+    }
+
+    // Limit to last 20 searches
+    user.recentSearches = recentSearches.slice(-20);
+    await user.save();
+
+    res.json({ success: true, recentSearches: user.recentSearches });
+  } catch (error) {
+    console.error('Error updating recent searches:', error);
+    res.status(500).json({ error: 'Failed to update recent searches' });
   }
 });
 
@@ -1600,18 +1683,9 @@ app.post('/api/general-feedback', async (req, res) => {
       // User needs to set up app password in Gmail settings
       const transporter = nodemailer.createTransport({
         service: 'gmail',
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
         auth: {
           user: process.env.FEEDBACK_EMAIL_USER,
           pass: process.env.FEEDBACK_EMAIL_PASSWORD
-        },
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-        socketTimeout: 10000,
-        tls: {
-          rejectUnauthorized: false
         }
       });
 

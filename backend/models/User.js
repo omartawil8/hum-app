@@ -32,7 +32,38 @@ const userSchema = new mongoose.Schema({
   stripeSubscriptionId: {
     type: String,
     default: null
-  }
+  },
+  nickname: {
+    type: String,
+    default: null,
+    trim: true,
+    maxlength: 30
+  },
+  bookmarks: [{
+    title: String,
+    artist: String,
+    album: String,
+    albumArt: String,
+    spotifyUrl: String,
+    timestamp: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  recentSearches: [{
+    query: String,
+    result: {
+      title: String,
+      artist: String,
+      album: String,
+      albumArt: String,
+      spotifyUrl: String
+    },
+    timestamp: {
+      type: Date,
+      default: Date.now
+    }
+  }]
 });
 
 module.exports = mongoose.model('User', userSchema);

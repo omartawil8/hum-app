@@ -189,11 +189,7 @@ export default function HumApp() {
       }
     }
 
-    // Load nickname
-    const savedNickname = localStorage.getItem('hum-user-nickname');
-    if (savedNickname) {
-      setNickname(savedNickname);
-    }
+    // Nickname will be loaded from API when user logs in
     
     // Debug log
     console.log('Pro Status:', proStatus, 'isPro:', isPro, 'searchCount:', searchCount, 'tier:', tier);
@@ -219,6 +215,16 @@ export default function HumApp() {
           // Default to free if not set
           setUserTier('free');
           localStorage.setItem('hum-user-tier', 'free');
+        }
+        // Load user data from API
+        if (data.user.nickname) {
+          setNickname(data.user.nickname);
+        }
+        if (data.user.bookmarks && data.user.bookmarks.length > 0) {
+          setSavedSongs(data.user.bookmarks);
+        }
+        if (data.user.recentSearches && data.user.recentSearches.length > 0) {
+          setRecentSearches(data.user.recentSearches);
         }
       } else {
         localStorage.removeItem('hum-auth-token');
@@ -384,6 +390,17 @@ export default function HumApp() {
           setUserTier('free');
           localStorage.setItem('hum-user-tier', 'free');
         }
+        // Load user data from API
+        if (data.user.nickname) {
+          setNickname(data.user.nickname);
+        }
+        if (data.user.bookmarks && data.user.bookmarks.length > 0) {
+          setSavedSongs(data.user.bookmarks);
+        }
+        if (data.user.recentSearches && data.user.recentSearches.length > 0) {
+          setRecentSearches(data.user.recentSearches);
+        }
+        
         // Don't clear anonymous search count - it's tracked on backend now
         setShowAuthModal(false);
         setAuthEmail('');
@@ -444,6 +461,16 @@ export default function HumApp() {
           setUserTier('free');
           localStorage.setItem('hum-user-tier', 'free');
         }
+        // Load user data from API
+        if (data.user.nickname) {
+          setNickname(data.user.nickname);
+        }
+        if (data.user.bookmarks && data.user.bookmarks.length > 0) {
+          setSavedSongs(data.user.bookmarks);
+        }
+        if (data.user.recentSearches && data.user.recentSearches.length > 0) {
+          setRecentSearches(data.user.recentSearches);
+        }
         setShowAuthModal(false);
         setAuthEmail('');
         setAuthPassword('');
@@ -462,27 +489,112 @@ export default function HumApp() {
     localStorage.removeItem('hum-auth-token');
     setUser(null);
     setSearchCount(0);
+    setNickname('');
+    setSavedSongs([]);
+    setRecentSearches([]);
     setShowUserDropdown(false); // Close dropdown on logout
     // Don't reset anonymousSearchCount - if they used it, it stays used
     // localStorage.removeItem('hum-anonymous-search-count'); // Keep this so they can't get another free search
     localStorage.removeItem('hum-search-count');
   };
 
-  const handleSaveNickname = () => {
-    const trimmedNickname = nicknameInput.trim();
-    if (trimmedNickname) {
-      setNickname(trimmedNickname);
-      localStorage.setItem('hum-user-nickname', trimmedNickname);
-      setShowNicknameModal(false);
-      setNicknameInput('');
-      setShowUserDropdown(false);
+  // Helper function to save bookmarks to API
+  const saveBookmarksToAPI = async (bookmarks) => {
+    if (!user) return; // Only save if logged in
+    
+    try {
+      const token = localStorage.getItem('hum-auth-token');
+      await fetch(`${API_BASE_URL}/api/user/bookmarks`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ bookmarks })
+      });
+    } catch (error) {
+      console.error('Error saving bookmarks to API:', error);
+      // Fallback to localStorage if API fails
+      localStorage.setItem('hum-saved-songs', JSON.stringify(bookmarks));
     }
   };
 
-  const handleRemoveNickname = () => {
-    setNickname('');
-    localStorage.removeItem('hum-user-nickname');
-    setShowUserDropdown(false);
+  // Helper function to save recent searches to API
+  const saveRecentSearchesToAPI = async (searches) => {
+    if (!user) return; // Only save if logged in
+    
+    try {
+      const token = localStorage.getItem('hum-auth-token');
+      await fetch(`${API_BASE_URL}/api/user/recent-searches`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ recentSearches: searches })
+      });
+    } catch (error) {
+      console.error('Error saving recent searches to API:', error);
+      // Fallback to localStorage if API fails
+      localStorage.setItem('hum-recent-searches', JSON.stringify(searches));
+    }
+  };
+
+  const handleSaveNickname = async () => {
+    const trimmedNickname = nicknameInput.trim();
+    if (!trimmedNickname || !user) return;
+    
+    try {
+      const token = localStorage.getItem('hum-auth-token');
+      const response = await fetch(`${API_BASE_URL}/api/user/nickname`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ nickname: trimmedNickname })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setNickname(data.nickname);
+        setShowNicknameModal(false);
+        setNicknameInput('');
+        setShowUserDropdown(false);
+      } else {
+        alert('Failed to save nickname. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error saving nickname:', error);
+      alert('Failed to save nickname. Please try again.');
+    }
+  };
+
+  const handleRemoveNickname = async () => {
+    if (!user) return;
+    
+    try {
+      const token = localStorage.getItem('hum-auth-token');
+      const response = await fetch(`${API_BASE_URL}/api/user/nickname`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ nickname: null })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setNickname('');
+        setShowUserDropdown(false);
+      } else {
+        alert('Failed to remove nickname. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error removing nickname:', error);
+      alert('Failed to remove nickname. Please try again.');
+    }
   };
 
   const handleCloseAuth = () => {
@@ -864,7 +976,12 @@ export default function HumApp() {
         // Add to beginning of array, keep max 10
         const updatedSearches = [newSearch, ...recentSearches].slice(0, 10);
         setRecentSearches(updatedSearches);
-        localStorage.setItem('hum-recent-searches', JSON.stringify(updatedSearches));
+        // Save to API if logged in, otherwise localStorage
+        if (user) {
+          saveRecentSearchesToAPI(updatedSearches);
+        } else {
+          localStorage.setItem('hum-recent-searches', JSON.stringify(updatedSearches));
+        }
       } else {
         setError(data.message || 'No match found. Try humming more clearly.');
         setHasResult(false);
@@ -1004,7 +1121,12 @@ export default function HumApp() {
         
         const updatedSearches = [newSearch, ...recentSearches].slice(0, 10);
         setRecentSearches(updatedSearches);
-        localStorage.setItem('hum-recent-searches', JSON.stringify(updatedSearches));
+        // Save to API if logged in, otherwise localStorage
+        if (user) {
+          saveRecentSearchesToAPI(updatedSearches);
+        } else {
+          localStorage.setItem('hum-recent-searches', JSON.stringify(updatedSearches));
+        }
       } else {
         // Show error with suggestion if available
         const errorMessage = data.message || 'No match found. Try different lyrics.';
@@ -1148,7 +1270,12 @@ export default function HumApp() {
     }
     
     setSavedSongs(newSavedSongs);
-    localStorage.setItem('hum-saved-songs', JSON.stringify(newSavedSongs));
+    // Save to API if logged in, otherwise localStorage
+    if (user) {
+      saveBookmarksToAPI(newSavedSongs);
+    } else {
+      localStorage.setItem('hum-saved-songs', JSON.stringify(newSavedSongs));
+    }
     setIsSaved(!isSaved);
   };
 
@@ -1157,7 +1284,12 @@ export default function HumApp() {
       s => !(s.title === song.title && s.artist === song.artist)
     );
     setSavedSongs(newSavedSongs);
-    localStorage.setItem('hum-saved-songs', JSON.stringify(newSavedSongs));
+    // Save to API if logged in, otherwise localStorage
+    if (user) {
+      saveBookmarksToAPI(newSavedSongs);
+    } else {
+      localStorage.setItem('hum-saved-songs', JSON.stringify(newSavedSongs));
+    }
   };
 
   const resetApp = () => {
