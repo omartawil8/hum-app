@@ -231,13 +231,35 @@ export default function HumApp() {
         }
         if (data.user.recentSearches && data.user.recentSearches.length > 0) {
           // Transform database format to UI format
-          const transformedSearches = data.user.recentSearches.map(search => ({
-            song: search.result?.title || search.song || '',
-            artist: search.result?.artist || search.artist || '',
-            albumArt: search.result?.albumArt || search.albumArt || null,
-            timestamp: search.timestamp ? (typeof search.timestamp === 'string' ? new Date(search.timestamp).getTime() : search.timestamp) : Date.now()
-          }));
-          setRecentSearches(transformedSearches);
+          const transformedSearches = data.user.recentSearches.map(search => {
+            // Handle both database format (with result object) and UI format (direct properties)
+            const song = search.result?.title || search.song || '';
+            const artist = search.result?.artist || search.artist || '';
+            const albumArt = search.result?.albumArt || search.albumArt || null;
+            let timestamp = Date.now();
+            
+            if (search.timestamp) {
+              if (typeof search.timestamp === 'string') {
+                timestamp = new Date(search.timestamp).getTime();
+              } else if (search.timestamp instanceof Date) {
+                timestamp = search.timestamp.getTime();
+              } else if (typeof search.timestamp === 'number') {
+                timestamp = search.timestamp;
+              }
+            }
+            
+            return { song, artist, albumArt, timestamp };
+          }).filter(search => search.song && search.artist); // Filter out invalid entries
+          
+          if (transformedSearches.length > 0) {
+            setRecentSearches(transformedSearches);
+            // Also save to localStorage as backup
+            localStorage.setItem('hum-recent-searches', JSON.stringify(transformedSearches));
+          }
+        } else {
+          // If no recent searches from database, clear localStorage too
+          localStorage.removeItem('hum-recent-searches');
+          setRecentSearches([]);
         }
       } else {
         localStorage.removeItem('hum-auth-token');
@@ -412,13 +434,35 @@ export default function HumApp() {
         }
         if (data.user.recentSearches && data.user.recentSearches.length > 0) {
           // Transform database format to UI format
-          const transformedSearches = data.user.recentSearches.map(search => ({
-            song: search.result?.title || search.song || '',
-            artist: search.result?.artist || search.artist || '',
-            albumArt: search.result?.albumArt || search.albumArt || null,
-            timestamp: search.timestamp ? (typeof search.timestamp === 'string' ? new Date(search.timestamp).getTime() : search.timestamp) : Date.now()
-          }));
-          setRecentSearches(transformedSearches);
+          const transformedSearches = data.user.recentSearches.map(search => {
+            // Handle both database format (with result object) and UI format (direct properties)
+            const song = search.result?.title || search.song || '';
+            const artist = search.result?.artist || search.artist || '';
+            const albumArt = search.result?.albumArt || search.albumArt || null;
+            let timestamp = Date.now();
+            
+            if (search.timestamp) {
+              if (typeof search.timestamp === 'string') {
+                timestamp = new Date(search.timestamp).getTime();
+              } else if (search.timestamp instanceof Date) {
+                timestamp = search.timestamp.getTime();
+              } else if (typeof search.timestamp === 'number') {
+                timestamp = search.timestamp;
+              }
+            }
+            
+            return { song, artist, albumArt, timestamp };
+          }).filter(search => search.song && search.artist); // Filter out invalid entries
+          
+          if (transformedSearches.length > 0) {
+            setRecentSearches(transformedSearches);
+            // Also save to localStorage as backup
+            localStorage.setItem('hum-recent-searches', JSON.stringify(transformedSearches));
+          }
+        } else {
+          // If no recent searches from database, clear localStorage too
+          localStorage.removeItem('hum-recent-searches');
+          setRecentSearches([]);
         }
         
         // Don't clear anonymous search count - it's tracked on backend now
@@ -490,13 +534,35 @@ export default function HumApp() {
         }
         if (data.user.recentSearches && data.user.recentSearches.length > 0) {
           // Transform database format to UI format
-          const transformedSearches = data.user.recentSearches.map(search => ({
-            song: search.result?.title || search.song || '',
-            artist: search.result?.artist || search.artist || '',
-            albumArt: search.result?.albumArt || search.albumArt || null,
-            timestamp: search.timestamp ? (typeof search.timestamp === 'string' ? new Date(search.timestamp).getTime() : search.timestamp) : Date.now()
-          }));
-          setRecentSearches(transformedSearches);
+          const transformedSearches = data.user.recentSearches.map(search => {
+            // Handle both database format (with result object) and UI format (direct properties)
+            const song = search.result?.title || search.song || '';
+            const artist = search.result?.artist || search.artist || '';
+            const albumArt = search.result?.albumArt || search.albumArt || null;
+            let timestamp = Date.now();
+            
+            if (search.timestamp) {
+              if (typeof search.timestamp === 'string') {
+                timestamp = new Date(search.timestamp).getTime();
+              } else if (search.timestamp instanceof Date) {
+                timestamp = search.timestamp.getTime();
+              } else if (typeof search.timestamp === 'number') {
+                timestamp = search.timestamp;
+              }
+            }
+            
+            return { song, artist, albumArt, timestamp };
+          }).filter(search => search.song && search.artist); // Filter out invalid entries
+          
+          if (transformedSearches.length > 0) {
+            setRecentSearches(transformedSearches);
+            // Also save to localStorage as backup
+            localStorage.setItem('hum-recent-searches', JSON.stringify(transformedSearches));
+          }
+        } else {
+          // If no recent searches from database, clear localStorage too
+          localStorage.removeItem('hum-recent-searches');
+          setRecentSearches([]);
         }
         setShowAuthModal(false);
         setAuthEmail('');
