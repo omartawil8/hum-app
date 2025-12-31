@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, ChevronDown, LogOut } from 'lucide-react';
+import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
 import wizardGuyIcon from './assets/Wizard_guy.png';
@@ -60,11 +60,9 @@ export default function HumApp() {
   const [isClosingAuth, setIsClosingAuth] = useState(false);
   const [welcomeMessage, setWelcomeMessage] = useState(null);
   const [showWelcome, setShowWelcome] = useState(false);
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
   
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
-  const userDropdownRef = useRef(null);
   
   const ANONYMOUS_SEARCH_LIMIT = 1; // 1 free search without login
   const FREE_SEARCH_LIMIT = 5; // Total free searches (1 anonymous + 4 authenticated)
@@ -453,7 +451,6 @@ export default function HumApp() {
     localStorage.removeItem('hum-auth-token');
     setUser(null);
     setSearchCount(0);
-    setShowUserDropdown(false); // Close dropdown on logout
     // Don't reset anonymousSearchCount - if they used it, it stays used
     // localStorage.removeItem('hum-anonymous-search-count'); // Keep this so they can't get another free search
     localStorage.removeItem('hum-search-count');
@@ -479,23 +476,6 @@ export default function HumApp() {
       setTimeout(() => setWelcomeMessage(null), 300);
     }, 5000);
   };
-
-  // Close user dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
-        setShowUserDropdown(false);
-      }
-    };
-
-    if (showUserDropdown) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showUserDropdown]);
 
   // Update relative times every minute
   useEffect(() => {
@@ -1512,30 +1492,19 @@ export default function HumApp() {
 
         {/* Top Right - User Account & Help Button */}
         <div className="fixed top-6 right-6 z-40 flex items-center gap-2">
-          {/* User Account Dropdown (if logged in) */}
+          {/* User Account (if logged in) */}
           {user && (
-            <div className="relative" ref={userDropdownRef}>
+            <>
+              <div className="px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full text-sm text-white/70">
+                {user.email}
+              </div>
               <button
-                onClick={() => setShowUserDropdown(!showUserDropdown)}
-                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 backdrop-blur-sm border border-white/10 rounded-full text-sm text-white/70 transition-all"
+                onClick={handleLogout}
+                className="px-4 py-2 bg-white/5 hover:bg-white/10 backdrop-blur-sm border border-white/10 rounded-full text-sm transition-all"
               >
-                <span className="truncate max-w-[150px]">{user.email}</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${showUserDropdown ? 'rotate-180' : ''}`} />
+                Logout
               </button>
-
-              {/* Dropdown Menu */}
-              {showUserDropdown && (
-                <div className="absolute top-full right-0 mt-2 w-48 bg-white/[0.08] backdrop-blur-xl rounded-xl border border-white/20 shadow-2xl z-50 overflow-hidden animate-slide-down">
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-white/80 hover:bg-white/10 transition-colors"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>Logout</span>
-                  </button>
-                </div>
-              )}
-            </div>
+            </>
           )}
 
           {/* Help Button */}
@@ -1624,7 +1593,7 @@ export default function HumApp() {
             <div className="flex flex-col items-center gap-0.5">
               <span className="text-sm text-white/70 group-hover:hidden transition-opacity">
                 {searchCount >= FREE_SEARCH_LIMIT
-                  ? "no more searches :("
+                  ? "no more searches"
                   : `${FREE_SEARCH_LIMIT - searchCount}/${FREE_SEARCH_LIMIT} free searches left`
                 }
               </span>
@@ -1775,7 +1744,7 @@ export default function HumApp() {
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-3xl blur-3xl"></div>
               
               {/* Modal */}
-              <div className="relative bg-[#2A2D3A]/95 backdrop-blur-2xl rounded-3xl p-8 max-w-4xl w-full border border-white/10 shadow-2xl">
+              <div className="relative bg-[#2A2D3A]/95 backdrop-blur-2xl rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] border border-white/10 shadow-2xl overflow-y-auto">
                 <h2 className="text-4xl font-bold text-center mb-2">Wanna keep humming?</h2>
                 <p className="text-xl text-white/60 text-center mb-8">Select a plan</p>
 
@@ -1911,22 +1880,24 @@ export default function HumApp() {
 
                 {/* Payment options (shows when plan selected) */}
                 {selectedPlan && (
-                  <div className="mt-8 animate-fade-in-up">
+                  <div className="mt-8 animate-fade-in-up pb-4">
                     <p className="text-center text-white/60 mb-4 text-sm">Choose payment method:</p>
                     <div className="flex flex-col gap-3">
                       <button
                         onClick={handleContinueUpgrade}
-                        className="w-full px-6 py-4 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-xl font-bold text-lg transition-all hover:scale-105 shadow-lg flex items-center justify-center gap-3"
+                        className="w-full px-6 py-3.5 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/30 rounded-xl font-medium text-base transition-all flex items-center justify-center gap-3 text-white/90 backdrop-blur-sm"
                       >
-                        <span>💳</span>
-                        <span>Pay with Card, Apple Pay, or Google Pay</span>
+                        <CreditCard className="w-5 h-5" />
+                        <span>Card, Apple Pay, or Google Pay</span>
                       </button>
                       <button
                         onClick={() => handlePayPalPayment(selectedPlan)}
-                        className="w-full px-6 py-4 bg-[#0070ba] hover:bg-[#005ea6] rounded-xl font-bold text-lg transition-all hover:scale-105 shadow-lg flex items-center justify-center gap-3"
+                        className="w-full px-6 py-3.5 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/30 rounded-xl font-medium text-base transition-all flex items-center justify-center gap-3 text-white/90 backdrop-blur-sm"
                       >
-                        <span>🅿️</span>
-                        <span>Pay with PayPal</span>
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.2zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.032.154-.054.237-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.2H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437z"/>
+                        </svg>
+                        <span>PayPal</span>
                       </button>
                     </div>
                   </div>
