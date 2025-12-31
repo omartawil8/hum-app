@@ -130,10 +130,14 @@ export default function HumApp() {
       setSavedSongs(JSON.parse(saved));
     }
     
-    // Load recent searches
-    const searches = localStorage.getItem('hum-recent-searches');
-    if (searches) {
-      setRecentSearches(JSON.parse(searches));
+    // Load recent searches from localStorage only if not logged in
+    // (logged in users will get data from API in checkAuthStatus)
+    const token = localStorage.getItem('hum-auth-token');
+    if (!token) {
+      const searches = localStorage.getItem('hum-recent-searches');
+      if (searches) {
+        setRecentSearches(JSON.parse(searches));
+      }
     }
 
     // Check for payment success
