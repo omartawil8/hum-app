@@ -1890,35 +1890,49 @@ export default function HumApp() {
                 <div 
                   className={`mt-8 overflow-hidden transition-all duration-300 ease-in-out ${
                     selectedPlan 
-                      ? 'max-h-64 opacity-100 pb-4' 
+                      ? 'max-h-80 opacity-100 pb-4' 
                       : 'max-h-0 opacity-0 pb-0'
                   }`}
                 >
                   <div>
                     {/* Header with decorative lines */}
-                    <div className="flex items-center justify-center gap-4 mb-3">
+                    <div className="flex items-center justify-center gap-4 mb-4">
                       <div className="flex-1 h-px bg-white/20"></div>
                       <h3 className="text-xl font-semibold text-white/90 whitespace-nowrap">Ready to upgrade?</h3>
                       <div className="flex-1 h-px bg-white/20"></div>
                     </div>
                     <p className="text-center text-white/60 mb-6 text-sm">Choose your preferred payment method</p>
+                    
+                    {/* Payment buttons */}
                     <div className="flex flex-col gap-3">
+                      {/* Primary: Card payment */}
                       <button
                         onClick={handleContinueUpgrade}
-                        className="w-full px-6 py-3.5 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/30 rounded-xl font-medium text-base transition-all flex items-center justify-center gap-3 text-white/90 backdrop-blur-sm"
+                        className="group relative w-full px-6 py-4 bg-gradient-to-r from-purple-500/20 to-blue-500/20 hover:from-purple-500/30 hover:to-blue-500/30 border-2 border-purple-500/40 hover:border-purple-500/60 rounded-xl font-semibold text-base transition-all duration-200 flex items-center justify-center gap-3 text-white shadow-lg hover:shadow-xl hover:scale-[1.02] backdrop-blur-sm"
                       >
-                        <CreditCard className="w-5 h-5" />
-                        <span>Card, Apple Pay, or Google Pay</span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <CreditCard className="w-5 h-5 relative z-10" />
+                        <span className="relative z-10">Card, Apple Pay, or Google Pay</span>
                       </button>
+                      
+                      {/* Secondary: PayPal */}
                       <button
                         onClick={() => handlePayPalPayment(selectedPlan)}
-                        className="w-full px-6 py-3.5 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/30 rounded-xl font-medium text-base transition-all flex items-center justify-center gap-3 text-white/90 backdrop-blur-sm"
+                        className="group relative w-full px-6 py-4 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/40 rounded-xl font-medium text-base transition-all duration-200 flex items-center justify-center gap-3 text-white/90 hover:text-white hover:scale-[1.01] backdrop-blur-sm"
                       >
                         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.2zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.032.154-.054.237-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.2H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437z"/>
                         </svg>
                         <span>PayPal</span>
                       </button>
+                    </div>
+                    
+                    {/* Trust indicator */}
+                    <div className="mt-4 flex items-center justify-center gap-2 text-xs text-white/40">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      <span>Secure payment processing</span>
                     </div>
                   </div>
                 </div>
