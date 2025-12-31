@@ -30,7 +30,23 @@ Gmail requires an **App Password**, not your regular Gmail password.
 - The `FEEDBACK_EMAIL_USER` should be your full Gmail address (e.g., `yourname@gmail.com`)
 - The `FEEDBACK_EMAIL_PASSWORD` should be the 16-character App Password
 
-### 3. Connection Error
+### 3. Connection Timeout
+**Symptoms:** Log shows `❌ Connection timeout` or error code `ETIMEDOUT`
+
+**Solution:**
+This is the most common issue on hosting platforms like Render. Gmail SMTP connections are often blocked or timeout.
+
+**Quick Fixes:**
+1. **Check if your hosting provider blocks SMTP** - Many free hosting services block SMTP port 587
+2. **Try port 465 with SSL** - Some providers allow SSL connections
+3. **Use a transactional email service** (Recommended) - See "Alternative Email Services" below
+
+**Why this happens:**
+- Hosting providers (like Render) may block SMTP connections to prevent spam
+- Gmail may block connections from certain IP ranges
+- Network firewalls can block port 587
+
+### 4. Connection Error
 **Symptoms:** Log shows `⚠️ CONNECTION ERROR`
 
 **Solution:**
@@ -38,7 +54,7 @@ Gmail requires an **App Password**, not your regular Gmail password.
 - Verify Gmail SMTP is accessible from your server
 - Check if your hosting provider blocks SMTP ports
 
-### 4. Rate Limit Exceeded
+### 5. Rate Limit Exceeded
 **Symptoms:** Log shows `⚠️ RATE LIMIT EXCEEDED`
 
 **Solution:**
@@ -68,10 +84,56 @@ You can test if email is working by:
 
 ## Alternative: Use a Different Email Service
 
-If Gmail continues to cause issues, consider:
-- **SendGrid** (free tier: 100 emails/day)
-- **Mailgun** (free tier: 5,000 emails/month)
-- **AWS SES** (very cheap, pay-as-you-go)
+**⚠️ RECOMMENDED:** If you're experiencing connection timeouts, switch to a transactional email service. These services are designed for server-to-server email and work much better than Gmail SMTP.
 
-To switch, you'll need to modify the `sendWelcomeEmail` function in `backend/server.js` to use a different service's SMTP settings.
+### Recommended Services:
+
+1. **Resend** (Best for simplicity)
+   - Free tier: 3,000 emails/month
+   - Easy API setup
+   - Great documentation
+   - Sign up: https://resend.com
+
+2. **SendGrid** (Most popular)
+   - Free tier: 100 emails/day
+   - Reliable and well-documented
+   - Sign up: https://sendgrid.com
+
+3. **Mailgun** (Good free tier)
+   - Free tier: 5,000 emails/month for 3 months, then 1,000/month
+   - Sign up: https://mailgun.com
+
+4. **AWS SES** (Cheapest for scale)
+   - Very cheap pay-as-you-go
+   - Requires AWS account setup
+   - Sign up: https://aws.amazon.com/ses
+
+### Why Switch?
+
+- ✅ **No connection timeouts** - These services use HTTP APIs, not SMTP
+- ✅ **Better deliverability** - Emails are less likely to go to spam
+- ✅ **Built for developers** - Designed for transactional emails
+- ✅ **Better analytics** - Track opens, clicks, bounces
+- ✅ **More reliable** - 99.9%+ uptime guarantees
+
+### How to Switch
+
+You'll need to:
+1. Sign up for one of the services above
+2. Get an API key
+3. Install their SDK (e.g., `npm install resend`)
+4. Update the `sendWelcomeEmail` function in `backend/server.js`
+
+**Example with Resend:**
+```javascript
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+await resend.emails.send({
+  from: 'omar from hüm <onboarding@yourdomain.com>',
+  to: email,
+  subject: 'hey, welcome to hüm 👋',
+  html: welcomeHtml,
+});
+```
 

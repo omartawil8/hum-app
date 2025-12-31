@@ -180,26 +180,22 @@ async function sendWelcomeEmail(email, remainingSearches) {
     console.log(`   📧 Attempting to send welcome email to: ${email}`);
     console.log(`   📧 Using email account: ${process.env.FEEDBACK_EMAIL_USER}`);
 
+    // Use direct SMTP configuration with increased timeouts
+    // This is more reliable than the 'gmail' service shortcut
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false, // true for 465, false for other ports
       auth: {
         user: process.env.FEEDBACK_EMAIL_USER,
         pass: process.env.FEEDBACK_EMAIL_PASSWORD
-      }
+      },
+      connectionTimeout: 20000, // 20 seconds
+      greetingTimeout: 20000, // 20 seconds
+      socketTimeout: 20000, // 20 seconds
+      // Don't verify connection - just try to send
+      // This avoids an extra connection attempt that might timeout
     });
-
-    // Verify connection before sending
-    try {
-      await transporter.verify();
-      console.log('   ✅ Email server connection verified');
-    } catch (verifyError) {
-      console.error('   ❌ Email server verification failed:', verifyError.message);
-      if (verifyError.code === 'EAUTH') {
-        console.error('   ⚠️  Gmail authentication failed. Make sure you\'re using an App Password, not your regular Gmail password.');
-        console.error('   💡 To create an App Password: Google Account → Security → 2-Step Verification → App Passwords');
-      }
-      throw verifyError;
-    }
 
     const welcomeHtml = `
       <!DOCTYPE html>
@@ -331,17 +327,32 @@ async function sendWelcomeEmail(email, remainingSearches) {
       text: `hey 👋\n\nthanks for signing up! you've got ${remainingSearches} free searches to start with.\n\nhum a tune, type some lyrics, or just sing whatever's stuck in your head - we'll figure it out.\n\nstart at http://localhost:5173\n\n- omar, founder`
     };
 
-    await transporter.sendMail(mailOptions);
+    // Send email with timeout
+    const sendPromise = transporter.sendMail(mailOptions);
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Email send timeout after 25 seconds')), 25000)
+    );
+    
+    await Promise.race([sendPromise, timeoutPromise]);
     console.log(`   ✅ Welcome email successfully sent to ${email}`);
   } catch (emailError) {
     console.error(`   ❌❌❌ FAILED TO SEND WELCOME EMAIL ❌❌❌`);
     console.error(`   📧 Recipient: ${email}`);
     console.error(`   ❌ Error: ${emailError.message}`);
     console.error(`   📋 Error code: ${emailError.code || 'N/A'}`);
-    console.error(`   📋 Full error:`, emailError);
     
-    // Check if it's an authentication error
-    if (emailError.code === 'EAUTH' || emailError.message.includes('Invalid login') || emailError.message.includes('authentication')) {
+    // Check if it's a timeout error
+    if (emailError.code === 'ETIMEDOUT' || emailError.message.includes('timeout') || emailError.message.includes('Timeout')) {
+      console.error(`   ⚠️  CONNECTION TIMEOUT - Gmail SMTP server not reachable`);
+      console.error(`   💡 Possible causes:`);
+      console.error(`      - Render/hosting provider blocking SMTP connections`);
+      console.error(`      - Gmail blocking connections from server IP`);
+      console.error(`      - Network/firewall issues`);
+      console.error(`   💡 Solutions:`);
+      console.error(`      1. Check Render logs for network restrictions`);
+      console.error(`      2. Consider using a transactional email service (SendGrid, Resend, Mailgun)`);
+      console.error(`      3. Try using OAuth2 instead of App Password (more complex setup)`);
+    } else if (emailError.code === 'EAUTH' || emailError.message.includes('Invalid login') || emailError.message.includes('authentication')) {
       console.error(`   ⚠️  GMAIL AUTHENTICATION FAILED`);
       console.error(`   💡 Solution: Use a Gmail App Password, not your regular password`);
       console.error(`   📖 Steps:`);
