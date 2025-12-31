@@ -2399,40 +2399,54 @@ export default function HumApp() {
                   <X className="w-5 h-5" />
                 </button>
 
-                <h2 className="text-2xl font-bold mb-2">Set Nickname</h2>
-                <p className="text-white/60 mb-6 text-sm">Choose a nickname to display instead of your email</p>
+                <div className="text-center mb-6">
+                  <div className="text-5xl mb-3 animate-bounce">✨</div>
+                  <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text text-transparent">
+                    Pick Your Stage Name! 🎭
+                  </h2>
+                  <p className="text-white/70 text-sm">
+                    Show off your personality! Choose a fun nickname instead of your email
+                  </p>
+                </div>
 
-                <input
-                  type="text"
-                  value={nicknameInput}
-                  onChange={(e) => setNicknameInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleSaveNickname();
-                    }
-                  }}
-                  placeholder="Enter nickname..."
-                  maxLength={16}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-white/40 focus:bg-white/10 transition-all mb-4"
-                  autoFocus
-                />
+                <div className="relative mb-4">
+                  <input
+                    type="text"
+                    value={nicknameInput}
+                    onChange={(e) => setNicknameInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSaveNickname();
+                      }
+                    }}
+                    placeholder="What should we call you? 🎵"
+                    maxLength={16}
+                    className="w-full px-4 py-3.5 bg-white/5 border-2 border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-purple-400/60 focus:bg-white/10 transition-all text-center text-lg font-medium"
+                    autoFocus
+                  />
+                  <div className="absolute -bottom-5 left-0 right-0 text-center">
+                    <span className="text-xs text-white/40">
+                      {nicknameInput.length}/16 characters
+                    </span>
+                  </div>
+                </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-3 mt-8">
                   <button
                     onClick={() => {
                       setShowNicknameModal(false);
                       setNicknameInput('');
                     }}
-                    className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/20 rounded-xl text-sm transition-all"
+                    className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/20 rounded-xl text-sm transition-all hover:scale-105"
                   >
-                    Cancel
+                    Maybe Later 😅
                   </button>
                   <button
                     onClick={handleSaveNickname}
                     disabled={!nicknameInput.trim()}
-                    className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-xl font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-xl font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 shadow-lg hover:shadow-xl"
                   >
-                    Save
+                    Let's Go! 🚀
                   </button>
                 </div>
               </div>
