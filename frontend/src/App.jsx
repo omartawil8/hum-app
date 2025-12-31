@@ -2204,7 +2204,7 @@ export default function HumApp() {
             ></div>
             
             {/* Panel */}
-            <div className={`fixed top-0 left-0 h-full w-96 bg-gradient-to-br from-[#1a1d2e] via-[#252840] to-[#1f2135] backdrop-blur-2xl border-r border-white/[0.08] z-50 overflow-hidden flex flex-col ${isClosingBookmarks ? 'animate-slide-out' : 'animate-slide-in'}`}>
+            <div className={`fixed top-0 left-0 h-full w-96 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f15] to-[#0a0a0f] backdrop-blur-2xl border-r border-white/[0.08] z-50 overflow-hidden flex flex-col ${isClosingBookmarks ? 'animate-slide-out' : 'animate-slide-in'}`}>
               {/* Header */}
               <div className="p-6 border-b border-white/[0.06]">
                 <div className="flex items-center justify-between mb-3">
@@ -2213,8 +2213,8 @@ export default function HumApp() {
                       <Bookmark className="w-5 h-5 text-purple-300" strokeWidth={1.5} fill="currentColor" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-semibold tracking-tight">bookmarks</h2>
-                      <p className="text-xs text-white/40 font-light mt-0.5">
+                      <h2 className="text-2xl font-semibold tracking-tight">bookmarks</h2>
+                      <p className="text-sm text-white/40 font-light mt-0.5">
                         {savedSongs.length} {savedSongs.length === 1 ? 'song' : 'songs'}
                       </p>
                     </div>
@@ -2235,8 +2235,8 @@ export default function HumApp() {
                     <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500/10 to-blue-500/10 border border-white/5 flex items-center justify-center mb-5">
                       <Bookmark className="w-12 h-12 text-white/20" strokeWidth={1} />
                     </div>
-                    <p className="text-base font-medium mb-1.5 text-white/70">no bookmarks yet</p>
-                    <p className="text-xs text-white/40 font-light leading-relaxed">
+                    <p className="text-lg font-medium mb-1.5 text-white/70">no bookmarks yet</p>
+                    <p className="text-sm text-white/40 font-light leading-relaxed">
                       songs you bookmark will appear here
                     </p>
                   </div>
@@ -2265,8 +2265,8 @@ export default function HumApp() {
 
                           {/* Song Info */}
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm truncate mb-0.5 text-white/90 group-hover:text-white transition-colors">{song.title}</p>
-                            <p className="text-xs text-white/50 truncate font-light">{song.artist}</p>
+                            <p className="font-medium text-base truncate mb-0.5 text-white/90 group-hover:text-white transition-colors">{song.title}</p>
+                            <p className="text-sm text-white/50 truncate font-light">{song.artist}</p>
                           </div>
 
                           {/* Actions */}
