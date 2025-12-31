@@ -2125,6 +2125,40 @@ app.post('/api/admin/delete-user', async (req, res) => {
   }
 });
 
+// Test Resend email configuration (admin endpoint)
+app.post('/api/admin/test-email', async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    // Check if Resend is configured
+    if (!process.env.RESEND_API_KEY) {
+      return res.status(400).json({ 
+        error: 'RESEND_API_KEY not configured',
+        message: 'Set RESEND_API_KEY in Render environment variables',
+        help: 'Get your API key from: https://resend.com/api-keys'
+      });
+    }
+
+    const remainingSearches = 5;
+    await sendWelcomeEmail(email, remainingSearches);
+    
+    res.json({
+      success: true,
+      message: `Test welcome email sent to ${email}. Check your inbox (and spam folder).`
+    });
+  } catch (error) {
+    console.error('Test email error:', error);
+    res.status(500).json({ 
+      error: 'Failed to send test email',
+      details: error.message 
+    });
+  }
+});
+
 // Connect to MongoDB
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hum-app';
 
