@@ -306,7 +306,8 @@ async function sendWelcomeEmail(email, remainingSearches) {
     `;
 
     // Get the "from" email address - use RESEND_FROM_EMAIL if set, otherwise use a default
-    // Resend requires a verified domain or you can use their default domain for testing
+    // Resend free tier only allows sending to account owner's email unless domain is verified
+    // For production, verify a domain and set RESEND_FROM_EMAIL to use that domain
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
     
     const { data, error } = await resend.emails.send({
@@ -318,6 +319,10 @@ async function sendWelcomeEmail(email, remainingSearches) {
     });
 
     if (error) {
+      // Check if it's the domain verification error
+      if (error.message.includes('You can only send testing emails to your own email address')) {
+        throw new Error(`Resend domain not verified. To send emails to ${email}, you need to verify a domain in Resend. See: https://resend.com/domains`);
+      }
       throw new Error(`Resend API error: ${error.message}`);
     }
 
@@ -332,10 +337,14 @@ async function sendWelcomeEmail(email, remainingSearches) {
       console.error(`   ⚠️  RESEND API KEY INVALID`);
       console.error(`   💡 Check that RESEND_API_KEY is set correctly in Render environment variables`);
       console.error(`   📖 Get your API key from: https://resend.com/api-keys`);
-    } else if (emailError.message.includes('domain') || emailError.message.includes('not verified')) {
-      console.error(`   ⚠️  EMAIL DOMAIN NOT VERIFIED`);
-      console.error(`   💡 For production, verify your domain in Resend dashboard`);
-      console.error(`   💡 For testing, you can use 'onboarding@resend.dev' (default)`);
+    } else if (emailError.message.includes('domain') || emailError.message.includes('not verified') || emailError.message.includes('You can only send testing emails')) {
+      console.error(`   ⚠️  RESEND DOMAIN NOT VERIFIED`);
+      console.error(`   📧 Resend free tier only allows sending to your account email (${process.env.RESEND_ACCOUNT_EMAIL || 'the email you signed up with'})`);
+      console.error(`   💡 To send to other emails, verify a domain:`);
+      console.error(`      1. Go to https://resend.com/domains`);
+      console.error(`      2. Add and verify your domain (add DNS records)`);
+      console.error(`      3. Set RESEND_FROM_EMAIL in Render to use your verified domain`);
+      console.error(`      4. Example: RESEND_FROM_EMAIL=hello@yourdomain.com`);
     } else if (emailError.message.includes('rate limit') || emailError.message.includes('quota')) {
       console.error(`   ⚠️  RATE LIMIT EXCEEDED - Too many emails sent`);
       console.error(`   💡 Resend free tier: 3,000 emails/month`);
