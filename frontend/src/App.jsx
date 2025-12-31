@@ -1752,7 +1752,11 @@ export default function HumApp() {
                   {/* Avid Listener Plan */}
                   <button
                     onClick={() => handleSelectPlan('Avid Listener')}
-                    className="relative group rounded-3xl overflow-hidden transition-all duration-300 hover:scale-[1.02]"
+                    className={`relative group rounded-3xl overflow-hidden transition-all duration-300 ${
+                      selectedPlan === 'Avid Listener' 
+                        ? 'scale-[1.02]' 
+                        : 'hover:scale-[1.02]'
+                    }`}
                   >
                     {/* Card background */}
                     <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 to-cyan-500/10 backdrop-blur-sm"></div>
@@ -1818,7 +1822,11 @@ export default function HumApp() {
                   {/* Eat, Breath, Music Plan */}
                   <button
                     onClick={() => handleSelectPlan('Eat, Breath, Music')}
-                    className="relative group rounded-3xl overflow-hidden transition-all duration-300 hover:scale-[1.02]"
+                    className={`relative group rounded-3xl overflow-hidden transition-all duration-300 ${
+                      selectedPlan === 'Eat, Breath, Music' 
+                        ? 'scale-[1.02]' 
+                        : 'hover:scale-[1.02]'
+                    }`}
                   >
                     {/* Card background */}
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 backdrop-blur-sm"></div>
