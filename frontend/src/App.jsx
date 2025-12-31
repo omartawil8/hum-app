@@ -2384,55 +2384,56 @@ export default function HumApp() {
               className={`relative ${isClosingAuth ? 'animate-modal-content-out' : 'animate-modal-content'}`}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Glow effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-3xl blur-3xl"></div>
-              
               {/* Modal */}
-              <div className="relative bg-[#2A2D3A]/95 backdrop-blur-2xl rounded-3xl p-8 max-w-md w-full border border-white/10 shadow-2xl">
+              <div className="relative bg-[#0f0f0f] backdrop-blur-xl rounded-2xl p-7 max-w-md w-full border border-white/5 shadow-2xl">
                 <button 
                   onClick={() => {
                     setShowNicknameModal(false);
                     setNicknameInput('');
                   }}
-                  className="absolute -top-4 -right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20 hover:scale-105"
+                  className="absolute top-5 right-5 p-1.5 text-white/30 hover:text-white/60 transition-colors"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
 
-                <h2 className="text-2xl font-bold mb-2">Set a nickname</h2>
-                <p className="text-white/60 mb-6 text-sm">Pick a nickname to show instead of your email</p>
+                <div className="mb-6">
+                  <h2 className="text-xl font-medium text-white/95 mb-1 tracking-tight">set a nickname</h2>
+                  <p className="text-xs text-white/40 font-light">pick a nickname to show instead of your email</p>
+                </div>
 
-                <input
-                  type="text"
-                  value={nicknameInput}
-                  onChange={(e) => setNicknameInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleSaveNickname();
-                    }
-                  }}
-                  placeholder="What should we call you?"
-                  maxLength={16}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-white/40 focus:bg-white/10 transition-all mb-4 hover:border-white/30"
-                  autoFocus
-                />
+                <div className="mb-6">
+                  <input
+                    type="text"
+                    value={nicknameInput}
+                    onChange={(e) => setNicknameInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSaveNickname();
+                      }
+                    }}
+                    placeholder="what should we call you?"
+                    maxLength={16}
+                    className="w-full px-4 py-3 bg-white/[0.02] border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-white/25 focus:bg-white/[0.04] transition-all text-sm font-light tracking-wide"
+                    autoFocus
+                  />
+                </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-2.5 justify-end">
                   <button
                     onClick={() => {
                       setShowNicknameModal(false);
                       setNicknameInput('');
                     }}
-                    className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/20 rounded-xl text-sm transition-all hover:scale-[1.02]"
+                    className="px-4 py-2 text-xs text-white/50 hover:text-white/70 transition-colors font-light tracking-wide"
                   >
-                    Cancel
+                    cancel
                   </button>
                   <button
                     onClick={handleSaveNickname}
                     disabled={!nicknameInput.trim()}
-                    className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-xl font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] shadow-lg hover:shadow-xl"
+                    className="px-5 py-2 text-xs font-medium text-white bg-white/8 hover:bg-white/12 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white/8 border border-white/10 hover:border-white/20"
                   >
-                    Save
+                    save
                   </button>
                 </div>
               </div>
