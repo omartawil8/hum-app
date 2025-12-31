@@ -1754,8 +1754,8 @@ export default function HumApp() {
                     onClick={() => handleSelectPlan('Avid Listener')}
                     className={`relative group rounded-3xl overflow-hidden transition-all duration-300 ${
                       selectedPlan === 'Avid Listener' 
-                        ? 'scale-[1.02]' 
-                        : 'hover:scale-[1.02]'
+                        ? 'scale-[1.05]' 
+                        : 'hover:scale-[1.05]'
                     }`}
                   >
                     {/* Card background */}
@@ -1824,8 +1824,8 @@ export default function HumApp() {
                     onClick={() => handleSelectPlan('Eat, Breath, Music')}
                     className={`relative group rounded-3xl overflow-hidden transition-all duration-300 ${
                       selectedPlan === 'Eat, Breath, Music' 
-                        ? 'scale-[1.02]' 
-                        : 'hover:scale-[1.02]'
+                        ? 'scale-[1.05]' 
+                        : 'hover:scale-[1.05]'
                     }`}
                   >
                     {/* Card background */}
