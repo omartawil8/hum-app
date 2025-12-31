@@ -2400,7 +2400,7 @@ export default function HumApp() {
                 </button>
 
                 <h2 className="text-2xl font-bold mb-2">Set a nickname</h2>
-                <p className="text-white/60 mb-6 text-sm">Choose a nickname to display instead of your email</p>
+                <p className="text-white/60 mb-6 text-sm">Pick a nickname to show instead of your email</p>
 
                 <input
                   type="text"
@@ -2411,7 +2411,7 @@ export default function HumApp() {
                       handleSaveNickname();
                     }
                   }}
-                  placeholder="Enter your nickname..."
+                  placeholder="What should we call you?"
                   maxLength={16}
                   className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-white/40 focus:bg-white/10 transition-all mb-4"
                   autoFocus
