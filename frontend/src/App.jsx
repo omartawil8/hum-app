@@ -2232,8 +2232,8 @@ export default function HumApp() {
               <div className="flex-1 overflow-y-auto p-5">
                 {savedSongs.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center px-8">
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500/10 to-blue-500/10 border border-white/5 flex items-center justify-center mb-5">
-                      <Bookmark className="w-12 h-12 text-white/20" strokeWidth={1} />
+                    <div className="w-24 h-24 rounded-full bg-white/5 backdrop-blur-sm flex items-center justify-center mb-5">
+                      <Bookmark className="w-12 h-12 text-white/30" strokeWidth={1.5} fill="none" />
                     </div>
                     <p className="text-lg font-medium mb-1.5 text-white/70">no bookmarks yet</p>
                     <p className="text-sm text-white/40 font-light leading-relaxed">
