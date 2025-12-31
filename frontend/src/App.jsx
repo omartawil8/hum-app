@@ -2441,13 +2441,13 @@ export default function HumApp() {
 
                     {/* Emoji dropdown */}
                     {showEmojiDropdown && (
-                      <div className="absolute bottom-full right-0 mb-2 bg-white/[0.08] backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl p-2 w-48 max-h-64 overflow-y-auto z-50">
+                      <div className="absolute bottom-full right-0 mb-2 bg-white/[0.15] backdrop-blur-xl rounded-xl border border-white/20 shadow-2xl p-2 w-48 max-h-64 overflow-y-auto z-50">
                         <div className="grid grid-cols-4 gap-1">
                           {popularEmojis.map((emoji, idx) => (
                             <button
                               key={idx}
                               onClick={() => insertEmoji(emoji)}
-                              className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors text-xl"
+                              className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 transition-colors text-xl"
                             >
                               {emoji}
                             </button>
