@@ -2385,23 +2385,23 @@ export default function HumApp() {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal */}
-              <div className="relative bg-[#0f0f0f] backdrop-blur-xl rounded-2xl p-7 max-w-md w-full border border-white/5 shadow-2xl">
+              <div className="relative bg-white/[0.05] backdrop-blur-2xl rounded-2xl p-9 max-w-lg w-full border border-white/10 shadow-2xl">
                 <button 
                   onClick={() => {
                     setShowNicknameModal(false);
                     setNicknameInput('');
                   }}
-                  className="absolute top-5 right-5 p-1.5 text-white/30 hover:text-white/60 transition-colors"
+                  className="absolute top-6 right-6 p-1.5 text-white/30 hover:text-white/60 transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
 
-                <div className="mb-6">
-                  <h2 className="text-xl font-medium text-white/95 mb-1 tracking-tight">set a nickname</h2>
-                  <p className="text-xs text-white/40 font-light">pick a nickname to show instead of your email</p>
+                <div className="mb-7">
+                  <h2 className="text-2xl font-medium text-white/95 mb-2 tracking-tight">set a nickname</h2>
+                  <p className="text-sm text-white/40 font-light">pick a nickname to show instead of your email</p>
                 </div>
 
-                <div className="mb-6">
+                <div className="mb-7">
                   <input
                     type="text"
                     value={nicknameInput}
@@ -2413,25 +2413,25 @@ export default function HumApp() {
                     }}
                     placeholder="what should we call you?"
                     maxLength={16}
-                    className="w-full px-4 py-3 bg-white/[0.02] border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-white/25 focus:bg-white/[0.04] transition-all text-sm font-light tracking-wide"
+                    className="w-full px-5 py-3.5 bg-white/[0.05] border border-white/15 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-purple-400/40 focus:bg-white/[0.08] transition-all text-base font-light tracking-wide backdrop-blur-sm"
                     autoFocus
                   />
                 </div>
 
-                <div className="flex gap-2.5 justify-end">
+                <div className="flex gap-3 justify-end">
                   <button
                     onClick={() => {
                       setShowNicknameModal(false);
                       setNicknameInput('');
                     }}
-                    className="px-4 py-2 text-xs text-white/50 hover:text-white/70 transition-colors font-light tracking-wide"
+                    className="px-5 py-2.5 text-sm text-white/50 hover:text-white/70 transition-colors font-light tracking-wide"
                   >
                     cancel
                   </button>
                   <button
                     onClick={handleSaveNickname}
                     disabled={!nicknameInput.trim()}
-                    className="px-5 py-2 text-xs font-medium text-white bg-white/8 hover:bg-white/12 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white/8 border border-white/10 hover:border-white/20"
+                    className="px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-purple-500/80 to-blue-500/80 hover:from-purple-500 hover:to-blue-500 rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:from-purple-500/80 disabled:hover:to-blue-500/80 border border-purple-400/20 hover:border-purple-400/40 backdrop-blur-sm"
                   >
                     save
                   </button>
