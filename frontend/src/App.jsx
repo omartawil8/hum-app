@@ -2384,53 +2384,54 @@ export default function HumApp() {
               className={`relative ${isClosingAuth ? 'animate-modal-content-out' : 'animate-modal-content'}`}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Glow effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-3xl blur-3xl"></div>
-              
               {/* Modal */}
-              <div className="relative bg-[#2A2D3A]/95 backdrop-blur-2xl rounded-3xl p-8 max-w-md w-full border border-white/10 shadow-2xl">
+              <div className="relative bg-[#1a1a1a] rounded-xl p-6 max-w-md w-full border border-white/[0.06]">
                 <button 
                   onClick={() => {
                     setShowNicknameModal(false);
                     setNicknameInput('');
                   }}
-                  className="absolute -top-4 -right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20"
+                  className="absolute top-3 right-3 p-1 text-white/30 hover:text-white/50 transition-colors"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-3.5 h-3.5" />
                 </button>
 
-                <h2 className="text-2xl font-bold mb-2">Set a nickname</h2>
-                <p className="text-white/60 mb-6 text-sm">Pick a nickname to show instead of your email</p>
+                <div className="mb-5">
+                  <h2 className="text-lg font-medium text-white/95 mb-1">Set a nickname</h2>
+                  <p className="text-xs text-white/45">Pick a nickname to show instead of your email</p>
+                </div>
 
-                <input
-                  type="text"
-                  value={nicknameInput}
-                  onChange={(e) => setNicknameInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleSaveNickname();
-                    }
-                  }}
-                  placeholder="What should we call you?"
-                  maxLength={16}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-white/40 focus:bg-white/10 transition-all mb-4"
-                  autoFocus
-                />
+                <div className="mb-5">
+                  <input
+                    type="text"
+                    value={nicknameInput}
+                    onChange={(e) => setNicknameInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSaveNickname();
+                      }
+                    }}
+                    placeholder="What should we call you?"
+                    maxLength={16}
+                    className="w-full px-3 py-2 bg-white/[0.02] border border-white/[0.06] rounded-md text-white placeholder-white/25 focus:outline-none focus:border-white/15 focus:bg-white/[0.04] transition-all text-sm"
+                    autoFocus
+                  />
+                </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-2 justify-end">
                   <button
                     onClick={() => {
                       setShowNicknameModal(false);
                       setNicknameInput('');
                     }}
-                    className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/20 rounded-xl text-sm transition-all"
+                    className="px-3 py-1.5 text-xs text-white/50 hover:text-white/70 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleSaveNickname}
                     disabled={!nicknameInput.trim()}
-                    className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-xl font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-1.5 text-xs font-medium text-white bg-white/[0.08] hover:bg-white/[0.12] rounded-md transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white/[0.08]"
                   >
                     Save
                   </button>
