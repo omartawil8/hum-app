@@ -171,9 +171,14 @@ async function sendWelcomeEmail(email, remainingSearches) {
     const nodemailer = require('nodemailer');
     
     if (!process.env.FEEDBACK_EMAIL_USER || !process.env.FEEDBACK_EMAIL_PASSWORD) {
-      console.log('   ⚠️  Email not configured - skipping welcome email');
+      console.error('   ⚠️  EMAIL NOT CONFIGURED - Welcome email skipped');
+      console.error('   📧 Missing: FEEDBACK_EMAIL_USER or FEEDBACK_EMAIL_PASSWORD');
+      console.error('   💡 Set these environment variables in your deployment platform (Render/Vercel)');
       return;
     }
+
+    console.log(`   📧 Attempting to send welcome email to: ${email}`);
+    console.log(`   📧 Using email account: ${process.env.FEEDBACK_EMAIL_USER}`);
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -182,6 +187,19 @@ async function sendWelcomeEmail(email, remainingSearches) {
         pass: process.env.FEEDBACK_EMAIL_PASSWORD
       }
     });
+
+    // Verify connection before sending
+    try {
+      await transporter.verify();
+      console.log('   ✅ Email server connection verified');
+    } catch (verifyError) {
+      console.error('   ❌ Email server verification failed:', verifyError.message);
+      if (verifyError.code === 'EAUTH') {
+        console.error('   ⚠️  Gmail authentication failed. Make sure you\'re using an App Password, not your regular Gmail password.');
+        console.error('   💡 To create an App Password: Google Account → Security → 2-Step Verification → App Passwords');
+      }
+      throw verifyError;
+    }
 
     const welcomeHtml = `
       <!DOCTYPE html>
@@ -314,14 +332,30 @@ async function sendWelcomeEmail(email, remainingSearches) {
     };
 
     await transporter.sendMail(mailOptions);
-    console.log(`   ✅ Welcome email sent to ${email}`);
+    console.log(`   ✅ Welcome email successfully sent to ${email}`);
   } catch (emailError) {
-    console.error(`   ❌ Failed to send welcome email to ${email}:`, emailError.message);
-    console.error(`   Error details:`, emailError);
+    console.error(`   ❌❌❌ FAILED TO SEND WELCOME EMAIL ❌❌❌`);
+    console.error(`   📧 Recipient: ${email}`);
+    console.error(`   ❌ Error: ${emailError.message}`);
+    console.error(`   📋 Error code: ${emailError.code || 'N/A'}`);
+    console.error(`   📋 Full error:`, emailError);
+    
     // Check if it's an authentication error
-    if (emailError.code === 'EAUTH' || emailError.message.includes('Invalid login')) {
-      console.error(`   ⚠️  Email authentication failed. Check FEEDBACK_EMAIL_USER and FEEDBACK_EMAIL_PASSWORD`);
+    if (emailError.code === 'EAUTH' || emailError.message.includes('Invalid login') || emailError.message.includes('authentication')) {
+      console.error(`   ⚠️  GMAIL AUTHENTICATION FAILED`);
+      console.error(`   💡 Solution: Use a Gmail App Password, not your regular password`);
+      console.error(`   📖 Steps:`);
+      console.error(`      1. Go to Google Account → Security`);
+      console.error(`      2. Enable 2-Step Verification (if not already enabled)`);
+      console.error(`      3. Go to App Passwords`);
+      console.error(`      4. Create a new app password for "Mail"`);
+      console.error(`      5. Use that 16-character password as FEEDBACK_EMAIL_PASSWORD`);
+    } else if (emailError.code === 'ECONNECTION' || emailError.message.includes('connection')) {
+      console.error(`   ⚠️  CONNECTION ERROR - Check network/firewall settings`);
+    } else if (emailError.message.includes('rate limit') || emailError.message.includes('quota')) {
+      console.error(`   ⚠️  RATE LIMIT EXCEEDED - Too many emails sent`);
     }
+    
     // Don't fail the signup if email fails
   }
 }
@@ -380,8 +414,9 @@ app.post('/api/auth/signup', async (req, res) => {
     );
 
     // Send welcome email (don't wait for it)
+    console.log(`📧 Triggering welcome email for ${newUser.email}...`);
     sendWelcomeEmail(newUser.email, remainingSearches).catch(err => {
-      console.error('Welcome email error:', err);
+      console.error('📧 Welcome email promise rejection:', err.message);
     });
 
     res.json({
