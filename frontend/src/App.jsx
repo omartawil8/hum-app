@@ -1887,8 +1887,14 @@ export default function HumApp() {
                 </div>
 
                 {/* Payment options (shows when plan selected) */}
-                {selectedPlan && (
-                  <div className="mt-8 animate-fade-in-up pb-4">
+                <div 
+                  className={`mt-8 overflow-hidden transition-all duration-300 ease-in-out ${
+                    selectedPlan 
+                      ? 'max-h-48 opacity-100 pb-4' 
+                      : 'max-h-0 opacity-0 pb-0'
+                  }`}
+                >
+                  <div>
                     <p className="text-center text-white/60 mb-4 text-sm">Choose payment method:</p>
                     <div className="flex flex-col gap-3">
                       <button
@@ -1909,7 +1915,7 @@ export default function HumApp() {
                       </button>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
