@@ -2094,7 +2094,7 @@ app.post('/api/admin/send-welcome-email', async (req, res) => {
 });
 
 // Delete user by email (admin endpoint)
-app.delete('/api/admin/delete-user', async (req, res) => {
+app.post('/api/admin/delete-user', async (req, res) => {
   try {
     const { email } = req.body;
     
