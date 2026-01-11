@@ -1962,21 +1962,25 @@ export default function HumApp() {
 
         /* Fix autofill styling to keep dark background - match exact input styling */
         input:-webkit-autofill,
-        input:-webkit-autofill:hover,
-        input:-webkit-autofill:focus,
-        input:-webkit-autofill:active {
+        input:-webkit-autofill:hover {
           -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.05) inset !important;
           box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.05) inset !important;
-          -webkit-text-fill-color: rgb(255, 255, 255) !important;
-          caret-color: rgb(255, 255, 255) !important;
-          border-color: rgba(255, 255, 255, 0.1) !important;
-          transition: background-color 5000s ease-in-out 0s, border-color 0.2s ease-in-out !important;
+          -webkit-text-fill-color: #ffffff !important;
+          caret-color: #ffffff !important;
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
+          background-color: rgba(255, 255, 255, 0.05) !important;
+          transition: background-color 5000s ease-in-out 0s !important;
         }
         
-        input:-webkit-autofill:focus {
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
           -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.08) inset !important;
           box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.08) inset !important;
-          border-color: rgba(255, 255, 255, 0.3) !important;
+          -webkit-text-fill-color: #ffffff !important;
+          caret-color: #ffffff !important;
+          border: 1px solid rgba(255, 255, 255, 0.3) !important;
+          background-color: rgba(255, 255, 255, 0.08) !important;
+          transition: background-color 5000s ease-in-out 0s !important;
         }
 
         /* Sleek Scrollbar Styles */
