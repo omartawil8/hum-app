@@ -1962,25 +1962,28 @@ export default function HumApp() {
 
         /* Fix autofill styling to keep dark background - match exact input styling */
         input:-webkit-autofill,
-        input:-webkit-autofill:hover {
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
           -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.05) inset !important;
           box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.05) inset !important;
           -webkit-text-fill-color: #ffffff !important;
           caret-color: #ffffff !important;
           border: 1px solid rgba(255, 255, 255, 0.1) !important;
           background-color: rgba(255, 255, 255, 0.05) !important;
-          transition: background-color 5000s ease-in-out 0s !important;
+          transition: background-color 5000s ease-in-out 0s, border-color 200ms ease-in-out !important;
         }
         
-        input:-webkit-autofill:focus,
-        input:-webkit-autofill:active {
+        input:-webkit-autofill:focus {
           -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.08) inset !important;
           box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.08) inset !important;
-          -webkit-text-fill-color: #ffffff !important;
-          caret-color: #ffffff !important;
           border: 1px solid rgba(255, 255, 255, 0.3) !important;
           background-color: rgba(255, 255, 255, 0.08) !important;
-          transition: background-color 5000s ease-in-out 0s !important;
+        }
+        
+        /* Prevent stutter when autofill state changes */
+        input {
+          transition: background-color 200ms ease-in-out, border-color 200ms ease-in-out !important;
         }
 
         /* Sleek Scrollbar Styles */
@@ -2331,7 +2334,7 @@ export default function HumApp() {
                       value={authEmail}
                       onChange={(e) => setAuthEmail(e.target.value)}
                       placeholder="your@email.com"
-                      className="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-white/30 focus:bg-white/[0.08] transition-all"
+                      className="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-white/30 focus:bg-white/[0.08] transition-colors duration-200"
                     />
                   </div>
 
