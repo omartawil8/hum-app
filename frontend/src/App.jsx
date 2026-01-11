@@ -2985,7 +2985,7 @@ export default function HumApp() {
                         const hasToken = localStorage.getItem('hum-auth-token');
                         const shouldShowDefaults = !hasToken && !user && recentSearches.length === 0;
                         const totalSearches = recentSearches.length || (shouldShowDefaults ? defaultSearches.length : 0);
-                        return showAllSearches ? 'Show less' : `Show more (${Math.min(totalSearches - 3, 7)} more)`;
+                        return showAllSearches ? 'show less' : `show more (${Math.min(totalSearches - 3, 7)} more)`;
                       })()}
                     </button>
                   )}
@@ -2993,14 +2993,14 @@ export default function HumApp() {
 
                 {/* Support Button */}
                 <div className="w-full max-w-md mt-12 text-center">
-                  <p className="text-white/60 mb-4">Enjoying hüm?</p>
+                  <p className="text-white/60 mb-4">enjoying hüm?</p>
                   <a
                     href="https://ko-fi.com/otizzle"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 backdrop-blur-sm rounded-full border border-white/10 hover:border-white/20 transition-all group"
                   >
-                    <span className="text-sm font-medium">Buy me a coffee</span>
+                    <span className="text-sm font-medium">buy me a coffee</span>
                     <span className="text-lg">☕</span>
                   </a>
                 </div>
@@ -3268,14 +3268,14 @@ export default function HumApp() {
 
                 {/* Support Button - Results Page */}
                 <div className="w-full mt-8 text-center">
-                  <p className="text-white/60 mb-4">Enjoying hüm?</p>
+                  <p className="text-white/60 mb-4">enjoying hüm?</p>
                   <a
                     href="https://ko-fi.com/otizzle"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 backdrop-blur-sm rounded-full border border-white/10 hover:border-white/20 transition-all group"
                   >
-                    <span className="text-sm font-medium">Buy me a coffee</span>
+                    <span className="text-sm font-medium">buy me a coffee</span>
                     <span className="text-lg">☕</span>
                   </a>
                 </div>
