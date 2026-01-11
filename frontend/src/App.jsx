@@ -2371,8 +2371,8 @@ export default function HumApp() {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white/80 transition-colors"
                       >
-                        {showPassword ? (
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 30" className="w-5 h-5" fill="currentColor">
+                        {!showPassword ? (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 30" className="w-6 h-6" fill="currentColor">
                             <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
                               <path d="M12.7296635,21.1661847 C12.7296635,21.6239997 12.3585312,21.995132 11.9007162,21.995132 C11.4429012,21.995132 11.0717688,21.6239997 11.0717688,21.1661847 L11.0717688,20.0609215 C11.0717688,19.6031065 11.4429012,19.2319741 11.9007162,19.2319741 C12.3585312,19.2319741 12.7296635,19.6031065 12.7296635,20.0609215 L12.7296635,21.1661847 Z" fill="currentColor" fillRule="nonzero"/>
                               <path d="M8.30861091,20.5510749 C8.30861091,21.0088899 7.93747853,21.3800223 7.47966354,21.3800223 C7.02184855,21.3800223 6.65071617,21.0088899 6.65071617,20.5510749 L6.65071617,19.4458117 C6.65071617,18.9879968 7.02184855,18.6168644 7.47966354,18.6168644 C7.93747853,18.6168644 8.30861091,18.9879968 8.30861091,19.4458117 L8.30861091,20.5510749 Z" fill="currentColor" fillRule="nonzero" transform="translate(7.479664, 19.998443) rotate(20.000000) translate(-7.479664, -19.998443) "/>
@@ -2383,7 +2383,7 @@ export default function HumApp() {
                             </g>
                           </svg>
                         ) : (
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 120" className="w-5 h-5" fill="currentColor">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 120" className="w-6 h-6" fill="currentColor">
                             <g data-name="21">
                               <path d="M89.06,53.77a47.11,47.11,0,0,0-82.13,0,8.68,8.68,0,0,0,0,8.44,47.11,47.11,0,0,0,82.13,0A8.67,8.67,0,0,0,89.06,53.77ZM48,72A14,14,0,1,1,62,58,14,14,0,0,1,48,72Z" fill="currentColor"/>
                               <circle cx="48" cy="58" r="9" fill="currentColor"/>
