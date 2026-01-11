@@ -1563,22 +1563,20 @@ export default function HumApp() {
 
   const handleResetApp = () => {
     setIsClosingResults(true);
-    setIsHomepageAnimating(false); // Ensure homepage starts hidden
+    setIsHomepageAnimating(false);
     // Wait for fade-out transition to complete before changing state
-    // This prevents React from unmounting/mounting during the transition
     setTimeout(() => {
       // Reset state after fade-out completes
       resetApp();
       setIsClosingResults(false);
-      // Small delay to ensure DOM is ready, then start animation
-      setTimeout(() => {
-        // Use requestAnimationFrame to ensure smooth transition start
-        requestAnimationFrame(() => {
-          setIsHomepageAnimating(true);
-          setTimeout(() => setIsHomepageAnimating(false), 500);
-        });
-      }, 100);
-    }, 450); // Wait for transition to complete
+      // Force a reflow to ensure DOM is ready
+      void document.body.offsetHeight;
+      // Start animation on next frame
+      requestAnimationFrame(() => {
+        setIsHomepageAnimating(true);
+        setTimeout(() => setIsHomepageAnimating(false), 450);
+      });
+    }, 450);
   };
 
   const handleCloseTips = () => {
@@ -2878,9 +2876,17 @@ export default function HumApp() {
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto">
             {/* Home Screen - Initial State */}
-            {!hasResult && !isListening && !isProcessing && !isClosingResults && (
+            {(!hasResult || isClosingResults) && !isListening && !isProcessing && (
               <div 
-                className={`flex flex-col items-center ${isHomepageAnimating ? 'animate-fade-in-up' : ''}`}
+                className="flex flex-col items-center"
+                style={{
+                  opacity: (!hasResult && !isClosingResults) ? 1 : 0,
+                  transform: (!hasResult && !isClosingResults) ? 'translateY(0) translateZ(0)' : 'translateY(10px) translateZ(0)',
+                  transition: isHomepageAnimating ? 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)' : 'opacity 0.3s ease-out, transform 0.3s ease-out',
+                  willChange: 'transform, opacity',
+                  backfaceVisibility: 'hidden',
+                  pointerEvents: (!hasResult && !isClosingResults) ? 'auto' : 'none'
+                }}
               >
                 <h1 className="text-5xl font-bold text-white text-center mb-12 mt-20">
                   tap to hummm
