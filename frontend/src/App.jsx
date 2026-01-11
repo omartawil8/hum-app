@@ -1980,10 +1980,15 @@ export default function HumApp() {
 
         @keyframes dotRotate {
           0% {
-            transform: translate(-50%, -50%) rotate(0deg) translateX(8px) rotate(0deg);
+            transform: translate(-50%, -50%) rotate(0deg) translateX(6px) rotate(0deg);
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
           }
           100% {
-            transform: translate(-50%, -50%) rotate(360deg) translateX(8px) rotate(-360deg);
+            transform: translate(-50%, -50%) rotate(360deg) translateX(6px) rotate(-360deg);
+            opacity: 1;
           }
         }
 
@@ -3054,11 +3059,11 @@ export default function HumApp() {
                     
                     {/* Loading spinner OR Submit arrow */}
                     {isSearchingLyrics ? (
-                      <div className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8">
-                        <div className="relative w-5 h-5">
-                          <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-white/70 rounded-full" style={{ animation: 'dotRotate 1.2s linear infinite', animationDelay: '0s' }}></div>
-                          <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-white/70 rounded-full" style={{ animation: 'dotRotate 1.2s linear infinite', animationDelay: '0.4s' }}></div>
-                          <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-white/70 rounded-full" style={{ animation: 'dotRotate 1.2s linear infinite', animationDelay: '0.8s' }}></div>
+                      <div className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center justify-center w-6 h-6">
+                        <div className="relative w-full h-full">
+                          <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-white/80 rounded-full" style={{ animation: 'dotRotate 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite', animationDelay: '0s' }}></div>
+                          <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-white/80 rounded-full" style={{ animation: 'dotRotate 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite', animationDelay: '0.47s' }}></div>
+                          <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-white/80 rounded-full" style={{ animation: 'dotRotate 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite', animationDelay: '0.93s' }}></div>
                         </div>
                       </div>
                     ) : lyricsInput.trim() && (
