@@ -2342,13 +2342,9 @@ export default function HumApp() {
                 <X className="w-5 h-5" />
               </button>
 
-              {/* Glow effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-3xl blur-3xl"></div>
-              
               {/* Modal */}
               <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] border border-white/20 shadow-2xl overflow-y-auto">
-                <h2 className="text-4xl font-bold text-center mb-2">wanna keep humming?</h2>
-                <p className="text-xl text-white/60 text-center mb-8">select a plan</p>
+                <h2 className="text-4xl font-bold text-center mb-8">wanna keep humming?</h2>
 
                 <div className={`grid gap-6 ${userTier === 'avid' && searchCount >= AVID_LISTENER_LIMIT ? 'md:grid-cols-2' : 'md:grid-cols-1 max-w-md mx-auto'}`}>
                   {/* Avid Listener Plan */}
