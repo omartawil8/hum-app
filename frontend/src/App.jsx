@@ -826,33 +826,33 @@ export default function HumApp() {
     };
   }, [showUserDropdown, showEmojiDropdown]);
 
-  // Animate background blobs
+  // Animate background blobs - smooth, slow, fluid movement
   useEffect(() => {
     const animate = () => {
-      timeRef.current += 0.015;
+      timeRef.current += 0.005; // Much slower for fluid movement
       
-      // Blob 1 - smooth organic movement (pixel-based)
+      // Blob 1 - smooth, slow organic movement
       setBlob1Pos({
-        x: Math.sin(timeRef.current * 0.5) * 150 + Math.cos(timeRef.current * 0.3) * 80,
-        y: Math.cos(timeRef.current * 0.4) * 120 + Math.sin(timeRef.current * 0.6) * 60,
-        scale: 1 + Math.sin(timeRef.current * 0.2) * 0.15,
-        opacity: 0.2 + Math.sin(timeRef.current * 0.3) * 0.15
+        x: Math.sin(timeRef.current * 0.15) * 100 + Math.cos(timeRef.current * 0.1) * 60,
+        y: Math.cos(timeRef.current * 0.12) * 80 + Math.sin(timeRef.current * 0.18) * 50,
+        scale: 1 + Math.sin(timeRef.current * 0.08) * 0.08, // Subtle scale changes
+        opacity: 0.25 + Math.sin(timeRef.current * 0.1) * 0.1
       });
       
-      // Blob 2 - different phase for variety
+      // Blob 2 - different phase, slower
       setBlob2Pos({
-        x: Math.cos(timeRef.current * 0.4) * 180 + Math.sin(timeRef.current * 0.5) * 100,
-        y: Math.sin(timeRef.current * 0.35) * 200 + Math.cos(timeRef.current * 0.45) * 80,
-        scale: 1 + Math.cos(timeRef.current * 0.25) * 0.2,
-        opacity: 0.15 + Math.cos(timeRef.current * 0.35) * 0.15
+        x: Math.cos(timeRef.current * 0.13) * 120 + Math.sin(timeRef.current * 0.16) * 70,
+        y: Math.sin(timeRef.current * 0.11) * 100 + Math.cos(timeRef.current * 0.14) * 60,
+        scale: 1 + Math.cos(timeRef.current * 0.09) * 0.1,
+        opacity: 0.2 + Math.cos(timeRef.current * 0.12) * 0.1
       });
       
-      // Blob 3 - another phase
+      // Blob 3 - slowest, most fluid
       setBlob3Pos({
-        x: Math.sin(timeRef.current * 0.45) * 220 + Math.cos(timeRef.current * 0.55) * 120,
-        y: Math.cos(timeRef.current * 0.38) * 160 + Math.sin(timeRef.current * 0.42) * 100,
-        scale: 1 + Math.sin(timeRef.current * 0.22) * 0.25,
-        opacity: 0.18 + Math.sin(timeRef.current * 0.4) * 0.14
+        x: Math.sin(timeRef.current * 0.14) * 110 + Math.cos(timeRef.current * 0.17) * 65,
+        y: Math.cos(timeRef.current * 0.1) * 90 + Math.sin(timeRef.current * 0.15) * 55,
+        scale: 1 + Math.sin(timeRef.current * 0.07) * 0.09,
+        opacity: 0.22 + Math.sin(timeRef.current * 0.11) * 0.1
       });
       
       animationFrameRef.current = requestAnimationFrame(animate);
@@ -1965,10 +1965,10 @@ export default function HumApp() {
         <div className="background-noise"></div>
       </div>
 
-      {/* Animated background blobs - subtle, organic movement */}
+      {/* Animated background blobs - smooth, fluid purple blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div 
-          className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-500/20 rounded-full blur-[120px]"
+          className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-purple-500/25 rounded-full blur-[100px]"
           style={{
             transform: `translate(${blob1Pos.x}px, ${blob1Pos.y}px) scale(${blob1Pos.scale})`,
             opacity: blob1Pos.opacity,
@@ -1977,7 +1977,7 @@ export default function HumApp() {
           }}
         ></div>
         <div 
-          className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-blue-500/20 rounded-full blur-[120px]"
+          className="absolute bottom-0 right-1/4 w-[700px] h-[700px] bg-purple-400/25 rounded-full blur-[100px]"
           style={{
             transform: `translate(${blob2Pos.x}px, ${blob2Pos.y}px) scale(${blob2Pos.scale})`,
             opacity: blob2Pos.opacity,
@@ -1986,7 +1986,7 @@ export default function HumApp() {
           }}
         ></div>
         <div 
-          className="absolute top-1/2 left-1/2 w-[550px] h-[550px] bg-indigo-500/20 rounded-full blur-[120px]"
+          className="absolute top-1/2 left-1/2 w-[650px] h-[650px] bg-purple-600/25 rounded-full blur-[100px]"
           style={{
             transform: `translate(calc(-50% + ${blob3Pos.x}px), calc(-50% + ${blob3Pos.y}px)) scale(${blob3Pos.scale})`,
             opacity: blob3Pos.opacity,
