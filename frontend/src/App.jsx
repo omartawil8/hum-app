@@ -2614,8 +2614,11 @@ export default function HumApp() {
                     {savedSongs.map((song, idx) => (
                       <div 
                         key={idx}
-                        className="group relative bg-white/[0.03] backdrop-blur-sm rounded-xl p-3 border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-200 hover:scale-[1.01] cursor-pointer"
+                        className="group relative bg-white/[0.03] backdrop-blur-sm rounded-xl p-3 border border-white/[0.06] hover:border-[#D8B5FE]/30 transition-all duration-200 hover:scale-[1.01] cursor-pointer overflow-hidden"
                       >
+                        {/* Glow effect on hover */}
+                        <div className="absolute inset-0 rounded-xl blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-200 pointer-events-none" style={{ background: 'rgba(216, 181, 254, 0.3)', zIndex: 0 }}></div>
+                        <div className="relative z-10">
                         <div className="flex items-center gap-3">
                           {/* Album Art */}
                           <div className="w-16 h-16 bg-white/[0.05] rounded-lg overflow-hidden flex-shrink-0 border border-white/[0.08] group-hover:border-white/[0.15] transition-all">
@@ -2663,6 +2666,7 @@ export default function HumApp() {
                               <X className="w-4 h-4 text-red-400/70" strokeWidth={1.5} />
                             </button>
                           </div>
+                        </div>
                         </div>
                       </div>
                     ))}
@@ -3099,7 +3103,14 @@ export default function HumApp() {
                 <div className="text-center mb-12">
                   <button 
                     onClick={handleResetApp}
-                    className="group inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/5 border border-white/20 mb-6 hover:bg-gradient-to-br hover:from-green-500/30 hover:to-emerald-500/30 hover:border-green-500/40 hover:scale-105 transition-all cursor-pointer relative"
+                    className="group inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/5 border border-white/20 mb-6 hover:border-[#D8B5FE]/40 hover:scale-105 transition-all cursor-pointer relative"
+                    style={{ '--hover-bg': 'rgba(216, 181, 254, 0.3)' } as React.CSSProperties}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(216, 181, 254, 0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                    }}
                   >
                     <img 
                       src={hummingBirdIcon} 
@@ -3108,7 +3119,7 @@ export default function HumApp() {
                     />
                     {/* Tooltip on hover */}
                     <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                      <span className="text-xs text-green-400 font-medium whitespace-nowrap">Back to home</span>
+                      <span className="text-xs font-medium whitespace-nowrap" style={{ color: '#D8B5FE' }}>Back to home</span>
                     </div>
                   </button>
                   <div className="flex items-center justify-center gap-4 mb-4">
@@ -3286,10 +3297,13 @@ export default function HumApp() {
                   </div>
                 )}
 
-                <button 
-                  onClick={handleResetApp}
-                  className="w-full bg-gradient-to-r from-rose-500/10 to-orange-500/10 hover:from-rose-500/20 hover:to-orange-500/20 transition-all py-5 rounded-2xl font-bold tracking-wide border border-white/10"
-                >
+                  <button 
+                    onClick={handleResetApp}
+                    className="w-full transition-all py-5 rounded-2xl font-bold tracking-wide border border-white/10 hover:opacity-90"
+                    style={{ background: 'rgba(216, 181, 254, 0.1)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(216, 181, 254, 0.2)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(216, 181, 254, 0.1)'}
+                  >
                   Search Again
                 </button>
 
