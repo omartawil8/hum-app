@@ -2340,7 +2340,7 @@ export default function HumApp() {
                   <button
                     onClick={isLoginMode ? handleLogin : handleSignup}
                     disabled={isAuthenticating}
-                    className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:opacity-90 rounded-xl py-3 font-bold text-lg transition-opacity duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:opacity-90 rounded-xl py-3 font-bold text-lg transition-all duration-300 shadow-lg hover:scale-[1.01] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isAuthenticating ? 'please wait...' : (isLoginMode ? 'login' : 'sign up')}
                   </button>
