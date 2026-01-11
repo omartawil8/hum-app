@@ -1978,6 +1978,15 @@ export default function HumApp() {
           animation: blink 1.5s ease-in-out infinite;
         }
 
+        @keyframes dotRotate {
+          0% {
+            transform: translate(-50%, -50%) rotate(0deg) translateX(8px) rotate(0deg);
+          }
+          100% {
+            transform: translate(-50%, -50%) rotate(360deg) translateX(8px) rotate(-360deg);
+          }
+        }
+
         /* Fix autofill styling to keep dark background - match exact input styling */
         input:-webkit-autofill,
         input:-webkit-autofill:hover,
