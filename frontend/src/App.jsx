@@ -2340,9 +2340,21 @@ export default function HumApp() {
                   <button
                     onClick={isLoginMode ? handleLogin : handleSignup}
                     disabled={isAuthenticating}
-                    className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-xl py-3 font-bold text-lg transition-all hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl py-3 font-bold text-lg transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group"
+                    style={{
+                      background: 'linear-gradient(to right, rgb(168, 85, 247), rgb(59, 130, 246))'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(to right, rgb(147, 51, 234), rgb(37, 99, 235))';
+                      e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(168, 85, 247, 0.4), 0 10px 10px -5px rgba(59, 130, 246, 0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(to right, rgb(168, 85, 247), rgb(59, 130, 246))';
+                      e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+                    }}
                   >
-                    {isAuthenticating ? 'please wait...' : (isLoginMode ? 'login' : 'sign up')}
+                    <span className="relative z-10">{isAuthenticating ? 'please wait...' : (isLoginMode ? 'login' : 'sign up')}</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
                   </button>
 
                   <div className="text-center">
