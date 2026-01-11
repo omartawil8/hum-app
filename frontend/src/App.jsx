@@ -1965,37 +1965,6 @@ export default function HumApp() {
         <div className="background-noise"></div>
       </div>
 
-      {/* Animated background blobs - smooth, fluid purple blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div 
-          className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-purple-500/25 rounded-full blur-[100px]"
-          style={{
-            transform: `translate(${blob1Pos.x}px, ${blob1Pos.y}px) scale(${blob1Pos.scale})`,
-            opacity: blob1Pos.opacity,
-            transition: 'none',
-            willChange: 'transform, opacity'
-          }}
-        ></div>
-        <div 
-          className="absolute bottom-0 right-1/4 w-[700px] h-[700px] bg-purple-400/25 rounded-full blur-[100px]"
-          style={{
-            transform: `translate(${blob2Pos.x}px, ${blob2Pos.y}px) scale(${blob2Pos.scale})`,
-            opacity: blob2Pos.opacity,
-            transition: 'none',
-            willChange: 'transform, opacity'
-          }}
-        ></div>
-        <div 
-          className="absolute top-1/2 left-1/2 w-[650px] h-[650px] bg-purple-600/25 rounded-full blur-[100px]"
-          style={{
-            transform: `translate(calc(-50% + ${blob3Pos.x}px), calc(-50% + ${blob3Pos.y}px)) scale(${blob3Pos.scale})`,
-            opacity: blob3Pos.opacity,
-            transition: 'none',
-            willChange: 'transform, opacity'
-          }}
-        ></div>
-      </div>
-
       <div className="relative z-10">
         {/* Welcome Notification */}
         {showWelcome && welcomeMessage && (
@@ -2887,7 +2856,7 @@ export default function HumApp() {
             {!hasResult && !isListening && !isProcessing && (
               <div className={`flex flex-col items-center ${isHomepageAnimating ? 'animate-fade-in-up' : ''}`}>
                 <h1 className="text-5xl font-bold text-white text-center mb-12 mt-20">
-                  Tap to hummm
+                  tap to hummm
                 </h1>
 
                 <button
@@ -2974,7 +2943,7 @@ export default function HumApp() {
                 </div>
 
                 <div className="w-full max-w-md">
-                  <h2 className="text-lg font-bold text-white mb-4">Recent searches</h2>
+                  <h2 className="text-lg font-bold text-white mb-4">recent searches</h2>
                   <div className="space-y-3">
                     {(() => {
                       // Check if user has a token (might be logged in but user state not set yet)
