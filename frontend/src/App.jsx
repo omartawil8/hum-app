@@ -1660,8 +1660,8 @@ export default function HumApp() {
     // OLD BACKGROUND (to revert, replace className below with): bg-gradient-to-b from-[#0A0E27] via-[#141937] to-[#1a1d3a]
     <div className="min-h-screen text-white relative overflow-hidden" style={{ 
       background: '#000000',
-      backgroundImage: `radial-gradient(circle, rgba(255, 255, 255, 0.03) 1px, transparent 1px)`,
-      backgroundSize: '40px 40px',
+      backgroundImage: `radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px)`,
+      backgroundSize: '32px 32px',
       backgroundPosition: '0 0'
     }}>
       <style>{`
@@ -3045,8 +3045,12 @@ export default function HumApp() {
                     
                     {/* Loading spinner OR Submit arrow */}
                     {isSearchingLyrics ? (
-                      <div className="absolute right-5 top-1/2 -translate-y-1/2">
-                        <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                      <div className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8">
+                        <div className="relative w-6 h-6">
+                          <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-white/60 rounded-full animate-dot-rotate" style={{ animationDelay: '0s' }}></div>
+                          <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-white/60 rounded-full animate-dot-rotate" style={{ animationDelay: '0.4s' }}></div>
+                          <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-white/60 rounded-full animate-dot-rotate" style={{ animationDelay: '0.8s' }}></div>
+                        </div>
                       </div>
                     ) : lyricsInput.trim() && (
                       <button
