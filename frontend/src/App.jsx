@@ -1552,6 +1552,36 @@ export default function HumApp() {
     setAudioBlob(null);
   };
 
+  const cancelListening = () => {
+    // Stop the media recorder if it's recording
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      try {
+        mediaRecorderRef.current.stop();
+      } catch (err) {
+        console.error('Error stopping media recorder:', err);
+      }
+    }
+    
+    // Clear any timeouts
+    if (mediaRecorderRef.current?._stopTimeout) {
+      clearTimeout(mediaRecorderRef.current._stopTimeout);
+    }
+    if (mediaRecorderRef.current?._dataInterval) {
+      clearInterval(mediaRecorderRef.current._dataInterval);
+    }
+    
+    // Stop all tracks
+    if (mediaRecorderRef.current?.stream) {
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+    }
+    
+    // Reset states
+    setIsListening(false);
+    setAudioLevel(0);
+    setAudioBlob(null);
+    setError(null);
+  };
+
   const handleCloseFeedback = () => {
     setIsClosingFeedback(true);
     setTimeout(() => {
