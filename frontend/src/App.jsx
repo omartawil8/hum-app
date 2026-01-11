@@ -2444,7 +2444,7 @@ export default function HumApp() {
 
                       {/* Plan name */}
                       <div className="text-center">
-                        <h3 className="text-xl font-bold">avid listener</h3>
+                        <h3 className="text-lg font-bold">avid listener</h3>
                         <p className="text-xs text-teal-300/80 mt-1">100 searches per month</p>
                         {userTier === 'avid' && (
                           <p className="text-xs text-white/50 mt-2">
