@@ -1625,15 +1625,15 @@ export default function HumApp() {
     // OLD BACKGROUND (to revert, replace className below with): bg-gradient-to-b from-[#0A0E27] via-[#141937] to-[#1a1d3a]
     <div className="min-h-screen bg-gradient-to-b from-[#050510] via-[#0a0a15] to-[#0f0f1a] text-white relative overflow-hidden">
       <style>{`
-        /* Background noise texture overlay */
+        /* Background noise texture overlay - subtle, visible primarily over blobs */
         .background-noise {
           position: absolute;
           inset: 0;
           pointer-events: none;
-          opacity: 0.175;
+          opacity: 0.08;
           background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
           background-size: 200px 200px;
-          mix-blend-mode: overlay;
+          mix-blend-mode: soft-light;
         }
 
         /* Animated blob keyframes - organic, large movements with subtle fade */
