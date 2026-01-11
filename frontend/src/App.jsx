@@ -1625,15 +1625,15 @@ export default function HumApp() {
     // OLD BACKGROUND (to revert, replace className below with): bg-gradient-to-b from-[#0A0E27] via-[#141937] to-[#1a1d3a]
     <div className="min-h-screen bg-gradient-to-b from-[#050510] via-[#0a0a15] to-[#0f0f1a] text-white relative overflow-hidden">
       <style>{`
-        /* Background noise texture overlay - subtle, visible primarily over blobs */
+        /* Subtle background noise texture - refined for Framer aesthetic */
         .background-noise {
           position: absolute;
           inset: 0;
           pointer-events: none;
-          opacity: 0.08;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-          background-size: 200px 200px;
-          mix-blend-mode: soft-light;
+          opacity: 0.12;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+          background-size: 250px 250px;
+          mix-blend-mode: overlay;
         }
 
         /* Animated blob keyframes - organic, large movements with subtle fade */
@@ -1960,6 +1960,11 @@ export default function HumApp() {
         }
       `}</style>
 
+      {/* Background noise texture */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="background-noise"></div>
+      </div>
+
       {/* Animated background blobs - smooth, fluid purple blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div 
@@ -1989,11 +1994,6 @@ export default function HumApp() {
             willChange: 'transform, opacity'
           }}
         ></div>
-      </div>
-
-      {/* Background noise texture overlay */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-[1]">
-        <div className="background-noise"></div>
       </div>
 
       <div className="relative z-10">
