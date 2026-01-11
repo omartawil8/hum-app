@@ -1563,15 +1563,20 @@ export default function HumApp() {
 
   const handleResetApp = () => {
     setIsClosingResults(true);
-    setTimeout(() => {
-      resetApp();
-      setIsClosingResults(false);
-      // Small delay before starting homepage animation for smoother feel
+    // Use requestAnimationFrame for smoother transition
+    requestAnimationFrame(() => {
       setTimeout(() => {
-        setIsHomepageAnimating(true);
-        setTimeout(() => setIsHomepageAnimating(false), 600);
-      }, 50);
-    }, 450); // Wait for 400ms animation + 50ms buffer
+        resetApp();
+        setIsClosingResults(false);
+        // Small delay before starting homepage animation for smoother feel
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            setIsHomepageAnimating(true);
+            setTimeout(() => setIsHomepageAnimating(false), 600);
+          }, 50);
+        });
+      }, 300); // Match the fade-out animation duration (0.3s)
+    });
   };
 
   const handleCloseTips = () => {
@@ -1903,7 +1908,8 @@ export default function HumApp() {
         }
 
         .animate-fade-out-down {
-          animation: fadeOutDown 0.4s ease-out forwards;
+          animation: fadeOutDown 0.3s ease-in-out forwards;
+          will-change: transform, opacity;
         }
 
         .animate-fade-in-up {
