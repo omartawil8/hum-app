@@ -2140,15 +2140,37 @@ export default function HumApp() {
         </button>
 
         {/* Bookmarks Button - Top Left */}
-        <button
-          onClick={() => setShowBookmarks(!showBookmarks)}
-          className="fixed top-6 left-6 z-40 flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all group"
-        >
-          <Bookmark 
-            className={`w-5 h-5 transition-all duration-200 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse fill-purple-400/90 text-purple-400' : ''}`} 
-            strokeWidth={1.5}
-          />
-        </button>
+        <div className="fixed top-6 left-6 z-40 flex items-center gap-2">
+          <button
+            onClick={() => setShowBookmarks(!showBookmarks)}
+            className="flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all group"
+          >
+            <Bookmark 
+              className={`w-5 h-5 transition-all duration-200 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse fill-purple-400/90 text-purple-400' : ''}`} 
+              strokeWidth={1.5}
+            />
+          </button>
+          
+          {/* Return Home Bird Button - Only show when results are displayed */}
+          {hasResult && matchData && (
+            <button 
+              onClick={handleResetApp}
+              className="group flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 hover:border-[#D8B5FE]/40 transition-all cursor-pointer relative"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(216, 181, 254, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+              }}
+            >
+              <img 
+                src={hummingBirdIcon} 
+                alt="Home" 
+                className="w-5 h-5 object-contain"
+              />
+            </button>
+          )}
+        </div>
 
         {/* Top Right - User Account & Help Button */}
         <div className="fixed top-6 right-6 z-40 flex items-center gap-2">
@@ -3227,26 +3249,6 @@ export default function HumApp() {
                 }}
               >
                 <div className="text-center mb-12">
-                  <button 
-                    onClick={handleResetApp}
-                    className="group inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/5 border border-white/20 mb-6 hover:border-[#D8B5FE]/40 hover:scale-105 transition-all cursor-pointer relative"
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(216, 181, 254, 0.3)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                    }}
-                  >
-                    <img 
-                      src={hummingBirdIcon} 
-                      alt="Home" 
-                      className="w-12 h-12 object-contain"
-                    />
-                    {/* Tooltip on hover */}
-                    <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                      <span className="text-xs font-medium whitespace-nowrap" style={{ color: '#D8B5FE' }}>Back to home</span>
-                    </div>
-                  </button>
                   <div className="flex items-center justify-center gap-4 mb-4">
                     <h2 className="text-5xl font-bold tracking-wide">
                       {matchData?.[0]?.title || 'Unknown Song'}
