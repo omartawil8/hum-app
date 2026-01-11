@@ -1623,7 +1623,7 @@ export default function HumApp() {
 
   return (
     // OLD BACKGROUND (to revert, replace className below with): bg-gradient-to-b from-[#0A0E27] via-[#141937] to-[#1a1d3a]
-    <div className="min-h-screen text-white relative overflow-hidden" style={{ background: 'linear-gradient(to bottom, #050510 0%, #080810 30%, #0a0a15 60%, #0f0f1a 100%)' }}>
+    <div className="min-h-screen text-white relative overflow-hidden" style={{ background: '#080810' }}>
       <style>{`
 
         /* Animated blob keyframes - organic, large movements with subtle fade */
