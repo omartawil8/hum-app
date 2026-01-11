@@ -2877,15 +2877,7 @@ export default function HumApp() {
             {/* Home Screen - Initial State */}
             {!hasResult && !isListening && !isProcessing && !isClosingResults && (
               <div 
-                className="flex flex-col items-center"
-                style={{
-                  opacity: isHomepageAnimating ? 1 : 0,
-                  transform: isHomepageAnimating ? 'translateY(0) translateZ(0)' : 'translateY(10px) translateZ(0)',
-                  transition: 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-                  willChange: isHomepageAnimating ? 'transform, opacity' : 'auto',
-                  backfaceVisibility: 'hidden',
-                  pointerEvents: isHomepageAnimating ? 'auto' : 'none'
-                }}
+                className={`flex flex-col items-center ${isHomepageAnimating ? 'animate-fade-in-up' : ''}`}
               >
                 <h1 className="text-5xl font-bold text-white text-center mb-12 mt-20">
                   tap to hummm
