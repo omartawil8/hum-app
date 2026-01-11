@@ -3306,16 +3306,15 @@ export default function HumApp() {
                   </div>
                 </div>
 
-                <div className="bg-white/[0.02] backdrop-blur-sm rounded-2xl p-8 mb-8 border border-white/5">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-sm text-white/40 tracking-wide uppercase text-xs">Confidence</span>
-                    <span className="text-2xl font-bold">{matchData?.[0]?.confidence || 0}%</span>
+                <div className="bg-white/[0.02] backdrop-blur-sm rounded-xl p-4 mb-6 border border-white/5">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-white/40 tracking-wide uppercase">confidence</span>
+                    <span className="text-lg font-bold">{matchData?.[0]?.confidence || 0}%</span>
                   </div>
                   <div className="w-full bg-white/5 rounded-full h-1 overflow-hidden">
                     <div 
                       className="h-full rounded-full transition-all duration-1000"
-                      style={{ background: '#D8B5FE' }} 
-                      style={{ width: `${matchData?.[0]?.confidence || 0}%` }}
+                      style={{ width: `${matchData?.[0]?.confidence || 0}%`, background: '#D8B5FE' }}
                     ></div>
                   </div>
                 </div>
