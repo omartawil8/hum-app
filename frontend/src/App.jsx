@@ -1506,7 +1506,7 @@ export default function HumApp() {
     } else {
       // Bookmarking - trigger animation
       setBookmarkAnimating(true);
-      setTimeout(() => setBookmarkAnimating(false), 600);
+      setTimeout(() => setBookmarkAnimating(false), 400);
       
       newSavedSongs = [songData, ...savedSongs];
     }
@@ -1645,7 +1645,7 @@ export default function HumApp() {
 
   return (
     // OLD BACKGROUND (to revert, replace className below with): bg-gradient-to-b from-[#0A0E27] via-[#141937] to-[#1a1d3a]
-    <div className="min-h-screen text-white relative overflow-hidden" style={{ background: '#080810' }}>
+    <div className="min-h-screen text-white relative overflow-hidden" style={{ background: '#000000' }}>
       <style>{`
 
         /* Animated blob keyframes - organic, large movements with subtle fade */
@@ -1876,7 +1876,8 @@ export default function HumApp() {
         }
 
         .animate-bookmark-pulse {
-          animation: bookmarkPulse 0.6s ease-in-out;
+          animation: bookmarkPulse 0.4s ease-out;
+          will-change: transform, opacity;
         }
 
         @keyframes fadeOutDown {
@@ -2069,7 +2070,7 @@ export default function HumApp() {
           className="fixed top-6 left-6 z-40 flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all group"
         >
           <Bookmark 
-            className={`w-5 h-5 transition-all duration-500 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse fill-purple-400/90 text-purple-400' : ''}`} 
+            className={`w-5 h-5 transition-all duration-200 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse fill-purple-400/90 text-purple-400' : ''}`} 
             strokeWidth={1.5}
           />
         </button>
@@ -3119,7 +3120,7 @@ export default function HumApp() {
                       className="p-3 hover:bg-white/5 rounded-full transition-all group"
                     >
                       <Bookmark 
-                        className={`w-6 h-6 transition-all ${bookmarkAnimating ? 'animate-bookmark-pulse' : ''} ${isSaved ? 'fill-rose-400 text-rose-400' : 'text-white/40 group-hover:text-white/60'}`} 
+                        className={`w-6 h-6 transition-all duration-200 ${bookmarkAnimating ? 'animate-bookmark-pulse' : ''} ${isSaved ? 'fill-rose-400 text-rose-400' : 'text-white/40 group-hover:text-white/60'}`} 
                         strokeWidth={1.5} 
                       />
                     </button>
