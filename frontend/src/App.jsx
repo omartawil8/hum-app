@@ -1981,9 +1981,11 @@ export default function HumApp() {
         @keyframes dotRotate {
           0% {
             transform: translate(-50%, -50%) rotate(0deg) translateX(5px) rotate(0deg);
+            opacity: 1;
           }
           100% {
             transform: translate(-50%, -50%) rotate(360deg) translateX(5px) rotate(-360deg);
+            opacity: 1;
           }
         }
 
@@ -3056,8 +3058,8 @@ export default function HumApp() {
                     {isSearchingLyrics ? (
                       <div className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center justify-center w-5 h-5">
                         <div className="relative w-full h-full">
-                          <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-white/80 rounded-full" style={{ animation: 'dotRotate 1s ease-in-out infinite', animationDelay: '0s' }}></div>
-                          <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-white/80 rounded-full" style={{ animation: 'dotRotate 1s ease-in-out infinite', animationDelay: '0.5s' }}></div>
+                          <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-white/80 rounded-full" style={{ animation: 'dotRotate 1s ease-in-out infinite', animationDelay: '0s', animationFillMode: 'both', willChange: 'transform' }}></div>
+                          <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-white/80 rounded-full" style={{ animation: 'dotRotate 1s ease-in-out infinite', animationDelay: '0.5s', animationFillMode: 'both', willChange: 'transform' }}></div>
                         </div>
                       </div>
                     ) : lyricsInput.trim() && (
