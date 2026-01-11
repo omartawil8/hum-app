@@ -2376,10 +2376,10 @@ export default function HumApp() {
               </button>
               
               {/* Modal */}
-              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] border border-white/20 shadow-2xl overflow-y-auto">
-                <h2 className="text-4xl font-bold text-center mb-8">wanna keep humming?</h2>
+              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-6 max-w-xl w-full max-h-[90vh] border border-white/20 shadow-2xl overflow-y-auto">
+                <h2 className="text-3xl font-bold text-center mb-6">wanna keep humming?</h2>
 
-                <div className={`grid gap-6 ${userTier === 'avid' && searchCount >= AVID_LISTENER_LIMIT ? 'md:grid-cols-2' : 'md:grid-cols-1 max-w-md mx-auto'}`}>
+                <div className={`grid gap-4 ${userTier === 'avid' && searchCount >= AVID_LISTENER_LIMIT ? 'md:grid-cols-2' : 'md:grid-cols-1 max-w-sm mx-auto'}`}>
                   {/* Avid Listener Plan */}
                   <button
                     onClick={() => handleSelectPlan('Avid Listener')}
@@ -2391,29 +2391,29 @@ export default function HumApp() {
                   >
                     {/* Card background */}
                     <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 to-cyan-500/10 backdrop-blur-sm"></div>
-                    <div className={`relative rounded-3xl p-6 border-2 transition-all ${
+                    <div className={`relative rounded-2xl p-4 border-2 transition-all ${
                       selectedPlan === 'Avid Listener' 
                         ? 'border-teal-500 shadow-[0_0_0_2px_rgba(20,184,166,0.5)]' 
                         : 'border-teal-500/30 hover:border-teal-500/50'
                     }`}>
                       {/* Star badge */}
-                      <div className="absolute top-6 left-6">
-                        <Star className="w-6 h-6 text-teal-400 fill-teal-400" />
+                      <div className="absolute top-4 left-4">
+                        <Star className="w-5 h-5 text-teal-400 fill-teal-400" />
                       </div>
 
                       {/* Info icon */}
                       <div 
-                        className="absolute top-6 right-6 group/info"
+                        className="absolute top-4 right-4 group/info"
                         onMouseEnter={() => setShowAvidInfo(true)}
                         onMouseLeave={() => setShowAvidInfo(false)}
                       >
-                        <div className="w-6 h-6 rounded-full border border-white/30 flex items-center justify-center cursor-help hover:border-white/50 transition-colors">
-                          <Info className="w-4 h-4 text-white/60" />
+                        <div className="w-5 h-5 rounded-full border border-white/30 flex items-center justify-center cursor-help hover:border-white/50 transition-colors">
+                          <Info className="w-3.5 h-3.5 text-white/60" />
                         </div>
                         
                         {/* Tooltip */}
                         {showAvidInfo && (
-                          <div className="absolute top-8 right-0 w-48 bg-black/90 backdrop-blur-xl rounded-xl p-3 border border-teal-500/30 shadow-2xl z-10 animate-slide-down">
+                          <div className="absolute top-6 right-0 w-48 bg-black/90 backdrop-blur-xl rounded-xl p-3 border border-teal-500/30 shadow-2xl z-10 animate-slide-down">
                             <p className="text-sm text-white/70 leading-relaxed">
                               get <span className="text-teal-300 font-semibold">100 searches each month.</span> great for casual listening!
                             </p>
@@ -2422,12 +2422,12 @@ export default function HumApp() {
                       </div>
 
                       {/* Price */}
-                      <div className="text-center mt-4 mb-6">
-                        <div className="text-5xl font-bold mb-1">$1<span className="text-2xl text-white/60">/month</span></div>
+                      <div className="text-center mt-2 mb-4">
+                        <div className="text-4xl font-bold mb-1">$1<span className="text-xl text-white/60">/month</span></div>
                       </div>
 
                       {/* Character illustration */}
-                      <div className="relative h-64 flex items-center justify-center mb-6">
+                      <div className="relative h-32 flex items-center justify-center mb-4">
                         <img 
                           src={avidListenerIcon} 
                           alt="avid listener" 
@@ -2444,8 +2444,8 @@ export default function HumApp() {
 
                       {/* Plan name */}
                       <div className="text-center">
-                        <h3 className="text-2xl font-bold">avid listener</h3>
-                        <p className="text-sm text-teal-300/80 mt-1">100 searches per month</p>
+                        <h3 className="text-xl font-bold">avid listener</h3>
+                        <p className="text-xs text-teal-300/80 mt-1">100 searches per month</p>
                         {userTier === 'avid' && (
                           <p className="text-xs text-white/50 mt-2">
                             resets in {getDaysUntilReset()} {getDaysUntilReset() === 1 ? 'day' : 'days'}
@@ -2526,20 +2526,20 @@ export default function HumApp() {
 
                 {/* Payment options (shows when plan selected) */}
                 <div 
-                  className={`mt-8 transition-all duration-300 ease-in-out ${
+                  className={`mt-6 transition-all duration-300 ease-in-out ${
                     selectedPlan 
-                      ? 'max-h-80 opacity-100 pb-4' 
+                      ? 'max-h-80 opacity-100 pb-2' 
                       : 'max-h-0 opacity-0 pb-0 overflow-hidden'
                   }`}
                 >
                   <div className={selectedPlan ? 'overflow-visible' : 'overflow-hidden'}>
                     {/* Header with decorative lines */}
-                    <div className="flex items-center justify-center gap-4 mb-4">
+                    <div className="flex items-center justify-center gap-3 mb-3">
                       <div className="flex-1 h-px bg-white/20"></div>
-                      <h3 className="text-xl font-semibold text-white/90 whitespace-nowrap">ready to upgrade?</h3>
+                      <h3 className="text-lg font-semibold text-white/90 whitespace-nowrap">ready to upgrade?</h3>
                       <div className="flex-1 h-px bg-white/20"></div>
                     </div>
-                    <p className="text-center text-white/60 mb-6 text-sm">choose your preferred payment method</p>
+                    <p className="text-center text-white/60 mb-4 text-xs">choose your preferred payment method</p>
                     
                     {/* Payment buttons */}
                     <div className="flex flex-col gap-3 px-1 py-1">
