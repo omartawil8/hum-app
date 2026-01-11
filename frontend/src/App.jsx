@@ -2371,7 +2371,7 @@ export default function HumApp() {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white/80 transition-colors"
                       >
-                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        <Eye className={`w-5 h-5 ${!showPassword ? 'animate-blink' : ''}`} />
                       </button>
                     </div>
                   </div>
