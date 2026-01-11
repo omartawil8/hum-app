@@ -2129,10 +2129,10 @@ export default function HumApp() {
           onMouseLeave={handleCloseTips}
         >
           <button
-            className="flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all"
           >
               <span className="text-sm font-bold">help!</span>
-            <span className="text-lg">💡</span>
+            <span className="text-base">💡</span>
           </button>
 
           {/* Help Dropdown */}
