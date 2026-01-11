@@ -2185,14 +2185,14 @@ export default function HumApp() {
         <div className="fixed top-6 left-6 z-40 flex items-center gap-2">
           {/* Cancel Button - Only show while listening, before API call */}
           {isListening && !isProcessing && (
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-2 group">
               <button
                 onClick={cancelListening}
-                className="flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all"
+                className="flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all relative"
               >
-                <X className="w-5 h-5" strokeWidth={1.5} />
+                <X className="w-5 h-5" strokeWidth={1.5} style={{ color: '#D8B5FE' }} />
               </button>
-              <span className="text-xs font-medium" style={{ color: '#D8B5FE' }}>
+              <span className="text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" style={{ color: '#D8B5FE' }}>
                 cancel
               </span>
             </div>
