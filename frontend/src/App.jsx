@@ -3170,7 +3170,8 @@ export default function HumApp() {
                   </div>
                   <div className="w-full bg-white/5 rounded-full h-1 overflow-hidden">
                     <div 
-                      className="bg-gradient-to-r from-rose-400 to-orange-400 h-full rounded-full transition-all duration-1000" 
+                      className="h-full rounded-full transition-all duration-1000"
+                      style={{ background: '#D8B5FE' }} 
                       style={{ width: `${matchData?.[0]?.confidence || 0}%` }}
                     ></div>
                   </div>
