@@ -1595,19 +1595,19 @@ export default function HumApp() {
             opacity: 0.2;
           }
           20% {
-            transform: translate(120px, -80px) scale(1.15);
+            transform: translate(150px, -100px) scale(1.15);
             opacity: 0.35;
           }
           40% {
-            transform: translate(-60px, -150px) scale(0.9);
+            transform: translate(-80px, -180px) scale(0.9);
             opacity: 0.25;
           }
           60% {
-            transform: translate(180px, -40px) scale(1.1);
+            transform: translate(200px, -60px) scale(1.1);
             opacity: 0.3;
           }
           80% {
-            transform: translate(40px, -100px) scale(1.05);
+            transform: translate(60px, -120px) scale(1.05);
             opacity: 0.28;
           }
           100% {
@@ -1622,15 +1622,15 @@ export default function HumApp() {
             opacity: 0.15;
           }
           25% {
-            transform: translate(-150px, 100px) scale(1.2);
+            transform: translate(-180px, 120px) scale(1.2);
             opacity: 0.3;
           }
           50% {
-            transform: translate(80px, 180px) scale(0.85);
+            transform: translate(100px, 200px) scale(0.85);
             opacity: 0.2;
           }
           75% {
-            transform: translate(-80px, 60px) scale(1.1);
+            transform: translate(-100px, 80px) scale(1.1);
             opacity: 0.25;
           }
           100% {
@@ -1645,23 +1645,23 @@ export default function HumApp() {
             opacity: 0.18;
           }
           15% {
-            transform: translate(200px, -120px) scale(1.25);
+            transform: translate(220px, -140px) scale(1.25);
             opacity: 0.32;
           }
           30% {
-            transform: translate(-100px, 80px) scale(0.9);
+            transform: translate(-120px, 100px) scale(0.9);
             opacity: 0.22;
           }
           50% {
-            transform: translate(60px, -200px) scale(1.15);
+            transform: translate(80px, -220px) scale(1.15);
             opacity: 0.28;
           }
           70% {
-            transform: translate(-140px, -60px) scale(0.95);
+            transform: translate(-160px, -80px) scale(0.95);
             opacity: 0.2;
           }
           85% {
-            transform: translate(100px, 120px) scale(1.08);
+            transform: translate(120px, 140px) scale(1.08);
             opacity: 0.26;
           }
           100% {
@@ -1671,15 +1671,18 @@ export default function HumApp() {
         }
 
         .blob-animate-1 {
-          animation: blobFloat1 40s ease-in-out infinite;
+          animation: blobFloat1 25s ease-in-out infinite;
+          will-change: transform, opacity;
         }
 
         .blob-animate-2 {
-          animation: blobFloat2 50s ease-in-out infinite;
+          animation: blobFloat2 30s ease-in-out infinite;
+          will-change: transform, opacity;
         }
 
         .blob-animate-3 {
-          animation: blobFloat3 60s ease-in-out infinite;
+          animation: blobFloat3 35s ease-in-out infinite;
+          will-change: transform, opacity;
         }
         @keyframes float {
           0%, 100% {
@@ -1916,9 +1919,9 @@ export default function HumApp() {
 
       {/* Animated background blobs - subtle, organic movement */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-500/8 rounded-full blur-[120px] blob-animate-1"></div>
-        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-blue-500/8 rounded-full blur-[120px] blob-animate-2"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-indigo-500/8 rounded-full blur-[120px] blob-animate-3"></div>
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-500/12 rounded-full blur-[120px] blob-animate-1"></div>
+        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-blue-500/12 rounded-full blur-[120px] blob-animate-2"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-indigo-500/12 rounded-full blur-[120px] blob-animate-3"></div>
       </div>
 
       <div className="relative z-10">
