@@ -2067,7 +2067,7 @@ export default function HumApp() {
 
               {/* Dropdown Menu */}
               {showUserDropdown && (
-                <div className="absolute top-full right-0 mt-2 w-56 bg-white/[0.08] backdrop-blur-xl rounded-xl border border-white/20 shadow-2xl z-50 overflow-hidden animate-slide-down">
+                <div className="absolute top-full right-0 mt-2 w-56 bg-white/[0.03] backdrop-blur-2xl rounded-xl border border-white/20 shadow-2xl z-50 overflow-hidden animate-slide-down">
                   <button
                     onClick={() => {
                       setNicknameInput(nickname);
@@ -2077,7 +2077,7 @@ export default function HumApp() {
                     className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-white/80 hover:bg-white/10 transition-colors border-b border-white/10"
                   >
                     <User className="w-4 h-4" />
-                    <span>{nickname ? 'Change nickname' : 'Set nickname'}</span>
+                    <span>{nickname ? 'change nickname' : 'set nickname'}</span>
                   </button>
                   {nickname && (
                     <button
@@ -2085,7 +2085,7 @@ export default function HumApp() {
                       className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-white/60 hover:bg-white/10 transition-colors border-b border-white/10"
                     >
                       <X className="w-4 h-4" />
-                      <span>Remove nickname</span>
+                      <span>remove nickname</span>
                     </button>
                   )}
                   <button
@@ -2093,7 +2093,7 @@ export default function HumApp() {
                     className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-white/80 hover:bg-white/10 transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
-                    <span>Logout</span>
+                    <span>logout</span>
         </button>
                 </div>
               )}
