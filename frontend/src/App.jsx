@@ -2383,14 +2383,14 @@ export default function HumApp() {
                   {/* Avid Listener Plan */}
                   <button
                     onClick={() => handleSelectPlan('Avid Listener')}
-                    className={`relative group rounded-3xl overflow-hidden transition-all duration-300 ${
+                    className={`relative group rounded-2xl overflow-hidden transition-all duration-300 ${
                       selectedPlan === 'Avid Listener' 
                         ? 'scale-[1.025]' 
                         : 'hover:scale-[1.025]'
                     }`}
                   >
                     {/* Card background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 to-cyan-500/10 backdrop-blur-sm"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 to-cyan-500/10 backdrop-blur-sm rounded-2xl"></div>
                     <div className={`relative rounded-2xl p-4 border-2 transition-all ${
                       selectedPlan === 'Avid Listener' 
                         ? 'border-teal-500 shadow-[0_0_0_2px_rgba(20,184,166,0.5)]' 
