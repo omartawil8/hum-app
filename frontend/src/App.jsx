@@ -1569,6 +1569,15 @@ export default function HumApp() {
     }, 200);
   };
 
+  // Calculate days until monthly reset (1st of next month)
+  const getDaysUntilReset = () => {
+    const now = new Date();
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const diffTime = nextMonth - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
   const handleCloseUpgrade = () => {
     setIsClosingUpgrade(true);
     setTimeout(() => {
@@ -2337,11 +2346,11 @@ export default function HumApp() {
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-3xl blur-3xl"></div>
               
               {/* Modal */}
-              <div className="relative bg-[#2A2D3A]/95 backdrop-blur-2xl rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] border border-white/10 shadow-2xl overflow-y-auto">
-                <h2 className="text-4xl font-bold text-center mb-2">Wanna keep humming?</h2>
-                <p className="text-xl text-white/60 text-center mb-8">Select a plan</p>
+              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] border border-white/20 shadow-2xl overflow-y-auto">
+                <h2 className="text-4xl font-bold text-center mb-2">wanna keep humming?</h2>
+                <p className="text-xl text-white/60 text-center mb-8">select a plan</p>
 
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className={`grid gap-6 ${userTier === 'avid' && searchCount >= AVID_LISTENER_LIMIT ? 'md:grid-cols-2' : 'md:grid-cols-1 max-w-md mx-auto'}`}>
                   {/* Avid Listener Plan */}
                   <button
                     onClick={() => handleSelectPlan('Avid Listener')}
@@ -2377,7 +2386,7 @@ export default function HumApp() {
                         {showAvidInfo && (
                           <div className="absolute top-8 right-0 w-48 bg-black/90 backdrop-blur-xl rounded-xl p-3 border border-teal-500/30 shadow-2xl z-10 animate-slide-down">
                             <p className="text-sm text-white/70 leading-relaxed">
-                              Get <span className="text-teal-300 font-semibold">100 searches each month.</span> Great for casual listening!
+                              get <span className="text-teal-300 font-semibold">100 searches each month.</span> great for casual listening!
                             </p>
                           </div>
                         )}
@@ -2392,7 +2401,7 @@ export default function HumApp() {
                       <div className="relative h-64 flex items-center justify-center mb-6">
                         <img 
                           src={avidListenerIcon} 
-                          alt="Avid Listener" 
+                          alt="avid listener" 
                           className="w-full h-full object-contain drop-shadow-2xl"
                         />
                         {/* Stars decoration */}
@@ -2406,77 +2415,84 @@ export default function HumApp() {
 
                       {/* Plan name */}
                       <div className="text-center">
-                        <h3 className="text-2xl font-bold">Avid Listener</h3>
+                        <h3 className="text-2xl font-bold">avid listener</h3>
                         <p className="text-sm text-teal-300/80 mt-1">100 searches per month</p>
-                      </div>
-                    </div>
-                  </button>
-
-                  {/* Eat, Breath, Music Plan */}
-                  <button
-                    onClick={() => handleSelectPlan('Eat, Breath, Music')}
-                    className={`relative group rounded-3xl overflow-hidden transition-all duration-300 ${
-                      selectedPlan === 'Eat, Breath, Music' 
-                        ? 'scale-[1.025]' 
-                        : 'hover:scale-[1.025]'
-                    }`}
-                  >
-                    {/* Card background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 backdrop-blur-sm"></div>
-                    <div className={`relative rounded-3xl p-6 border-2 transition-all ${
-                      selectedPlan === 'Eat, Breath, Music' 
-                        ? 'border-purple-500 shadow-[0_0_0_2px_rgba(168,85,247,0.5)]' 
-                        : 'border-purple-500/30 hover:border-purple-500/50'
-                    }`}>
-                      {/* Info icon */}
-                      <div 
-                        className="absolute top-6 right-6 group/info"
-                        onMouseEnter={() => setShowUnlimitedInfo(true)}
-                        onMouseLeave={() => setShowUnlimitedInfo(false)}
-                      >
-                        <div className="w-6 h-6 rounded-full border border-white/30 flex items-center justify-center cursor-help hover:border-white/50 transition-colors">
-                          <Info className="w-4 h-4 text-white/60" />
-                        </div>
-                        
-                        {/* Tooltip */}
-                        {showUnlimitedInfo && (
-                          <div className="absolute top-8 right-0 w-48 bg-black/90 backdrop-blur-xl rounded-xl p-3 border border-purple-500/30 shadow-2xl z-10 animate-slide-down">
-                            <p className="text-sm text-white/70 leading-relaxed">
-                              Enjoy <span className="text-purple-300 font-semibold">unlimited searches</span> with no limits!
-                            </p>
-                          </div>
+                        {userTier === 'avid' && (
+                          <p className="text-xs text-white/50 mt-2">
+                            resets in {getDaysUntilReset()} {getDaysUntilReset() === 1 ? 'day' : 'days'}
+                          </p>
                         )}
                       </div>
-
-                      {/* Price */}
-                      <div className="text-center mt-4 mb-6">
-                        <div className="text-5xl font-bold mb-1">$4<span className="text-2xl text-white/60">/month</span></div>
-                      </div>
-
-                      {/* Character illustration */}
-                      <div className="relative h-64 flex items-center justify-center mb-6">
-                        <img 
-                          src={wizardGuyIcon} 
-                          alt="Music Wizard" 
-                          className="w-full h-full object-contain drop-shadow-2xl"
-                        />
-                        {/* Stars decoration */}
-                        <div className="absolute inset-0 pointer-events-none">
-                          <Star className="absolute top-6 left-10 w-7 h-7 text-yellow-400 fill-yellow-400 opacity-90" />
-                          <Star className="absolute top-4 right-8 w-6 h-6 text-yellow-400 fill-yellow-400 opacity-80" />
-                          <Star className="absolute bottom-16 left-8 w-5 h-5 text-yellow-400 fill-yellow-400 opacity-70" />
-                          <Star className="absolute top-20 right-12 w-4 h-4 text-yellow-400 fill-yellow-400 opacity-60" />
-                          <Star className="absolute bottom-8 right-6 w-6 h-6 text-yellow-400 fill-yellow-400 opacity-85" />
-                        </div>
-                      </div>
-
-                      {/* Plan name */}
-                      <div className="text-center">
-                        <h3 className="text-2xl font-bold">Eat, Breath, Music</h3>
-                        <p className="text-sm text-purple-300/80 mt-1">Unlimited searches</p>
-                      </div>
                     </div>
                   </button>
+
+                  {/* Eat, Breath, Music Plan - Only show when avid tier has used 100 searches */}
+                  {userTier === 'avid' && searchCount >= AVID_LISTENER_LIMIT && (
+                    <button
+                      onClick={() => handleSelectPlan('Eat, Breath, Music')}
+                      className={`relative group rounded-3xl overflow-hidden transition-all duration-300 ${
+                        selectedPlan === 'Eat, Breath, Music' 
+                          ? 'scale-[1.025]' 
+                          : 'hover:scale-[1.025]'
+                      }`}
+                    >
+                      {/* Card background */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 backdrop-blur-sm"></div>
+                      <div className={`relative rounded-3xl p-6 border-2 transition-all ${
+                        selectedPlan === 'Eat, Breath, Music' 
+                          ? 'border-purple-500 shadow-[0_0_0_2px_rgba(168,85,247,0.5)]' 
+                          : 'border-purple-500/30 hover:border-purple-500/50'
+                      }`}>
+                        {/* Info icon */}
+                        <div 
+                          className="absolute top-6 right-6 group/info"
+                          onMouseEnter={() => setShowUnlimitedInfo(true)}
+                          onMouseLeave={() => setShowUnlimitedInfo(false)}
+                        >
+                          <div className="w-6 h-6 rounded-full border border-white/30 flex items-center justify-center cursor-help hover:border-white/50 transition-colors">
+                            <Info className="w-4 h-4 text-white/60" />
+                          </div>
+                          
+                          {/* Tooltip */}
+                          {showUnlimitedInfo && (
+                            <div className="absolute top-8 right-0 w-48 bg-black/90 backdrop-blur-xl rounded-xl p-3 border border-purple-500/30 shadow-2xl z-10 animate-slide-down">
+                              <p className="text-sm text-white/70 leading-relaxed">
+                                enjoy <span className="text-purple-300 font-semibold">unlimited searches</span> with no limits!
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Price */}
+                        <div className="text-center mt-4 mb-6">
+                          <div className="text-5xl font-bold mb-1">$4<span className="text-2xl text-white/60">/month</span></div>
+                        </div>
+
+                        {/* Character illustration */}
+                        <div className="relative h-64 flex items-center justify-center mb-6">
+                          <img 
+                            src={wizardGuyIcon} 
+                            alt="music wizard" 
+                            className="w-full h-full object-contain drop-shadow-2xl"
+                          />
+                          {/* Stars decoration */}
+                          <div className="absolute inset-0 pointer-events-none">
+                            <Star className="absolute top-6 left-10 w-7 h-7 text-yellow-400 fill-yellow-400 opacity-90" />
+                            <Star className="absolute top-4 right-8 w-6 h-6 text-yellow-400 fill-yellow-400 opacity-80" />
+                            <Star className="absolute bottom-16 left-8 w-5 h-5 text-yellow-400 fill-yellow-400 opacity-70" />
+                            <Star className="absolute top-20 right-12 w-4 h-4 text-yellow-400 fill-yellow-400 opacity-60" />
+                            <Star className="absolute bottom-8 right-6 w-6 h-6 text-yellow-400 fill-yellow-400 opacity-85" />
+                          </div>
+                        </div>
+
+                        {/* Plan name */}
+                        <div className="text-center">
+                          <h3 className="text-2xl font-bold">eat, breath, music</h3>
+                          <p className="text-sm text-purple-300/80 mt-1">unlimited searches</p>
+                        </div>
+                      </div>
+                    </button>
+                  )}
                 </div>
 
                 {/* Payment options (shows when plan selected) */}
@@ -2491,10 +2507,10 @@ export default function HumApp() {
                     {/* Header with decorative lines */}
                     <div className="flex items-center justify-center gap-4 mb-4">
                       <div className="flex-1 h-px bg-white/20"></div>
-                      <h3 className="text-xl font-semibold text-white/90 whitespace-nowrap">Ready to upgrade?</h3>
+                      <h3 className="text-xl font-semibold text-white/90 whitespace-nowrap">ready to upgrade?</h3>
                       <div className="flex-1 h-px bg-white/20"></div>
                     </div>
-                    <p className="text-center text-white/60 mb-6 text-sm">Choose your preferred payment method</p>
+                    <p className="text-center text-white/60 mb-6 text-sm">choose your preferred payment method</p>
                     
                     {/* Payment buttons */}
                     <div className="flex flex-col gap-3 px-1 py-1">
@@ -2505,7 +2521,7 @@ export default function HumApp() {
                       >
                         <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <CreditCard className="w-5 h-5 relative z-10" />
-                        <span className="relative z-10">Card, Apple Pay, or Google Pay</span>
+                        <span className="relative z-10">card, apple pay, or google pay</span>
                       </button>
                       
                       {/* Secondary: PayPal */}
