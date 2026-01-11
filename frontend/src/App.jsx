@@ -1577,85 +1577,109 @@ export default function HumApp() {
     // OLD BACKGROUND (to revert, replace className below with): bg-gradient-to-b from-[#0A0E27] via-[#141937] to-[#1a1d3a]
     <div className="min-h-screen bg-gradient-to-b from-[#050510] via-[#0a0a15] to-[#0f0f1a] text-white relative overflow-hidden">
       <style>{`
-        /* Subtle background noise texture */
+        /* Subtle background noise texture - refined for Framer aesthetic */
         .background-noise {
           position: absolute;
           inset: 0;
           pointer-events: none;
-          opacity: 0.3;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-          background-size: 200px 200px;
+          opacity: 0.12;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+          background-size: 250px 250px;
           mix-blend-mode: overlay;
         }
 
-        /* Animated blob keyframes - slow random movement with fade */
+        /* Animated blob keyframes - organic, large movements with subtle fade */
         @keyframes blobFloat1 {
-          0%, 100% {
-            transform: translate(0, 0) scale(1);
-            opacity: 0.3;
-          }
-          25% {
-            transform: translate(30px, -50px) scale(1.1);
-            opacity: 0.5;
-          }
-          50% {
-            transform: translate(-20px, -80px) scale(0.9);
-            opacity: 0.4;
-          }
-          75% {
-            transform: translate(40px, -30px) scale(1.05);
-            opacity: 0.45;
-          }
-        }
-
-        @keyframes blobFloat2 {
-          0%, 100% {
-            transform: translate(0, 0) scale(1);
-            opacity: 0.25;
-          }
-          33% {
-            transform: translate(-40px, 60px) scale(1.15);
-            opacity: 0.4;
-          }
-          66% {
-            transform: translate(50px, 30px) scale(0.85);
-            opacity: 0.3;
-          }
-        }
-
-        @keyframes blobFloat3 {
-          0%, 100% {
+          0% {
             transform: translate(0, 0) scale(1);
             opacity: 0.2;
           }
           20% {
-            transform: translate(60px, -40px) scale(1.2);
+            transform: translate(120px, -80px) scale(1.15);
             opacity: 0.35;
           }
           40% {
-            transform: translate(-30px, 50px) scale(0.9);
+            transform: translate(-60px, -150px) scale(0.9);
             opacity: 0.25;
           }
           60% {
-            transform: translate(20px, -60px) scale(1.1);
-            opacity: 0.4;
+            transform: translate(180px, -40px) scale(1.1);
+            opacity: 0.3;
           }
           80% {
-            transform: translate(-50px, 20px) scale(0.95);
+            transform: translate(40px, -100px) scale(1.05);
+            opacity: 0.28;
+          }
+          100% {
+            transform: translate(0, 0) scale(1);
+            opacity: 0.2;
+          }
+        }
+
+        @keyframes blobFloat2 {
+          0% {
+            transform: translate(0, 0) scale(1);
+            opacity: 0.15;
+          }
+          25% {
+            transform: translate(-150px, 100px) scale(1.2);
             opacity: 0.3;
+          }
+          50% {
+            transform: translate(80px, 180px) scale(0.85);
+            opacity: 0.2;
+          }
+          75% {
+            transform: translate(-80px, 60px) scale(1.1);
+            opacity: 0.25;
+          }
+          100% {
+            transform: translate(0, 0) scale(1);
+            opacity: 0.15;
+          }
+        }
+
+        @keyframes blobFloat3 {
+          0% {
+            transform: translate(0, 0) scale(1);
+            opacity: 0.18;
+          }
+          15% {
+            transform: translate(200px, -120px) scale(1.25);
+            opacity: 0.32;
+          }
+          30% {
+            transform: translate(-100px, 80px) scale(0.9);
+            opacity: 0.22;
+          }
+          50% {
+            transform: translate(60px, -200px) scale(1.15);
+            opacity: 0.28;
+          }
+          70% {
+            transform: translate(-140px, -60px) scale(0.95);
+            opacity: 0.2;
+          }
+          85% {
+            transform: translate(100px, 120px) scale(1.08);
+            opacity: 0.26;
+          }
+          100% {
+            transform: translate(0, 0) scale(1);
+            opacity: 0.18;
           }
         }
 
         .blob-animate-1 {
-          animation: blobFloat1 20s ease-in-out infinite;
+          animation: blobFloat1 40s ease-in-out infinite;
         }
 
         .blob-animate-2 {
-          animation: blobFloat2 25s ease-in-out infinite;
+          animation: blobFloat2 50s ease-in-out infinite;
         }
 
         .blob-animate-3 {
-          animation: blobFloat3 30s ease-in-out infinite;
+          animation: blobFloat3 60s ease-in-out infinite;
         }
         @keyframes float {
           0%, 100% {
@@ -1890,11 +1914,11 @@ export default function HumApp() {
         <div className="background-noise"></div>
       </div>
 
-      {/* Animated background blobs */}
+      {/* Animated background blobs - subtle, organic movement */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl blob-animate-1"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl blob-animate-2"></div>
-        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl blob-animate-3"></div>
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-500/8 rounded-full blur-[120px] blob-animate-1"></div>
+        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-blue-500/8 rounded-full blur-[120px] blob-animate-2"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-indigo-500/8 rounded-full blur-[120px] blob-animate-3"></div>
       </div>
 
       <div className="relative z-10">
