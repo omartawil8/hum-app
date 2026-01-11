@@ -829,28 +829,28 @@ export default function HumApp() {
   // Animate background blobs
   useEffect(() => {
     const animate = () => {
-      timeRef.current += 0.01;
+      timeRef.current += 0.015;
       
-      // Blob 1 - smooth organic movement
+      // Blob 1 - smooth organic movement (pixel-based)
       setBlob1Pos({
-        x: Math.sin(timeRef.current * 0.5) * 15 + Math.cos(timeRef.current * 0.3) * 8,
-        y: Math.cos(timeRef.current * 0.4) * 12 + Math.sin(timeRef.current * 0.6) * 6,
+        x: Math.sin(timeRef.current * 0.5) * 150 + Math.cos(timeRef.current * 0.3) * 80,
+        y: Math.cos(timeRef.current * 0.4) * 120 + Math.sin(timeRef.current * 0.6) * 60,
         scale: 1 + Math.sin(timeRef.current * 0.2) * 0.15,
         opacity: 0.2 + Math.sin(timeRef.current * 0.3) * 0.15
       });
       
       // Blob 2 - different phase for variety
       setBlob2Pos({
-        x: Math.cos(timeRef.current * 0.4) * 18 + Math.sin(timeRef.current * 0.5) * 10,
-        y: Math.sin(timeRef.current * 0.35) * 20 + Math.cos(timeRef.current * 0.45) * 8,
+        x: Math.cos(timeRef.current * 0.4) * 180 + Math.sin(timeRef.current * 0.5) * 100,
+        y: Math.sin(timeRef.current * 0.35) * 200 + Math.cos(timeRef.current * 0.45) * 80,
         scale: 1 + Math.cos(timeRef.current * 0.25) * 0.2,
         opacity: 0.15 + Math.cos(timeRef.current * 0.35) * 0.15
       });
       
       // Blob 3 - another phase
       setBlob3Pos({
-        x: Math.sin(timeRef.current * 0.45) * 22 + Math.cos(timeRef.current * 0.55) * 12,
-        y: Math.cos(timeRef.current * 0.38) * 16 + Math.sin(timeRef.current * 0.42) * 10,
+        x: Math.sin(timeRef.current * 0.45) * 220 + Math.cos(timeRef.current * 0.55) * 120,
+        y: Math.cos(timeRef.current * 0.38) * 160 + Math.sin(timeRef.current * 0.42) * 100,
         scale: 1 + Math.sin(timeRef.current * 0.22) * 0.25,
         opacity: 0.18 + Math.sin(timeRef.current * 0.4) * 0.14
       });
@@ -1968,27 +1968,30 @@ export default function HumApp() {
       {/* Animated background blobs - subtle, organic movement */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div 
-          className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-500/12 rounded-full blur-[120px]"
+          className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-500/20 rounded-full blur-[120px]"
           style={{
-            transform: `translate(${blob1Pos.x}%, ${blob1Pos.y}%) scale(${blob1Pos.scale})`,
+            transform: `translate(${blob1Pos.x}px, ${blob1Pos.y}px) scale(${blob1Pos.scale})`,
             opacity: blob1Pos.opacity,
-            transition: 'none'
+            transition: 'none',
+            willChange: 'transform, opacity'
           }}
         ></div>
         <div 
-          className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-blue-500/12 rounded-full blur-[120px]"
+          className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-blue-500/20 rounded-full blur-[120px]"
           style={{
-            transform: `translate(${blob2Pos.x}%, ${blob2Pos.y}%) scale(${blob2Pos.scale})`,
+            transform: `translate(${blob2Pos.x}px, ${blob2Pos.y}px) scale(${blob2Pos.scale})`,
             opacity: blob2Pos.opacity,
-            transition: 'none'
+            transition: 'none',
+            willChange: 'transform, opacity'
           }}
         ></div>
         <div 
-          className="absolute top-1/2 left-1/2 w-[550px] h-[550px] bg-indigo-500/12 rounded-full blur-[120px]"
+          className="absolute top-1/2 left-1/2 w-[550px] h-[550px] bg-indigo-500/20 rounded-full blur-[120px]"
           style={{
-            transform: `translate(calc(-50% + ${blob3Pos.x}%), calc(-50% + ${blob3Pos.y}%)) scale(${blob3Pos.scale})`,
+            transform: `translate(calc(-50% + ${blob3Pos.x}px), calc(-50% + ${blob3Pos.y}px)) scale(${blob3Pos.scale})`,
             opacity: blob3Pos.opacity,
-            transition: 'none'
+            transition: 'none',
+            willChange: 'transform, opacity'
           }}
         ></div>
       </div>
