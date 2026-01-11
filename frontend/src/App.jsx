@@ -2348,6 +2348,11 @@ export default function HumApp() {
                       onChange={(e) => setAuthEmail(e.target.value)}
                       placeholder="your@email.com"
                       className="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-white/30 focus:bg-white/[0.08] transition-colors duration-200"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          isLoginMode ? handleLogin() : handleSignup();
+                        }
+                      }}
                     />
                   </div>
 
