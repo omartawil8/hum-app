@@ -3104,7 +3104,6 @@ export default function HumApp() {
                   <button 
                     onClick={handleResetApp}
                     className="group inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/5 border border-white/20 mb-6 hover:border-[#D8B5FE]/40 hover:scale-105 transition-all cursor-pointer relative"
-                    style={{ '--hover-bg': 'rgba(216, 181, 254, 0.3)' } as React.CSSProperties}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = 'rgba(216, 181, 254, 0.3)';
                     }}
