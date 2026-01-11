@@ -2400,11 +2400,10 @@ export default function HumApp() {
                   <button
                     onClick={isLoginMode ? handleLogin : handleSignup}
                     disabled={isAuthenticating}
-                    className="w-full bg-gradient-to-b from-indigo-900/40 to-indigo-800/30 hover:from-indigo-900/60 hover:to-indigo-800/50 border border-purple-400/30 hover:border-purple-400/70 rounded-full py-3 font-medium text-base transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group relative overflow-hidden"
+                    className="w-full bg-gradient-to-b from-indigo-900/40 to-indigo-800/30 hover:from-indigo-900/60 hover:to-indigo-800/50 border border-purple-400/30 hover:border-purple-400/70 rounded-full py-3 font-medium text-base transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ color: '#D8B5FE' }}
                   >
-                    <span>{isAuthenticating ? 'please wait...' : (isLoginMode ? 'login' : 'sign up')}</span>
-                    <ChevronRight className="w-4 h-4 absolute right-4 translate-x-[-100%] group-hover:translate-x-0 opacity-0 group-hover:opacity-100 transition-all duration-300" style={{ color: '#D8B5FE' }} />
+                    {isAuthenticating ? 'please wait...' : (isLoginMode ? 'login' : 'sign up')}
                   </button>
 
                   <div className="text-center">
