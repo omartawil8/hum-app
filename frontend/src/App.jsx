@@ -71,6 +71,13 @@ export default function HumApp() {
   const [showEmojiDropdown, setShowEmojiDropdown] = useState(false);
   const emojiDropdownRef = useRef(null);
   
+  // Blob animation state
+  const [blob1Pos, setBlob1Pos] = useState({ x: 0, y: 0, scale: 1, opacity: 0.2 });
+  const [blob2Pos, setBlob2Pos] = useState({ x: 0, y: 0, scale: 1, opacity: 0.15 });
+  const [blob3Pos, setBlob3Pos] = useState({ x: 0, y: 0, scale: 1, opacity: 0.18 });
+  const animationFrameRef = useRef(null);
+  const timeRef = useRef(0);
+  
   const ANONYMOUS_SEARCH_LIMIT = 1; // 1 free search without login
   const FREE_SEARCH_LIMIT = 5; // Total free searches (1 anonymous + 4 authenticated)
   const AVID_LISTENER_LIMIT = 100; // 100 searches per month for $1 tier
@@ -818,6 +825,47 @@ export default function HumApp() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showUserDropdown, showEmojiDropdown]);
+
+  // Animate background blobs
+  useEffect(() => {
+    const animate = () => {
+      timeRef.current += 0.01;
+      
+      // Blob 1 - smooth organic movement
+      setBlob1Pos({
+        x: Math.sin(timeRef.current * 0.5) * 15 + Math.cos(timeRef.current * 0.3) * 8,
+        y: Math.cos(timeRef.current * 0.4) * 12 + Math.sin(timeRef.current * 0.6) * 6,
+        scale: 1 + Math.sin(timeRef.current * 0.2) * 0.15,
+        opacity: 0.2 + Math.sin(timeRef.current * 0.3) * 0.15
+      });
+      
+      // Blob 2 - different phase for variety
+      setBlob2Pos({
+        x: Math.cos(timeRef.current * 0.4) * 18 + Math.sin(timeRef.current * 0.5) * 10,
+        y: Math.sin(timeRef.current * 0.35) * 20 + Math.cos(timeRef.current * 0.45) * 8,
+        scale: 1 + Math.cos(timeRef.current * 0.25) * 0.2,
+        opacity: 0.15 + Math.cos(timeRef.current * 0.35) * 0.15
+      });
+      
+      // Blob 3 - another phase
+      setBlob3Pos({
+        x: Math.sin(timeRef.current * 0.45) * 22 + Math.cos(timeRef.current * 0.55) * 12,
+        y: Math.cos(timeRef.current * 0.38) * 16 + Math.sin(timeRef.current * 0.42) * 10,
+        scale: 1 + Math.sin(timeRef.current * 0.22) * 0.25,
+        opacity: 0.18 + Math.sin(timeRef.current * 0.4) * 0.14
+      });
+      
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+    
+    animationFrameRef.current = requestAnimationFrame(animate);
+    
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (matchData && matchData[0]) {
@@ -1919,9 +1967,30 @@ export default function HumApp() {
 
       {/* Animated background blobs - subtle, organic movement */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-500/12 rounded-full blur-[120px] blob-animate-1"></div>
-        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-blue-500/12 rounded-full blur-[120px] blob-animate-2"></div>
-        <div className="absolute top-1/2 left-1/2 w-[550px] h-[550px] bg-indigo-500/12 rounded-full blur-[120px] blob-animate-3"></div>
+        <div 
+          className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-500/12 rounded-full blur-[120px]"
+          style={{
+            transform: `translate(${blob1Pos.x}%, ${blob1Pos.y}%) scale(${blob1Pos.scale})`,
+            opacity: blob1Pos.opacity,
+            transition: 'none'
+          }}
+        ></div>
+        <div 
+          className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-blue-500/12 rounded-full blur-[120px]"
+          style={{
+            transform: `translate(${blob2Pos.x}%, ${blob2Pos.y}%) scale(${blob2Pos.scale})`,
+            opacity: blob2Pos.opacity,
+            transition: 'none'
+          }}
+        ></div>
+        <div 
+          className="absolute top-1/2 left-1/2 w-[550px] h-[550px] bg-indigo-500/12 rounded-full blur-[120px]"
+          style={{
+            transform: `translate(calc(-50% + ${blob3Pos.x}%), calc(-50% + ${blob3Pos.y}%)) scale(${blob3Pos.scale})`,
+            opacity: blob3Pos.opacity,
+            transition: 'none'
+          }}
+        ></div>
       </div>
 
       <div className="relative z-10">
