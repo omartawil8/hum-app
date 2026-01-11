@@ -2355,7 +2355,7 @@ export default function HumApp() {
               >
                 <X className="w-5 h-5" />
               </button>
-
+              
               {/* Modal */}
               <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] border border-white/20 shadow-2xl overflow-y-auto">
                 <h2 className="text-4xl font-bold text-center mb-8">wanna keep humming?</h2>
@@ -2438,70 +2438,70 @@ export default function HumApp() {
 
                   {/* Eat, Breath, Music Plan - Only show when avid tier has used 100 searches */}
                   {userTier === 'avid' && searchCount >= AVID_LISTENER_LIMIT && (
-                    <button
-                      onClick={() => handleSelectPlan('Eat, Breath, Music')}
-                      className={`relative group rounded-3xl overflow-hidden transition-all duration-300 ${
-                        selectedPlan === 'Eat, Breath, Music' 
+                  <button
+                    onClick={() => handleSelectPlan('Eat, Breath, Music')}
+                    className={`relative group rounded-3xl overflow-hidden transition-all duration-300 ${
+                      selectedPlan === 'Eat, Breath, Music' 
                           ? 'scale-[1.025]' 
                           : 'hover:scale-[1.025]'
-                      }`}
-                    >
-                      {/* Card background */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 backdrop-blur-sm"></div>
+                    }`}
+                  >
+                    {/* Card background */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 backdrop-blur-sm"></div>
                       <div className={`relative rounded-3xl p-6 border-2 transition-all ${
                         selectedPlan === 'Eat, Breath, Music' 
                           ? 'border-purple-500 shadow-[0_0_0_2px_rgba(168,85,247,0.5)]' 
                           : 'border-purple-500/30 hover:border-purple-500/50'
                       }`}>
-                        {/* Info icon */}
-                        <div 
-                          className="absolute top-6 right-6 group/info"
-                          onMouseEnter={() => setShowUnlimitedInfo(true)}
-                          onMouseLeave={() => setShowUnlimitedInfo(false)}
-                        >
-                          <div className="w-6 h-6 rounded-full border border-white/30 flex items-center justify-center cursor-help hover:border-white/50 transition-colors">
-                            <Info className="w-4 h-4 text-white/60" />
-                          </div>
-                          
-                          {/* Tooltip */}
-                          {showUnlimitedInfo && (
-                            <div className="absolute top-8 right-0 w-48 bg-black/90 backdrop-blur-xl rounded-xl p-3 border border-purple-500/30 shadow-2xl z-10 animate-slide-down">
-                              <p className="text-sm text-white/70 leading-relaxed">
+                      {/* Info icon */}
+                      <div 
+                        className="absolute top-6 right-6 group/info"
+                        onMouseEnter={() => setShowUnlimitedInfo(true)}
+                        onMouseLeave={() => setShowUnlimitedInfo(false)}
+                      >
+                        <div className="w-6 h-6 rounded-full border border-white/30 flex items-center justify-center cursor-help hover:border-white/50 transition-colors">
+                          <Info className="w-4 h-4 text-white/60" />
+                        </div>
+                        
+                        {/* Tooltip */}
+                        {showUnlimitedInfo && (
+                          <div className="absolute top-8 right-0 w-48 bg-black/90 backdrop-blur-xl rounded-xl p-3 border border-purple-500/30 shadow-2xl z-10 animate-slide-down">
+                            <p className="text-sm text-white/70 leading-relaxed">
                                 enjoy <span className="text-purple-300 font-semibold">unlimited searches</span> with no limits!
-                              </p>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Price */}
-                        <div className="text-center mt-4 mb-6">
-                          <div className="text-5xl font-bold mb-1">$4<span className="text-2xl text-white/60">/month</span></div>
-                        </div>
-
-                        {/* Character illustration */}
-                        <div className="relative h-64 flex items-center justify-center mb-6">
-                          <img 
-                            src={wizardGuyIcon} 
-                            alt="music wizard" 
-                            className="w-full h-full object-contain drop-shadow-2xl"
-                          />
-                          {/* Stars decoration */}
-                          <div className="absolute inset-0 pointer-events-none">
-                            <Star className="absolute top-6 left-10 w-7 h-7 text-yellow-400 fill-yellow-400 opacity-90" />
-                            <Star className="absolute top-4 right-8 w-6 h-6 text-yellow-400 fill-yellow-400 opacity-80" />
-                            <Star className="absolute bottom-16 left-8 w-5 h-5 text-yellow-400 fill-yellow-400 opacity-70" />
-                            <Star className="absolute top-20 right-12 w-4 h-4 text-yellow-400 fill-yellow-400 opacity-60" />
-                            <Star className="absolute bottom-8 right-6 w-6 h-6 text-yellow-400 fill-yellow-400 opacity-85" />
+                            </p>
                           </div>
-                        </div>
+                        )}
+                      </div>
 
-                        {/* Plan name */}
-                        <div className="text-center">
-                          <h3 className="text-2xl font-bold">eat, breath, music</h3>
-                          <p className="text-sm text-purple-300/80 mt-1">unlimited searches</p>
+                      {/* Price */}
+                      <div className="text-center mt-4 mb-6">
+                        <div className="text-5xl font-bold mb-1">$4<span className="text-2xl text-white/60">/month</span></div>
+                      </div>
+
+                      {/* Character illustration */}
+                      <div className="relative h-64 flex items-center justify-center mb-6">
+                        <img 
+                          src={wizardGuyIcon} 
+                            alt="music wizard" 
+                          className="w-full h-full object-contain drop-shadow-2xl"
+                        />
+                        {/* Stars decoration */}
+                        <div className="absolute inset-0 pointer-events-none">
+                          <Star className="absolute top-6 left-10 w-7 h-7 text-yellow-400 fill-yellow-400 opacity-90" />
+                          <Star className="absolute top-4 right-8 w-6 h-6 text-yellow-400 fill-yellow-400 opacity-80" />
+                          <Star className="absolute bottom-16 left-8 w-5 h-5 text-yellow-400 fill-yellow-400 opacity-70" />
+                          <Star className="absolute top-20 right-12 w-4 h-4 text-yellow-400 fill-yellow-400 opacity-60" />
+                          <Star className="absolute bottom-8 right-6 w-6 h-6 text-yellow-400 fill-yellow-400 opacity-85" />
                         </div>
                       </div>
-                    </button>
+
+                      {/* Plan name */}
+                      <div className="text-center">
+                          <h3 className="text-2xl font-bold">eat, breath, music</h3>
+                          <p className="text-sm text-purple-300/80 mt-1">unlimited searches</p>
+                      </div>
+                    </div>
+                  </button>
                   )}
                 </div>
 
@@ -2614,11 +2614,8 @@ export default function HumApp() {
                     {savedSongs.map((song, idx) => (
                       <div 
                         key={idx}
-                        className="group relative bg-white/[0.03] backdrop-blur-sm rounded-xl p-3 border border-white/[0.06] hover:border-[#D8B5FE]/30 transition-all duration-200 hover:scale-[1.01] cursor-pointer overflow-hidden"
+                        className="group relative bg-white/[0.03] backdrop-blur-sm rounded-xl p-3 border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-200 hover:scale-[1.01] cursor-pointer"
                       >
-                        {/* Glow effect on hover */}
-                        <div className="absolute inset-0 rounded-xl blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-200 pointer-events-none" style={{ background: 'rgba(216, 181, 254, 0.3)', zIndex: 0 }}></div>
-                        <div className="relative z-10">
                         <div className="flex items-center gap-3">
                           {/* Album Art */}
                           <div className="w-16 h-16 bg-white/[0.05] rounded-lg overflow-hidden flex-shrink-0 border border-white/[0.08] group-hover:border-white/[0.15] transition-all">
@@ -2666,7 +2663,6 @@ export default function HumApp() {
                               <X className="w-4 h-4 text-red-400/70" strokeWidth={1.5} />
                             </button>
                           </div>
-                        </div>
                         </div>
                       </div>
                     ))}
@@ -3130,7 +3126,8 @@ export default function HumApp() {
                       className="p-3 hover:bg-white/5 rounded-full transition-all group"
                     >
                       <Bookmark 
-                        className={`w-6 h-6 transition-all duration-200 ${bookmarkAnimating ? 'animate-bookmark-pulse' : ''} ${isSaved ? 'fill-rose-400 text-rose-400' : 'text-white/40 group-hover:text-white/60'}`} 
+                        className={`w-6 h-6 transition-all duration-200 ${bookmarkAnimating ? 'animate-bookmark-pulse' : ''} ${isSaved ? 'text-white/40 group-hover:text-white/60' : 'text-white/40 group-hover:text-white/60'}`}
+                        style={isSaved ? { fill: '#D8B5FE', color: '#D8B5FE' } : {}} 
                         strokeWidth={1.5} 
                       />
                     </button>
@@ -3159,7 +3156,7 @@ export default function HumApp() {
                 </div>
 
                 <div className="relative mb-12 group">
-                  <div className="absolute inset-0 bg-gradient-to-br from-rose-500/20 to-orange-500/20 rounded-3xl blur-2xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
+                  <div className="absolute inset-0 rounded-3xl blur-2xl opacity-50 group-hover:opacity-70 transition-opacity" style={{ background: 'rgba(216, 181, 254, 0.3)' }}></div>
                   <div className="relative bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm rounded-3xl aspect-square flex items-center justify-center border border-white/10 overflow-hidden">
                     {matchData?.[0]?.spotify?.album_art ? (
                       <img 
@@ -3296,13 +3293,13 @@ export default function HumApp() {
                   </div>
                 )}
 
-                  <button 
-                    onClick={handleResetApp}
+                <button 
+                  onClick={handleResetApp}
                     className="w-full transition-all py-5 rounded-2xl font-bold tracking-wide border border-white/10 hover:opacity-90"
                     style={{ background: 'rgba(216, 181, 254, 0.1)' }}
                     onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(216, 181, 254, 0.2)'}
                     onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(216, 181, 254, 0.1)'}
-                  >
+                >
                   Search Again
                 </button>
 
