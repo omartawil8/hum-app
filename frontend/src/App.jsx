@@ -1563,7 +1563,7 @@ export default function HumApp() {
 
   const handleResetApp = () => {
     setIsClosingResults(true);
-    // Wait for fade-out animation to complete
+    // Wait for fade-out transition to complete
     setTimeout(() => {
       resetApp();
       setIsClosingResults(false);
@@ -1571,8 +1571,8 @@ export default function HumApp() {
       setTimeout(() => {
         setIsHomepageAnimating(true);
         setTimeout(() => setIsHomepageAnimating(false), 600);
-      }, 100);
-    }, 350); // Slightly longer than animation to ensure it completes
+      }, 50);
+    }, 450); // Wait for transition to complete
   };
 
   const handleCloseTips = () => {
@@ -1904,10 +1904,10 @@ export default function HumApp() {
         }
 
         .animate-fade-out-down {
-          animation: fadeOutDown 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          opacity: 0;
+          transform: translateY(20px) translateZ(0);
+          transition: opacity 0.4s ease-out, transform 0.4s ease-out;
           will-change: transform, opacity;
-          backface-visibility: hidden;
-          perspective: 1000px;
         }
 
         .animate-fade-in-up {
@@ -3099,7 +3099,15 @@ export default function HumApp() {
 
             {/* Results State */}
             {hasResult && matchData && (
-              <div className={`py-8 ${isClosingResults ? 'animate-fade-out-down' : ''}`}>
+              <div 
+                className="py-8"
+                style={{
+                  opacity: isClosingResults ? 0 : 1,
+                  transform: isClosingResults ? 'translateY(20px) translateZ(0)' : 'translateY(0) translateZ(0)',
+                  transition: 'opacity 0.4s ease-out, transform 0.4s ease-out',
+                  willChange: 'opacity, transform'
+                }}
+              >
                 <div className="text-center mb-12">
                   <button 
                     onClick={handleResetApp}
