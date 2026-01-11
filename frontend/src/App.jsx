@@ -2400,12 +2400,12 @@ export default function HumApp() {
                   <button
                     onClick={isLoginMode ? handleLogin : handleSignup}
                     disabled={isAuthenticating}
-                    className="w-full bg-gradient-to-b from-indigo-900/40 to-indigo-800/30 border border-purple-400/30 hover:border-purple-400/50 rounded-full py-3 font-medium text-base transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full bg-gradient-to-b from-indigo-900/40 to-indigo-800/30 border border-purple-400/30 hover:border-purple-400/50 rounded-full py-3 font-medium text-base transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-4 group"
                     style={{ color: '#D8B5FE' }}
                   >
-                    <Star className="w-4 h-4" style={{ fill: '#D8B5FE', color: '#D8B5FE' }} />
+                    <Star className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ fill: '#D8B5FE', color: '#D8B5FE' }} />
                     <span>{isAuthenticating ? 'please wait...' : (isLoginMode ? 'login' : 'sign up')}</span>
-                    <Star className="w-4 h-4" style={{ fill: '#D8B5FE', color: '#D8B5FE' }} />
+                    <Star className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ fill: '#D8B5FE', color: '#D8B5FE' }} />
                   </button>
 
                   <div className="text-center">
