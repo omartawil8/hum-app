@@ -48,6 +48,7 @@ export default function HumApp() {
   const [outOfSearchesError, setOutOfSearchesError] = useState(false);
   const [hasUsedInitialSearches, setHasUsedInitialSearches] = useState(false);
   const [lyricsInput, setLyricsInput] = useState('');
+  const [isLyricsInputFocused, setIsLyricsInputFocused] = useState(false);
   const [isSearchingLyrics, setIsSearchingLyrics] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -3119,7 +3120,13 @@ export default function HumApp() {
                       <img 
                         src={sparkleIcon} 
                         alt="Sparkle" 
-                        className="w-full h-full opacity-60 transition-all group-focus-within:opacity-100 group-focus-within:brightness-0 group-focus-within:saturate-100 group-focus-within:invert-[78%] group-focus-within:sepia-[30%] group-focus-within:saturate-[2000%] group-focus-within:hue-rotate-[240deg] group-focus-within:brightness-[1.1] group-focus-within:contrast-[1.1]"
+                        className="w-full h-full transition-all"
+                        style={{ 
+                          opacity: isLyricsInputFocused ? 1 : 0.6,
+                          filter: isLyricsInputFocused 
+                            ? 'brightness(0) saturate(100%) invert(78%) sepia(30%) saturate(2000%) hue-rotate(240deg) brightness(1.1) contrast(1.1)' 
+                            : 'none'
+                        }}
                       />
                     </div>
                     <input
@@ -3127,6 +3134,8 @@ export default function HumApp() {
                       placeholder="smart search with lyrics..."
                       value={lyricsInput}
                       onChange={(e) => setLyricsInput(e.target.value)}
+                      onFocus={() => setIsLyricsInputFocused(true)}
+                      onBlur={() => setIsLyricsInputFocused(false)}
                       onKeyPress={handleLyricsKeyPress}
                       onClick={() => {
                         // If disabled due to being out of searches, show appropriate modal
