@@ -3018,7 +3018,7 @@ export default function HumApp() {
                         src={sparkleIcon} 
                         alt="Sparkle" 
                         className="w-full h-full opacity-60"
-                        style={{ filter: 'brightness(0) saturate(100%) invert(78%) sepia(30%) saturate(2000%) hue-rotate(240deg) brightness(1.1) contrast(1.1)' }}
+                        style={{ filter: 'brightness(0) saturate(100%) invert(60%) sepia(40%) saturate(800%) hue-rotate(200deg) brightness(1.2) contrast(0.9)' }}
                       />
                     </div>
                     <input
