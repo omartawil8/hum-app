@@ -826,6 +826,19 @@ export default function HumApp() {
     };
   }, [showUserDropdown, showEmojiDropdown]);
 
+  // Prevent body scroll when upgrade modal is open
+  useEffect(() => {
+    if (showUpgradeModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showUpgradeModal]);
+
   // Animate background blobs - smooth, slow, fluid movement
   useEffect(() => {
     const animate = () => {
