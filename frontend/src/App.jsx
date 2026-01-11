@@ -1570,13 +1570,14 @@ export default function HumApp() {
       // Reset state after fade-out completes
       resetApp();
       setIsClosingResults(false);
-      // Use requestAnimationFrame to ensure smooth transition start
-      requestAnimationFrame(() => {
+      // Small delay to ensure DOM is ready, then start animation
+      setTimeout(() => {
+        // Use requestAnimationFrame to ensure smooth transition start
         requestAnimationFrame(() => {
           setIsHomepageAnimating(true);
-          setTimeout(() => setIsHomepageAnimating(false), 600);
+          setTimeout(() => setIsHomepageAnimating(false), 500);
         });
-      });
+      }, 100);
     }, 450); // Wait for transition to complete
   };
 
@@ -1900,11 +1901,11 @@ export default function HumApp() {
         @keyframes fadeInUp {
           from {
             opacity: 0;
-            transform: translateY(15px);
+            transform: translateY(10px) translateZ(0);
           }
           to {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) translateZ(0);
           }
         }
 
@@ -1916,7 +1917,9 @@ export default function HumApp() {
         }
 
         .animate-fade-in-up {
-          animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          will-change: transform, opacity;
+          backface-visibility: hidden;
           will-change: transform, opacity;
           backface-visibility: hidden;
         }
