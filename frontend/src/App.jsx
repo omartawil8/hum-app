@@ -2198,15 +2198,18 @@ export default function HumApp() {
             </div>
           )}
           
-          <button
-            onClick={() => setShowBookmarks(!showBookmarks)}
-            className="flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all group"
-          >
-            <Bookmark 
-              className={`w-5 h-5 transition-all duration-200 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse fill-purple-400/90 text-purple-400' : ''}`} 
-              strokeWidth={1.5}
-            />
-          </button>
+          {/* Bookmarks Button - Hide during listening */}
+          {!(isListening && !isProcessing) && (
+            <button
+              onClick={() => setShowBookmarks(!showBookmarks)}
+              className="flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all group"
+            >
+              <Bookmark 
+                className={`w-5 h-5 transition-all duration-200 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse fill-purple-400/90 text-purple-400' : ''}`} 
+                strokeWidth={1.5}
+              />
+            </button>
+          )}
           
           {/* Return Home Bird Button - Only show when results are displayed */}
           {hasResult && matchData && (
