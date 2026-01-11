@@ -3044,7 +3044,7 @@ export default function HumApp() {
             {isListening && (
               <div className="flex flex-col items-center justify-center min-h-[70vh]">
                 <div className="relative mb-8">
-                  <div className="absolute inset-0 bg-gradient-to-br from-rose-500/20 to-orange-500/20 rounded-full blur-3xl animate-pulse"></div>
+                  <div className="absolute inset-0 rounded-full blur-3xl animate-pulse" style={{ background: 'rgba(216, 181, 254, 0.3)' }}></div>
                   <div className="relative w-48 h-48 rounded-full bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border-2 border-white/20 flex items-center justify-center">
                     <img 
                       src={hummingBirdIcon} 
@@ -3054,13 +3054,13 @@ export default function HumApp() {
                   </div>
                 </div>
                 
-                <h2 className="text-3xl font-bold mb-4 text-center">Listening...</h2>
+                <h2 className="text-3xl font-bold mb-4 text-center">listening...</h2>
                 <p className="text-white/60 text-center mb-8">Hum or sing the melody clearly</p>
                 
                 <div className="w-64 bg-white/5 rounded-full h-2 overflow-hidden">
                   <div 
-                    className="bg-gradient-to-r from-rose-400 to-orange-400 h-full rounded-full transition-all duration-300 ease-out" 
-                    style={{ width: `${audioLevel}%` }}
+                    className="h-full rounded-full transition-all duration-300 ease-out"
+                    style={{ background: '#D8B5FE', width: `${audioLevel}%` }}
                   ></div>
                 </div>
               </div>
