@@ -1658,10 +1658,12 @@ export default function HumApp() {
 
   return (
     // OLD BACKGROUND (to revert, replace className below with): bg-gradient-to-b from-[#0A0E27] via-[#141937] to-[#1a1d3a]
-    <div className="min-h-screen text-white relative overflow-hidden" style={{ background: '#000000' }}>
-      {/* Purple blur background elements */}
-      <div className="fixed top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-[120px] pointer-events-none z-0"></div>
-      <div className="fixed bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-[120px] pointer-events-none z-0"></div>
+    <div className="min-h-screen text-white relative overflow-hidden" style={{ 
+      background: '#000000',
+      backgroundImage: `radial-gradient(circle, rgba(255, 255, 255, 0.03) 1px, transparent 1px)`,
+      backgroundSize: '40px 40px',
+      backgroundPosition: '0 0'
+    }}>
       <style>{`
 
         /* Animated blob keyframes - organic, large movements with subtle fade */
