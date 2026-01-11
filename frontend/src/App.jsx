@@ -1577,38 +1577,39 @@ export default function HumApp() {
     // OLD BACKGROUND (to revert, replace className below with): bg-gradient-to-b from-[#0A0E27] via-[#141937] to-[#1a1d3a]
     <div className="min-h-screen bg-gradient-to-b from-[#050510] via-[#0a0a15] to-[#0f0f1a] text-white relative overflow-hidden">
       <style>{`
-        /* Grainy texture overlay */
+        /* High-quality film grain texture */
         .grain-overlay {
           position: absolute;
           inset: 0;
           pointer-events: none;
-          opacity: 0.4;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-          background-size: 200px 200px;
-          mix-blend-mode: overlay;
+          opacity: 0.25;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='filmGrain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23filmGrain)' opacity='0.8'/%3E%3C/svg%3E");
+          background-size: 300px 300px;
+          mix-blend-mode: soft-light;
+          image-rendering: crisp-edges;
         }
 
-        /* Subtle grid pattern */
-        .grid-overlay {
+        /* Cardboard/paper texture layer */
+        .paper-texture {
           position: absolute;
           inset: 0;
           pointer-events: none;
-          opacity: 0.03;
-          background-image: 
-            linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-          background-size: 50px 50px;
+          opacity: 0.08;
+          background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paperTexture'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paperTexture)'/%3E%3C/svg%3E");
+          background-size: 400px 400px;
+          mix-blend-mode: multiply;
         }
 
-        /* Subtle dot pattern */
-        .dot-overlay {
+        /* Fine film grain overlay */
+        .fine-grain {
           position: absolute;
           inset: 0;
           pointer-events: none;
           opacity: 0.15;
-          background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-          background-size: 20px 20px;
-          background-position: 0 0, 10px 10px;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='fineGrain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23fineGrain)' opacity='0.6'/%3E%3C/svg%3E");
+          background-size: 150px 150px;
+          mix-blend-mode: overlay;
+          image-rendering: crisp-edges;
         }
         @keyframes float {
           0%, 100% {
@@ -1838,14 +1839,14 @@ export default function HumApp() {
         }
       `}</style>
 
-      {/* Background texture overlays */}
+      {/* Background texture overlays - high-quality film/cardboard grain */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Grainy texture */}
+        {/* Paper/cardboard base texture */}
+        <div className="paper-texture"></div>
+        {/* Main film grain layer */}
         <div className="grain-overlay"></div>
-        {/* Subtle grid pattern */}
-        <div className="grid-overlay"></div>
-        {/* Subtle dot pattern */}
-        <div className="dot-overlay"></div>
+        {/* Fine grain detail layer */}
+        <div className="fine-grain"></div>
       </div>
 
       {/* Background decorative elements */}
