@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, ChevronRight, LogOut, User, Eye, EyeOff } from 'lucide-react';
+import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, ChevronRight, LogOut, User, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
 import wizardGuyIcon from './assets/Wizard_guy.png';
@@ -2141,8 +2141,19 @@ export default function HumApp() {
 
         {/* Bookmarks Button - Top Left */}
         <div className="fixed top-6 left-6 z-40 flex items-center gap-2">
-        <button
-          onClick={() => setShowBookmarks(!showBookmarks)}
+          {/* Back Arrow Button - Only show while listening, before API call */}
+          {isListening && !isProcessing && (
+            <button
+              onClick={cancelListening}
+              className="flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all group"
+              title="cancel"
+            >
+              <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
+            </button>
+          )}
+          
+          <button
+            onClick={() => setShowBookmarks(!showBookmarks)}
             className="flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all group"
           >
             <Bookmark 
