@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, LogOut, User } from 'lucide-react';
+import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, LogOut, User, Eye, EyeOff } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
 import wizardGuyIcon from './assets/Wizard_guy.png';
@@ -53,6 +53,7 @@ export default function HumApp() {
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [authError, setAuthError] = useState('');
   const [user, setUser] = useState(null);
@@ -2282,18 +2283,15 @@ export default function HumApp() {
                 <X className="w-5 h-5" />
               </button>
 
-              {/* Glow effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-3xl blur-3xl"></div>
-              
               {/* Modal */}
-              <div className="relative bg-[#2A2D3A]/95 backdrop-blur-2xl rounded-3xl p-8 max-w-md w-full border border-white/10 shadow-2xl">
+              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-8 max-w-md w-full border border-white/20 shadow-2xl">
                 <h2 className="text-3xl font-bold text-center mb-2">
-                  {isLoginMode ? 'Welcome back!' : 'Create an account'}
+                  {isLoginMode ? 'welcome back!' : 'create an account'}
                 </h2>
                 <p className="text-lg text-white/60 text-center mb-6">
                   {isLoginMode 
-                    ? 'Login to continue searching' 
-                    : 'Get 4 more free searches (5 total)'}
+                    ? 'login to continue searching' 
+                    : 'get 4 more free searches (5 total)'}
                 </p>
 
                 {authError && (
@@ -2304,7 +2302,7 @@ export default function HumApp() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm text-white/70 mb-2">Email</label>
+                    <label className="block text-sm text-white/70 mb-2">email</label>
                     <input
                       type="email"
                       value={authEmail}
@@ -2315,19 +2313,28 @@ export default function HumApp() {
                   </div>
 
                   <div>
-                    <label className="block text-sm text-white/70 mb-2">Password</label>
-                    <input
-                      type="password"
-                      value={authPassword}
-                      onChange={(e) => setAuthPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all"
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          isLoginMode ? handleLogin() : handleSignup();
-                        }
-                      }}
-                    />
+                    <label className="block text-sm text-white/70 mb-2">password</label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={authPassword}
+                        onChange={(e) => setAuthPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pr-12 text-white placeholder-white/30 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all"
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            isLoginMode ? handleLogin() : handleSignup();
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white/80 transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
                   </div>
 
                   <button
@@ -2335,7 +2342,7 @@ export default function HumApp() {
                     disabled={isAuthenticating}
                     className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-xl py-3 font-bold text-lg transition-all hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isAuthenticating ? 'Please wait...' : (isLoginMode ? 'Login' : 'Sign Up')}
+                    {isAuthenticating ? 'please wait...' : (isLoginMode ? 'login' : 'sign up')}
                   </button>
 
                   <div className="text-center">
@@ -2347,8 +2354,8 @@ export default function HumApp() {
                       className="text-sm text-white/60 hover:text-white/80 transition-colors"
                     >
                       {isLoginMode 
-                        ? "Don't have an account? Sign up" 
-                        : 'Already have an account? Login'}
+                        ? "don't have an account? sign up" 
+                        : 'already have an account? login'}
                     </button>
                   </div>
                 </div>
