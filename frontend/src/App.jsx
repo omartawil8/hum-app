@@ -1960,16 +1960,23 @@ export default function HumApp() {
           animation: slideUp 0.2s ease-in forwards;
         }
 
-        /* Fix autofill styling to keep dark background */
+        /* Fix autofill styling to keep dark background - match exact input styling */
         input:-webkit-autofill,
         input:-webkit-autofill:hover,
         input:-webkit-autofill:focus,
         input:-webkit-autofill:active {
           -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.05) inset !important;
           box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.05) inset !important;
-          -webkit-text-fill-color: white !important;
-          caret-color: white !important;
-          transition: background-color 5000s ease-in-out 0s;
+          -webkit-text-fill-color: rgb(255, 255, 255) !important;
+          caret-color: rgb(255, 255, 255) !important;
+          border-color: rgba(255, 255, 255, 0.1) !important;
+          transition: background-color 5000s ease-in-out 0s, border-color 0.2s ease-in-out !important;
+        }
+        
+        input:-webkit-autofill:focus {
+          -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.08) inset !important;
+          box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.08) inset !important;
+          border-color: rgba(255, 255, 255, 0.3) !important;
         }
 
         /* Sleek Scrollbar Styles */
