@@ -3055,7 +3055,7 @@ export default function HumApp() {
                 </div>
                 
                 <h2 className="text-3xl font-bold mb-4 text-center">listening...</h2>
-                <p className="text-white/60 text-center mb-8">Hum or sing the melody clearly</p>
+                <p className="text-white/60 text-center mb-8">hum or sing the melody clearly</p>
                 
                 <div className="w-64 bg-white/5 rounded-full h-2 overflow-hidden">
                   <div 
@@ -3085,10 +3085,10 @@ export default function HumApp() {
                 </div>
                 
                 <h2 className="text-3xl font-bold mb-4 text-center">
-                  {isSearchingLyrics ? 'Searching...' : 'Identifying...'}
+                  {isSearchingLyrics ? 'searching...' : 'identifying...'}
                 </h2>
                 <p className="text-white/60 text-center">
-                  {isSearchingLyrics ? 'Looking through lyrics' : 'Nesting through our database'}
+                  {isSearchingLyrics ? 'looking through lyrics' : 'nesting through our database'}
                 </p>
               </div>
             )}
