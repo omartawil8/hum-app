@@ -3114,12 +3114,13 @@ export default function HumApp() {
                 <p className="text-2xl text-white/80 mb-6">or</p>
 
                 <div className="w-full max-w-md mb-16">
-                  <div className="relative">
+                  <div className="relative group">
                     <div className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center z-10">
                       <img 
                         src={sparkleIcon} 
                         alt="Sparkle" 
-                        className="w-full h-full opacity-60"
+                        className="w-full h-full opacity-60 group-focus-within:opacity-100 transition-opacity"
+                        style={{ filter: 'brightness(0) saturate(100%) invert(78%) sepia(30%) saturate(2000%) hue-rotate(240deg) brightness(1.1) contrast(1.1)' }}
                       />
                     </div>
                     <input
