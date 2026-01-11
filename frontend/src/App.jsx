@@ -2141,8 +2141,8 @@ export default function HumApp() {
 
         {/* Bookmarks Button - Top Left */}
         <div className="fixed top-6 left-6 z-40 flex items-center gap-2">
-          <button
-            onClick={() => setShowBookmarks(!showBookmarks)}
+        <button
+          onClick={() => setShowBookmarks(!showBookmarks)}
             className="flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all group"
           >
             <Bookmark 
@@ -2168,6 +2168,10 @@ export default function HumApp() {
                 alt="Home" 
                 className="w-5 h-5 object-contain"
               />
+              {/* Tooltip on hover */}
+              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                <span className="text-xs font-medium" style={{ color: '#D8B5FE' }}>back to home</span>
+              </div>
             </button>
           )}
         </div>
@@ -2183,7 +2187,7 @@ export default function HumApp() {
               >
                 <span className="truncate max-w-[150px]">{nickname || user.email}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform ${showUserDropdown ? 'rotate-180' : ''}`} />
-              </button>
+        </button>
 
               {/* Dropdown Menu */}
               {showUserDropdown && (
@@ -3239,7 +3243,7 @@ export default function HumApp() {
             {/* Results State */}
             {hasResult && matchData && (
               <div 
-                className="py-8"
+                className="pt-16 pb-8"
                 style={{
                   opacity: isClosingResults ? 0 : 1,
                   transform: isClosingResults ? 'translateY(20px) translateZ(0)' : 'translateY(0) translateZ(0)',
