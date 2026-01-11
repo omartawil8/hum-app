@@ -3276,7 +3276,7 @@ export default function HumApp() {
                     {matchData?.[0]?.spotify?.popularity && (
                       <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 rounded-full border border-green-500/20">
                         <span className="text-sm text-green-400">
-                          🎵 Spotify Popularity: {matchData[0].spotify.popularity}/100
+                          🎵 spotify popularity: {matchData[0].spotify.popularity}/100
                         </span>
                       </div>
                     )}
@@ -3286,7 +3286,7 @@ export default function HumApp() {
                       className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-full text-sm transition-all border border-white/10"
                     >
                       <ThumbsDown className="w-4 h-4" strokeWidth={1.5} />
-                      Wrong song? Help us learn
+                      wrong song? help us learn
                     </button>
                   </div>
                 </div>
@@ -3402,7 +3402,7 @@ export default function HumApp() {
                       rel="noopener noreferrer"
                       className="bg-gradient-to-r from-green-500/10 to-green-600/10 hover:from-green-500/20 hover:to-green-600/20 transition-all py-5 rounded-2xl font-bold tracking-wide border border-green-500/20 text-center"
                     >
-                      🎵 Open in Spotify
+                      🎵 open in spotify
                     </a>
                   ) : (
                     <button className="bg-white/[0.02] backdrop-blur-sm py-5 rounded-2xl font-bold tracking-wide border border-white/5 opacity-50 cursor-not-allowed">
@@ -3411,7 +3411,7 @@ export default function HumApp() {
                   )}
                   <button className="bg-white/[0.02] backdrop-blur-sm hover:bg-white/5 transition-all py-5 rounded-2xl font-bold tracking-wide border border-white/5 flex items-center justify-center gap-2">
                     <Share2 className="w-4 h-4" strokeWidth={1.5} />
-                    Share
+                    share
                   </button>
                 </div>
 
@@ -3435,7 +3435,7 @@ export default function HumApp() {
                     onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(216, 181, 254, 0.2)'}
                     onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(216, 181, 254, 0.1)'}
                 >
-                  Search Again
+                  search again
                 </button>
 
                 {/* Support Button - Results Page */}
