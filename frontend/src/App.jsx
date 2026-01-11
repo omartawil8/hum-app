@@ -1563,20 +1563,16 @@ export default function HumApp() {
 
   const handleResetApp = () => {
     setIsClosingResults(true);
-    // Use requestAnimationFrame for smoother transition
-    requestAnimationFrame(() => {
+    // Wait for fade-out animation to complete
+    setTimeout(() => {
+      resetApp();
+      setIsClosingResults(false);
+      // Small delay before starting homepage animation for smoother feel
       setTimeout(() => {
-        resetApp();
-        setIsClosingResults(false);
-        // Small delay before starting homepage animation for smoother feel
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            setIsHomepageAnimating(true);
-            setTimeout(() => setIsHomepageAnimating(false), 600);
-          }, 50);
-        });
-      }, 300); // Match the fade-out animation duration (0.3s)
-    });
+        setIsHomepageAnimating(true);
+        setTimeout(() => setIsHomepageAnimating(false), 600);
+      }, 100);
+    }, 350); // Slightly longer than animation to ensure it completes
   };
 
   const handleCloseTips = () => {
@@ -1888,11 +1884,11 @@ export default function HumApp() {
         @keyframes fadeOutDown {
           from {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) translateZ(0);
           }
           to {
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(20px) translateZ(0);
           }
         }
 
@@ -1908,8 +1904,10 @@ export default function HumApp() {
         }
 
         .animate-fade-out-down {
-          animation: fadeOutDown 0.3s ease-in-out forwards;
+          animation: fadeOutDown 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
           will-change: transform, opacity;
+          backface-visibility: hidden;
+          perspective: 1000px;
         }
 
         .animate-fade-in-up {
