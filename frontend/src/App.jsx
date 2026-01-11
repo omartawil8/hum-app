@@ -1554,26 +1554,27 @@ export default function HumApp() {
 
   const cancelListening = () => {
     // Stop the media recorder if it's recording
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+    if (mediaRecorderRef.current) {
       try {
-        mediaRecorderRef.current.stop();
+        if (mediaRecorderRef.current.state === 'recording') {
+          mediaRecorderRef.current.stop();
+        }
       } catch (err) {
         console.error('Error stopping media recorder:', err);
       }
+      
+      // Clear any timeouts
+      if (mediaRecorderRef.current._stopTimeout) {
+        clearTimeout(mediaRecorderRef.current._stopTimeout);
+      }
+      if (mediaRecorderRef.current._dataInterval) {
+        clearInterval(mediaRecorderRef.current._dataInterval);
+      }
     }
     
-    // Clear any timeouts
-    if (mediaRecorderRef.current?._stopTimeout) {
-      clearTimeout(mediaRecorderRef.current._stopTimeout);
-    }
-    if (mediaRecorderRef.current?._dataInterval) {
-      clearInterval(mediaRecorderRef.current._dataInterval);
-    }
-    
-    // Stop all tracks
-    if (mediaRecorderRef.current?.stream) {
-      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
-    }
+    // Stop all audio tracks (we need to track the stream separately)
+    // The stream tracks are stopped in the onstop handler, but we'll also clear audioChunks
+    audioChunksRef.current = [];
     
     // Reset states
     setIsListening(false);
