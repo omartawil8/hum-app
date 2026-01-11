@@ -1960,6 +1960,16 @@ export default function HumApp() {
           animation: slideUp 0.2s ease-in forwards;
         }
 
+        /* Fix autofill styling to keep dark background */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+          -webkit-box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.05) inset !important;
+          -webkit-text-fill-color: white !important;
+          caret-color: white !important;
+        }
+
         /* Sleek Scrollbar Styles */
         * {
           scrollbar-width: thin;
