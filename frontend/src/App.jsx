@@ -1563,8 +1563,10 @@ export default function HumApp() {
 
   const handleResetApp = () => {
     setIsClosingResults(true);
-    // Wait for fade-out transition to complete
+    // Wait for fade-out transition to complete before changing state
+    // This prevents React from unmounting/mounting during the transition
     setTimeout(() => {
+      // Reset state after fade-out completes
       resetApp();
       setIsClosingResults(false);
       // Small delay before starting homepage animation for smoother feel
@@ -2868,7 +2870,7 @@ export default function HumApp() {
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto">
             {/* Home Screen - Initial State */}
-            {!hasResult && !isListening && !isProcessing && (
+            {!hasResult && !isListening && !isProcessing && !isClosingResults && (
               <div className={`flex flex-col items-center ${isHomepageAnimating ? 'animate-fade-in-up' : ''}`}>
                 <h1 className="text-5xl font-bold text-white text-center mb-12 mt-20">
                   tap to hummm
@@ -3105,7 +3107,8 @@ export default function HumApp() {
                   opacity: isClosingResults ? 0 : 1,
                   transform: isClosingResults ? 'translateY(20px) translateZ(0)' : 'translateY(0) translateZ(0)',
                   transition: 'opacity 0.4s ease-out, transform 0.4s ease-out',
-                  willChange: 'opacity, transform'
+                  willChange: 'opacity, transform',
+                  pointerEvents: isClosingResults ? 'none' : 'auto'
                 }}
               >
                 <div className="text-center mb-12">
