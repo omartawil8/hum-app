@@ -3035,7 +3035,7 @@ export default function HumApp() {
                         }
                       }}
                       disabled={isSearchingLyrics}
-                      className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-full py-4 pl-14 pr-14 text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-all disabled:opacity-50"
+                      className="w-full bg-white/10 backdrop-blur-sm border border-white/20 focus:border-purple-400/30 rounded-full py-4 pl-14 pr-14 text-white placeholder-white/50 focus:outline-none transition-all disabled:opacity-50"
                     />
                     
                     {/* Loading spinner OR Submit arrow */}
