@@ -2878,7 +2878,7 @@ export default function HumApp() {
                       : ''
                   }`}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'rgba(216, 181, 254, 0.3)' }}></div>
                   
                   <div className="relative w-48 h-48 rounded-full bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm border-2 border-white/20 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:border-white/40">
                     <img 
