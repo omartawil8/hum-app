@@ -1577,39 +1577,85 @@ export default function HumApp() {
     // OLD BACKGROUND (to revert, replace className below with): bg-gradient-to-b from-[#0A0E27] via-[#141937] to-[#1a1d3a]
     <div className="min-h-screen bg-gradient-to-b from-[#050510] via-[#0a0a15] to-[#0f0f1a] text-white relative overflow-hidden">
       <style>{`
-        /* High-quality film grain texture */
-        .grain-overlay {
+        /* Subtle background noise texture */
+        .background-noise {
           position: absolute;
           inset: 0;
           pointer-events: none;
-          opacity: 0.25;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='filmGrain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23filmGrain)' opacity='0.8'/%3E%3C/svg%3E");
-          background-size: 300px 300px;
-          mix-blend-mode: soft-light;
-          image-rendering: crisp-edges;
-        }
-
-        /* Cardboard/paper texture layer */
-        .paper-texture {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          opacity: 0.08;
-          background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paperTexture'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paperTexture)'/%3E%3C/svg%3E");
-          background-size: 400px 400px;
-          mix-blend-mode: multiply;
-        }
-
-        /* Fine film grain overlay */
-        .fine-grain {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          opacity: 0.15;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='fineGrain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23fineGrain)' opacity='0.6'/%3E%3C/svg%3E");
-          background-size: 150px 150px;
+          opacity: 0.3;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+          background-size: 200px 200px;
           mix-blend-mode: overlay;
-          image-rendering: crisp-edges;
+        }
+
+        /* Animated blob keyframes - slow random movement with fade */
+        @keyframes blobFloat1 {
+          0%, 100% {
+            transform: translate(0, 0) scale(1);
+            opacity: 0.3;
+          }
+          25% {
+            transform: translate(30px, -50px) scale(1.1);
+            opacity: 0.5;
+          }
+          50% {
+            transform: translate(-20px, -80px) scale(0.9);
+            opacity: 0.4;
+          }
+          75% {
+            transform: translate(40px, -30px) scale(1.05);
+            opacity: 0.45;
+          }
+        }
+
+        @keyframes blobFloat2 {
+          0%, 100% {
+            transform: translate(0, 0) scale(1);
+            opacity: 0.25;
+          }
+          33% {
+            transform: translate(-40px, 60px) scale(1.15);
+            opacity: 0.4;
+          }
+          66% {
+            transform: translate(50px, 30px) scale(0.85);
+            opacity: 0.3;
+          }
+        }
+
+        @keyframes blobFloat3 {
+          0%, 100% {
+            transform: translate(0, 0) scale(1);
+            opacity: 0.2;
+          }
+          20% {
+            transform: translate(60px, -40px) scale(1.2);
+            opacity: 0.35;
+          }
+          40% {
+            transform: translate(-30px, 50px) scale(0.9);
+            opacity: 0.25;
+          }
+          60% {
+            transform: translate(20px, -60px) scale(1.1);
+            opacity: 0.4;
+          }
+          80% {
+            transform: translate(-50px, 20px) scale(0.95);
+            opacity: 0.3;
+          }
+        }
+
+        .blob-animate-1 {
+          animation: blobFloat1 20s ease-in-out infinite;
+        }
+
+        .blob-animate-2 {
+          animation: blobFloat2 25s ease-in-out infinite;
+        }
+
+        .blob-animate-3 {
+          animation: blobFloat3 30s ease-in-out infinite;
         }
         @keyframes float {
           0%, 100% {
@@ -1839,21 +1885,16 @@ export default function HumApp() {
         }
       `}</style>
 
-      {/* Background texture overlays - high-quality film/cardboard grain */}
+      {/* Background noise texture */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Paper/cardboard base texture */}
-        <div className="paper-texture"></div>
-        {/* Main film grain layer */}
-        <div className="grain-overlay"></div>
-        {/* Fine grain detail layer */}
-        <div className="fine-grain"></div>
+        <div className="background-noise"></div>
       </div>
 
-      {/* Background decorative elements */}
+      {/* Animated background blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl blob-animate-1"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl blob-animate-2"></div>
+        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl blob-animate-3"></div>
       </div>
 
       <div className="relative z-10">
