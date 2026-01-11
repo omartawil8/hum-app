@@ -141,8 +141,8 @@ export default function HumApp() {
     // For logged-in users, wait for database data to avoid flash
     const token = localStorage.getItem('hum-auth-token');
     if (!token) {
-      const searches = localStorage.getItem('hum-recent-searches');
-      if (searches) {
+    const searches = localStorage.getItem('hum-recent-searches');
+    if (searches) {
         try {
           const parsedSearches = JSON.parse(searches);
           setRecentSearches(parsedSearches);
@@ -905,10 +905,10 @@ export default function HumApp() {
     // Free tier logic
     if (user) {
       // Authenticated free user: 5 total searches
-      if (searchCount >= FREE_SEARCH_LIMIT) {
-        setShowUpgradeModal(true);
-        return false;
-      }
+    if (searchCount >= FREE_SEARCH_LIMIT) {
+      setShowUpgradeModal(true);
+      return false;
+    }
     } else {
       // Anonymous user: 1 search only
       if (anonymousSearchCount >= ANONYMOUS_SEARCH_LIMIT) {
@@ -1073,7 +1073,7 @@ export default function HumApp() {
         mediaRecorder._dataInterval = dataInterval;
       } else {
         // For other platforms, use timeslice
-        mediaRecorder.start(100);
+      mediaRecorder.start(100);
       }
       setIsListening(true);
       setError(null);
@@ -1202,7 +1202,7 @@ export default function HumApp() {
         if (user) {
           saveRecentSearchesToAPI(updatedSearches);
         } else {
-          localStorage.setItem('hum-recent-searches', JSON.stringify(updatedSearches));
+        localStorage.setItem('hum-recent-searches', JSON.stringify(updatedSearches));
         }
       } else {
         setError(data.message || 'No match found. Try humming more clearly.');
@@ -1236,7 +1236,7 @@ export default function HumApp() {
     try {
       const token = localStorage.getItem('hum-auth-token');
       const headers = {
-        'Content-Type': 'application/json',
+          'Content-Type': 'application/json',
       };
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
@@ -1347,7 +1347,7 @@ export default function HumApp() {
         if (user) {
           saveRecentSearchesToAPI(updatedSearches);
         } else {
-          localStorage.setItem('hum-recent-searches', JSON.stringify(updatedSearches));
+        localStorage.setItem('hum-recent-searches', JSON.stringify(updatedSearches));
         }
       } else {
         // Show error with suggestion if available
@@ -1503,7 +1503,7 @@ export default function HumApp() {
     if (user) {
       saveBookmarksToAPI(newSavedSongs);
     } else {
-      localStorage.setItem('hum-saved-songs', JSON.stringify(newSavedSongs));
+    localStorage.setItem('hum-saved-songs', JSON.stringify(newSavedSongs));
     }
     setIsSaved(!isSaved);
   };
@@ -1517,7 +1517,7 @@ export default function HumApp() {
     if (user) {
       saveBookmarksToAPI(newSavedSongs);
     } else {
-      localStorage.setItem('hum-saved-songs', JSON.stringify(newSavedSongs));
+    localStorage.setItem('hum-saved-songs', JSON.stringify(newSavedSongs));
     }
   };
 
@@ -1592,7 +1592,7 @@ export default function HumApp() {
         const token = localStorage.getItem('hum-auth-token');
         if (!token) {
           setShowAuthModal(true);
-          handleCloseUpgrade();
+      handleCloseUpgrade();
           return;
         }
 
@@ -1623,18 +1623,8 @@ export default function HumApp() {
 
   return (
     // OLD BACKGROUND (to revert, replace className below with): bg-gradient-to-b from-[#0A0E27] via-[#141937] to-[#1a1d3a]
-    <div className="min-h-screen bg-gradient-to-b from-[#050510] via-[#0a0a15] to-[#0f0f1a] text-white relative overflow-hidden">
+    <div className="min-h-screen text-white relative overflow-hidden" style={{ background: 'linear-gradient(to bottom, #050510 0%, #080810 30%, #0a0a15 60%, #0f0f1a 100%)' }}>
       <style>{`
-        /* Subtle background noise texture - refined for Framer aesthetic */
-        .background-noise {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          opacity: 0.12;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-          background-size: 250px 250px;
-          mix-blend-mode: overlay;
-        }
 
         /* Animated blob keyframes - organic, large movements with subtle fade */
         @keyframes blobFloat1 {
@@ -1960,11 +1950,6 @@ export default function HumApp() {
         }
       `}</style>
 
-      {/* Background noise texture */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="background-noise"></div>
-      </div>
-
       <div className="relative z-10">
         {/* Welcome Notification */}
         {showWelcome && welcomeMessage && (
@@ -1979,7 +1964,7 @@ export default function HumApp() {
                   <div className="flex-1">
                     <h3 className="text-xl font-bold text-white mb-1">Welcome to hüm!</h3>
                     <p className="text-white/90 text-sm leading-relaxed">{welcomeMessage}</p>
-                  </div>
+      </div>
                   <button
                     onClick={() => {
                       setShowWelcome(false);
@@ -2035,7 +2020,7 @@ export default function HumApp() {
                 alert('Error resetting search count. Please refresh the page.');
               }
             } else {
-              alert('Reset! Refresh the page.');
+            alert('Reset! Refresh the page.');
             }
           }}
           className="fixed bottom-6 left-6 z-50 px-3 py-2 bg-red-500/20 hover:bg-red-500/30 backdrop-blur-sm border border-red-500/30 rounded-full text-xs transition-all"
@@ -2109,49 +2094,49 @@ export default function HumApp() {
                   >
                     <LogOut className="w-4 h-4" />
                     <span>Logout</span>
-                  </button>
+        </button>
                 </div>
               )}
             </div>
           )}
 
           {/* Help Button */}
-          <div 
+        <div 
             className="relative"
-            onMouseEnter={() => setShowTips(true)}
-            onMouseLeave={handleCloseTips}
+          onMouseEnter={() => setShowTips(true)}
+          onMouseLeave={handleCloseTips}
+        >
+          <button
+            className="flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all"
           >
-            <button
-              className="flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all"
-            >
-              <span className="text-sm font-bold">Help!</span>
-              <span className="text-lg">💡</span>
-            </button>
+              <span className="text-sm font-bold">help!</span>
+            <span className="text-lg">💡</span>
+          </button>
 
-            {/* Help Dropdown */}
-            {showTips && (
+          {/* Help Dropdown */}
+          {showTips && (
               <div className={`absolute top-full right-0 mt-2 w-80 bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-2xl z-50 ${isClosingTips ? 'animate-slide-up' : 'animate-slide-down'}`}>
-                <h3 className="font-bold text-lg mb-2.5">Welcome to Hüm! 🎶</h3>
-                <p className="text-sm text-white/70 mb-3.5 leading-relaxed">
-                  You can hum, sing, or play a melody to search for the song name.
-                </p>
-                <p className="text-sm font-bold text-white/80 mb-2">For best results:</p>
-                <ul className="space-y-2 text-sm text-white/70">
-                  <li className="flex items-start gap-2">
-                    <span className="text-white/50">•</span>
-                    <span>Get closer to the mic</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-white/50">•</span>
-                    <span>Really commit to hitting the right notes</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-white/50">•</span>
-                    <span>If you know any lyrics, sing those too</span>
-                  </li>
-                </ul>
-              </div>
-            )}
+                <h3 className="font-bold text-lg mb-2.5">welcome to hüm! 🎶</h3>
+              <p className="text-sm text-white/70 mb-3.5 leading-relaxed">
+                  you can hum, sing, or play a melody to search for the song name.
+              </p>
+                <p className="text-sm font-bold text-white/80 mb-2">for best results:</p>
+              <ul className="space-y-2 text-sm text-white/70">
+                <li className="flex items-start gap-2">
+                  <span className="text-white/50">•</span>
+                    <span>get closer to the mic</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-white/50">•</span>
+                    <span>really commit to hitting the right notes</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-white/50">•</span>
+                    <span>if you know any lyrics, sing those too</span>
+                </li>
+              </ul>
+            </div>
+          )}
           </div>
         </div>
 
@@ -2514,8 +2499,8 @@ export default function HumApp() {
                     {/* Payment buttons */}
                     <div className="flex flex-col gap-3 px-1 py-1">
                       {/* Primary: Card payment */}
-                      <button
-                        onClick={handleContinueUpgrade}
+                    <button
+                      onClick={handleContinueUpgrade}
                         className="group relative w-full px-6 py-4 bg-gradient-to-r from-purple-500/20 to-blue-500/20 hover:from-purple-500/30 hover:to-blue-500/30 border-2 border-purple-500/40 hover:border-purple-500/60 rounded-xl font-semibold text-base transition-all duration-200 flex items-center justify-center gap-3 text-white shadow-lg hover:shadow-xl hover:scale-[1.02] backdrop-blur-sm"
                       >
                         <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -2532,8 +2517,8 @@ export default function HumApp() {
                           <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.2zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.032.154-.054.237-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.2H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437z"/>
                         </svg>
                         <span>PayPal</span>
-                      </button>
-                    </div>
+                    </button>
+                  </div>
                     
                     {/* Trust indicator */}
                     <div className="mt-4 flex items-center justify-center gap-2 text-xs text-white/40">
@@ -2559,10 +2544,7 @@ export default function HumApp() {
             ></div>
             
             {/* Panel */}
-            <div className={`fixed top-0 left-0 h-full w-96 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f15] to-[#0a0a0f] backdrop-blur-2xl border-r border-white/[0.08] z-50 overflow-hidden flex flex-col rounded-tr-2xl rounded-br-2xl ${isClosingBookmarks ? 'animate-slide-out' : 'animate-slide-in'}`} style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E")`,
-              backgroundSize: '200px 200px'
-            }}>
+            <div className={`fixed top-0 left-0 h-full w-96 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f15] to-[#0a0a0f] backdrop-blur-2xl border-r border-white/[0.08] z-50 overflow-hidden flex flex-col rounded-tr-2xl rounded-br-2xl ${isClosingBookmarks ? 'animate-slide-out' : 'animate-slide-in'}`}>
               {/* Header */}
               <div className="p-6 border-b border-white/[0.06]">
                 <div className="flex items-center justify-between mb-3">
