@@ -1038,6 +1038,17 @@ export default function HumApp() {
       };
       
       mediaRecorder.onstop = async () => {
+        // Check if recording was cancelled
+        if (mediaRecorder._cancelled) {
+          console.log('🎤 Recording cancelled by user');
+          stream.getTracks().forEach(track => {
+            track.stop();
+          });
+          setIsListening(false);
+          setAudioLevel(0);
+          return;
+        }
+        
         // Use the same mimeType that was used for recording
         const blobType = mediaRecorder.mimeType || 'audio/webm';
         const blob = new Blob(audioChunksRef.current, { 
