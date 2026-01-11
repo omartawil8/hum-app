@@ -3124,7 +3124,7 @@ export default function HumApp() {
                         style={{ 
                           opacity: isLyricsInputFocused ? 1 : 0.6,
                           filter: isLyricsInputFocused 
-                            ? 'brightness(0) saturate(100%) invert(84%) sepia(45%) saturate(2000%) hue-rotate(240deg) brightness(1.15) contrast(1.1)' 
+                            ? 'brightness(0) saturate(100%) invert(85%) sepia(50%) saturate(2000%) hue-rotate(250deg) brightness(1.2) contrast(1.1)' 
                             : 'none'
                         }}
                       />
