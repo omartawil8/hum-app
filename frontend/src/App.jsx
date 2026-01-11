@@ -2089,6 +2089,17 @@ export default function HumApp() {
           background: rgba(255, 255, 255, 0.4);
           background-clip: padding-box;
         }
+
+        /* Text selection highlight - lavender color */
+        ::selection {
+          background-color: #D8B5FE;
+          color: #000000;
+        }
+
+        ::-moz-selection {
+          background-color: #D8B5FE;
+          color: #000000;
+        }
       `}</style>
 
       <div className="relative z-10">
