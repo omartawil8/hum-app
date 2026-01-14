@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, ChevronRight, LogOut, User, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, ChevronRight, LogOut, User, Eye, EyeOff, ArrowLeft, ArrowRight } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
 import wizardGuyIcon from './assets/Wizard_guy.png';
@@ -3090,9 +3090,9 @@ export default function HumApp() {
                       : ''
                   }`}
                 >
-                  <div className="absolute inset-0 rounded-full blur-2xl opacity-0 group-hover:opacity-50 transition-opacity duration-500" style={{ background: 'rgba(168, 85, 247, 0.3)' }}></div>
+                  <div className="absolute inset-0 rounded-full blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-500" style={{ background: 'rgba(168, 85, 247, 0.3)' }}></div>
                   
-                  <div className="relative w-48 h-48 rounded-full bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm border-2 border-white/20 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-gradient-to-r group-hover:from-purple-500/10 group-hover:to-blue-500/10 group-hover:border-purple-500/30">
+                  <div className="relative w-48 h-48 rounded-full bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm border-2 border-white/20 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-gradient-to-r group-hover:from-purple-500/9 group-hover:to-blue-500/9 group-hover:border-purple-500/27">
                     <img 
                       src={hummingBirdIcon} 
                       alt="Hummingbird" 
@@ -3163,7 +3163,7 @@ export default function HumApp() {
                         className="absolute right-5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 transition-all group"
                         title="Search"
                       >
-                        <Send className="w-4 h-4 text-white/60 group-hover:text-white/90 transition-colors" strokeWidth={2} />
+                        <ArrowRight className="w-4 h-4 text-white/60 group-hover:text-[#D8B5FE] transition-colors" strokeWidth={2} />
                       </button>
                     )}
                   </div>
