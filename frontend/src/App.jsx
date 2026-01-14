@@ -3182,15 +3182,18 @@ export default function HumApp() {
                   )}
                   
                   <div 
-                    className={`relative w-48 h-48 rounded-full flex items-center justify-center transition-all duration-300 ${birdButtonProximity > 0 ? 'backdrop-blur-sm' : ''}`}
+                    className={`relative w-48 h-48 rounded-full flex items-center justify-center ${birdButtonProximity > 0 ? 'backdrop-blur-sm' : ''}`}
                     style={{ 
                       background: birdButtonProximity > 0 
                         ? `linear-gradient(to right, rgba(168, 85, 247, ${0.09 * birdButtonProximity}), rgba(59, 130, 246, ${0.09 * birdButtonProximity}))`
-                        : 'linear-gradient(to br, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02))',
+                        : 'transparent',
                       transform: birdButtonProximity > 0 ? `scale(${1 + birdButtonProximity * 0.02})` : 'scale(1)',
                       border: birdButtonProximity > 0 
                         ? `2px solid rgba(168, 85, 247, ${0.27 * birdButtonProximity + 0.2})`
-                        : '2px solid rgba(255, 255, 255, 0.2)'
+                        : '2px solid rgba(255, 255, 255, 0.2)',
+                      transition: birdButtonProximity > 0 
+                        ? 'transform 0.3s ease-out, border-color 0.3s ease-out, background 0.3s ease-out'
+                        : 'transform 0.3s ease-out, border-color 0.3s ease-out, background 0s ease-out'
                     }}
                   >
                     {/* Rotating shimmer border - only when at rest */}
