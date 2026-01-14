@@ -2033,6 +2033,19 @@ export default function HumApp() {
           }
         }
 
+        @keyframes subtleShimmer {
+          0%, 100% {
+            background: linear-gradient(to br, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+          }
+          50% {
+            background: linear-gradient(to right, rgba(168, 85, 247, 0.04), rgba(59, 130, 246, 0.04));
+          }
+        }
+
+        .animate-subtle-shimmer {
+          animation: subtleShimmer 4s ease-in-out infinite;
+        }
+
         /* Fix autofill styling to keep dark background - match exact input styling */
         input:-webkit-autofill,
         input:-webkit-autofill:hover,
@@ -3123,15 +3136,16 @@ export default function HumApp() {
                   ></div>
                   
                   <div 
-                    className="relative w-48 h-48 rounded-full backdrop-blur-sm border-2 flex items-center justify-center transition-all duration-300" 
+                    className={`relative w-48 h-48 rounded-full backdrop-blur-sm border-2 flex items-center justify-center transition-all duration-300 ${birdButtonProximity === 0 ? 'animate-subtle-shimmer' : ''}`}
                     style={{ 
                       background: birdButtonProximity > 0 
                         ? `linear-gradient(to right, rgba(168, 85, 247, ${0.09 * birdButtonProximity}), rgba(59, 130, 246, ${0.09 * birdButtonProximity}))`
-                        : 'linear-gradient(to br, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02))',
+                        : undefined,
                       borderColor: birdButtonProximity > 0 
                         ? `rgba(168, 85, 247, ${0.27 * birdButtonProximity + 0.2})`
                         : 'rgba(255, 255, 255, 0.2)',
-                      transform: birdButtonProximity > 0 ? `scale(${1 + birdButtonProximity * 0.05})` : 'scale(1)'
+                      transform: birdButtonProximity > 0 ? `scale(${1 + birdButtonProximity * 0.02})` : 'scale(1)',
+                      animation: birdButtonProximity === 0 ? 'subtleShimmer 4s ease-in-out infinite' : 'none'
                     }}
                   >
                     <img 
