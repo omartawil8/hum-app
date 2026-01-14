@@ -3111,21 +3111,19 @@ export default function HumApp() {
                   <button
                     onClick={handleSaveNickname}
                     disabled={!nicknameInput.trim()}
-                    className="px-6 py-2.5 text-sm font-medium text-white rounded-full transition-all disabled:opacity-30 disabled:cursor-not-allowed backdrop-blur-sm"
+                    className="px-6 py-2.5 text-sm font-medium text-white rounded-full transition-all disabled:opacity-30 disabled:cursor-not-allowed backdrop-blur-sm border"
                     style={{
-                      backgroundColor: nicknameInput.trim() ? '#D8B5FE' : 'rgba(216, 181, 254, 0.3)',
-                      border: nicknameInput.trim() ? '1px solid rgba(216, 181, 254, 0.4)' : '1px solid rgba(216, 181, 254, 0.2)'
+                      backgroundColor: 'transparent',
+                      borderColor: nicknameInput.trim() ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)'
                     }}
                     onMouseEnter={(e) => {
                       if (nicknameInput.trim()) {
-                        e.currentTarget.style.backgroundColor = '#C9A5F0';
-                        e.currentTarget.style.borderColor = 'rgba(216, 181, 254, 0.6)';
+                        e.currentTarget.style.borderColor = '#D8B5FE';
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (nicknameInput.trim()) {
-                        e.currentTarget.style.backgroundColor = '#D8B5FE';
-                        e.currentTarget.style.borderColor = 'rgba(216, 181, 254, 0.4)';
+                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
                       }
                     }}
                   >
