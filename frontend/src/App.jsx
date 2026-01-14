@@ -3031,14 +3031,18 @@ export default function HumApp() {
         {/* Nickname Modal */}
         {showNicknameModal && (
           <div 
-            className={`fixed inset-0 bg-black/60 backdrop-blur-lg flex items-center justify-center z-50 p-4 ${isClosingAuth ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'}`}
+            className={`fixed inset-0 bg-black/60 backdrop-blur-lg flex items-center justify-center z-50 p-4 ${isClosingNickname ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'}`}
             onClick={() => {
-              setShowNicknameModal(false);
-              setNicknameInput('');
+              setIsClosingNickname(true);
+              setTimeout(() => {
+                setShowNicknameModal(false);
+                setNicknameInput('');
+                setIsClosingNickname(false);
+              }, 250);
             }}
           >
             <div 
-              className={`relative ${isClosingAuth ? 'animate-modal-content-out' : 'animate-modal-content'}`}
+              className={`relative ${isClosingNickname ? 'animate-modal-content-out' : 'animate-modal-content'}`}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal */}
