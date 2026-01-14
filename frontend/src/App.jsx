@@ -34,6 +34,7 @@ export default function HumApp() {
   const [isClosingResults, setIsClosingResults] = useState(false);
   const [isHomepageAnimating, setIsHomepageAnimating] = useState(false);
   const [birdButtonProximity, setBirdButtonProximity] = useState(0);
+  const [recordingStartTime, setRecordingStartTime] = useState(null);
   const [showTips, setShowTips] = useState(false);
   const [isClosingTips, setIsClosingTips] = useState(false);
   const [recentSearches, setRecentSearches] = useState([]);
@@ -1100,6 +1101,7 @@ export default function HumApp() {
         console.error('❌ MediaRecorder error:', event.error);
         setError(`Recording error: ${event.error?.message || 'Unknown error'}. Please try again.`);
         setIsListening(false);
+        setRecordingStartTime(null);
         setIsProcessing(false);
         stream.getTracks().forEach(track => track.stop());
       };
@@ -1119,6 +1121,7 @@ export default function HumApp() {
             track.stop();
           });
           setIsListening(false);
+          setRecordingStartTime(null);
           setAudioLevel(0);
           return;
         }
@@ -1182,12 +1185,14 @@ export default function HumApp() {
       mediaRecorder.start(100);
       }
       setIsListening(true);
+      setRecordingStartTime(Date.now());
       setError(null);
       
       const stopTimeout = setTimeout(() => {
         if (mediaRecorder.state === 'recording') {
           mediaRecorder.stop();
           setIsListening(false);
+          setRecordingStartTime(null);
         }
         // Clean up interval
         if (dataInterval) {
@@ -1202,6 +1207,7 @@ export default function HumApp() {
       console.error('Error accessing microphone:', err);
       setError('Could not access microphone. Please allow microphone permissions.');
       setIsListening(false);
+      setRecordingStartTime(null);
     }
   };
 
@@ -1669,6 +1675,7 @@ export default function HumApp() {
     
     // Reset states immediately
     setIsListening(false);
+    setRecordingStartTime(null);
     setAudioLevel(0);
     setAudioBlob(null);
     setError(null);
@@ -3489,12 +3496,21 @@ export default function HumApp() {
               <div className="flex flex-col items-center justify-center min-h-[70vh]">
                 <button
                   onClick={() => {
+                    // Check if at least 4 seconds have elapsed
+                    if (recordingStartTime && Date.now() - recordingStartTime < 4000) {
+                      return; // Don't allow stopping before 4 seconds
+                    }
                     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
                       mediaRecorderRef.current.stop();
                       setIsListening(false);
+                      setRecordingStartTime(null);
                     }
                   }}
-                  className="relative mb-8 cursor-pointer"
+                  className={`relative mb-8 ${
+                    recordingStartTime && Date.now() - recordingStartTime < 4000
+                      ? 'cursor-not-allowed opacity-50'
+                      : 'cursor-pointer'
+                  }`}
                 >
                   <div className="absolute -inset-8 rounded-full blur-3xl animate-pulse" style={{ background: 'rgba(168, 85, 247, 0.3)', opacity: 0.6 }}></div>
                   <div className="relative w-48 h-48 rounded-full backdrop-blur-sm flex items-center justify-center" style={{ 
