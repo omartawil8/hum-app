@@ -3171,7 +3171,7 @@ export default function HumApp() {
                         className="absolute right-5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 transition-all group"
                         title="Search"
                       >
-                        <ArrowRight className="w-4 h-4 text-white/60 group-hover:text-[#D8B5FE] transition-colors" strokeWidth={2} />
+                        <ArrowRight className="w-4 h-4 text-white/60 group-hover:text-purple-400 transition-colors" strokeWidth={2} />
                       </button>
                     )}
                   </div>
