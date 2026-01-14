@@ -1014,7 +1014,7 @@ function rankACRResults(acrMatches) {
     ];
     
     if (hasAsianChars || hasArabicChars || hasCyrillicChars) {
-      score -= 0.40;
+      score -= 0.50; // Increased from 0.40 to 0.50
     }
     
     const hasNonEnglishIndicator = nonEnglishIndicators.some(indicator => 
@@ -1111,6 +1111,22 @@ function combineWithSpotify(rankedMatches) {
   return rankedMatches.map((match, index) => {
     let finalScore = match.adjustedScore;
     
+    // Language penalty (apply again in final scoring for extra weight)
+    const title = (match.title || '').toLowerCase();
+    const artist = (match.artists?.[0]?.name || '').toLowerCase();
+    const combined = title + ' ' + artist;
+    
+    const hasCyrillicChars = /[\u0400-\u04ff]/.test(combined);
+    const hasAsianChars = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf\uac00-\ud7a3]/.test(combined);
+    const hasArabicChars = /[\u0600-\u06ff]/.test(combined);
+    
+    // Additional penalty for non-English songs in final scoring
+    if (hasCyrillicChars || hasAsianChars || hasArabicChars) {
+      const languagePenalty = -0.25; // Additional penalty on top of the one in rankACRResults
+      finalScore += languagePenalty;
+      console.log(`   🌍 Language penalty for "${match.title}": ${languagePenalty.toFixed(2)} (non-English)`);
+    }
+    
     // Spotify popularity boost
     if (match.spotify && match.spotify.popularity) {
       // Non-linear boost: higher popularity gets exponentially more weight
@@ -1138,7 +1154,7 @@ function combineWithSpotify(rankedMatches) {
     
     return {
       ...match,
-      finalScore: Math.min(1, finalScore)
+      finalScore: Math.max(0, Math.min(1, finalScore)) // Ensure score stays in valid range
     };
   });
 }
@@ -1624,7 +1640,7 @@ app.post('/api/identify', upload.single('audio'), authenticateToken, checkSearch
         };
       });
       
-      const matchesWithSpotify = await Promise.all(spotifyPromises);
+      let matchesWithSpotify = await Promise.all(spotifyPromises);
       
       matchesWithSpotify.forEach((match, i) => {
         if (match.spotify) {
@@ -1634,7 +1650,64 @@ app.post('/api/identify', upload.single('audio'), authenticateToken, checkSearch
         }
       });
       
-      console.log('\n📈 Applying Spotify popularity boosts...');
+      // NEW: Replace covers/remixes with originals BEFORE final ranking
+      console.log('\n🔄 Checking for covers/remixes to replace with originals...');
+      const replacementPromises = matchesWithSpotify.map(async (match) => {
+        // Skip if already has high popularity (likely original)
+        if (match.spotify && match.spotify.popularity >= 50) {
+          return match;
+        }
+        
+        // Skip if title doesn't suggest it's a cover/remix
+        const titleLower = (match.title || '').toLowerCase();
+        const isCoverRemix = titleLower.includes('cover') || 
+                            titleLower.includes('remix') || 
+                            titleLower.includes('tribute') ||
+                            titleLower.includes('acoustic') ||
+                            (match.artists?.[0]?.name || '').toLowerCase().includes('cover');
+        
+        if (!isCoverRemix) {
+          return match;
+        }
+        
+        // Try to find original
+        const mostPopular = await findMostPopularVersion(match.title);
+        if (mostPopular && mostPopular.popularity > (match.spotify?.popularity || 0)) {
+          const cleanMatchTitle = cleanTitleForComparison(match.title);
+          const cleanPopularTitle = cleanTitleForComparison(mostPopular.title);
+          const similarity = calculateSimilarity(cleanMatchTitle, cleanPopularTitle);
+          
+          if (similarity >= 0.75 && mostPopular.popularity >= (match.spotify?.popularity || 0) + 10) {
+            console.log(`   🔄 Replacing "${match.title}" (${match.spotify?.popularity || 0}/100) with "${mostPopular.title}" (${mostPopular.popularity}/100)`);
+            
+            // Get Spotify data for the original
+            let originalSpotify = await getSpotifyTrackByName(mostPopular.title, mostPopular.artist);
+            
+            return {
+              ...match,
+              title: mostPopular.title,
+              artists: [{ name: mostPopular.artist }],
+              album: { name: mostPopular.album },
+              spotify: originalSpotify || {
+                title: mostPopular.title,
+                artist: mostPopular.artist,
+                album: mostPopular.album,
+                popularity: mostPopular.popularity,
+                id: mostPopular.spotifyId,
+                external_urls: { spotify: `https://open.spotify.com/track/${mostPopular.spotifyId}` }
+              },
+              external_ids: { ...match.external_ids, isrc: mostPopular.isrc },
+              wasReplaced: true
+            };
+          }
+        }
+        
+        return match;
+      });
+      
+      matchesWithSpotify = await Promise.all(replacementPromises);
+      
+      console.log('\n📈 Applying Spotify popularity boosts and language penalties...');
       let finalMatches = combineWithSpotify(matchesWithSpotify);
       
       finalMatches.sort((a, b) => b.finalScore - a.finalScore);
