@@ -3199,7 +3199,7 @@ export default function HumApp() {
                           mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                           maskComposite: 'exclude',
                           padding: '2px',
-                          animation: 'rotateShimmer 20s ease-in-out infinite'
+                          animation: 'rotateShimmer 18s linear infinite, shimmerOpacity 18s ease-in-out infinite'
                         }}
                       />
                     )}
