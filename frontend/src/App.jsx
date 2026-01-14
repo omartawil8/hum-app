@@ -61,6 +61,7 @@ export default function HumApp() {
   const [user, setUser] = useState(null);
   const [nickname, setNickname] = useState('');
   const [showNicknameModal, setShowNicknameModal] = useState(false);
+  const [isClosingNickname, setIsClosingNickname] = useState(false);
   const [nicknameInput, setNicknameInput] = useState('');
   const [anonymousSearchCount, setAnonymousSearchCount] = useState(0);
   const [isClosingAuth, setIsClosingAuth] = useState(false);
@@ -739,9 +740,13 @@ export default function HumApp() {
       const data = await response.json();
       if (data.success) {
         setNickname(data.nickname);
-        setShowNicknameModal(false);
-        setNicknameInput('');
-        setShowUserDropdown(false);
+        setIsClosingNickname(true);
+        setTimeout(() => {
+          setShowNicknameModal(false);
+          setNicknameInput('');
+          setShowUserDropdown(false);
+          setIsClosingNickname(false);
+        }, 250);
       } else {
         alert('Failed to save nickname. Please try again.');
       }
@@ -3040,8 +3045,12 @@ export default function HumApp() {
               <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-9 max-w-lg w-full border border-white/20 shadow-2xl">
                 <button 
                   onClick={() => {
-                    setShowNicknameModal(false);
-                    setNicknameInput('');
+                    setIsClosingNickname(true);
+                    setTimeout(() => {
+                      setShowNicknameModal(false);
+                      setNicknameInput('');
+                      setIsClosingNickname(false);
+                    }, 250);
                   }}
                   className="absolute top-6 right-6 p-1.5 text-white/30 hover:text-white/60 transition-colors"
                 >
@@ -3101,8 +3110,12 @@ export default function HumApp() {
                 <div className="flex gap-3 justify-end">
                   <button
                     onClick={() => {
-                      setShowNicknameModal(false);
-                      setNicknameInput('');
+                      setIsClosingNickname(true);
+                      setTimeout(() => {
+                        setShowNicknameModal(false);
+                        setNicknameInput('');
+                        setIsClosingNickname(false);
+                      }, 250);
                     }}
                     className="px-5 py-2.5 text-sm text-white/50 hover:text-white/70 transition-colors font-light tracking-wide"
                   >
