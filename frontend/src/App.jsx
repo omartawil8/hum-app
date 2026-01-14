@@ -3037,7 +3037,7 @@ export default function HumApp() {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal */}
-              <div className="relative bg-white/[0.05] backdrop-blur-2xl rounded-2xl p-9 max-w-lg w-full border border-white/10 shadow-2xl">
+              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-9 max-w-lg w-full border border-white/20 shadow-2xl">
                 <button 
                   onClick={() => {
                     setShowNicknameModal(false);
