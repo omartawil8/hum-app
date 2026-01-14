@@ -3092,7 +3092,15 @@ export default function HumApp() {
                 >
                   <div className="absolute inset-0 rounded-full blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-500" style={{ background: 'rgba(168, 85, 247, 0.3)' }}></div>
                   
-                  <div className="relative w-48 h-48 rounded-full bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm border-2 border-white/20 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-gradient-to-r group-hover:from-purple-500/9 group-hover:to-blue-500/9 group-hover:border-purple-500/27">
+                  <div className="relative w-48 h-48 rounded-full bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm border-2 border-white/20 flex items-center justify-center transition-all duration-300 group-hover:scale-105" style={{ 
+                    background: 'var(--bg-default)',
+                  }} onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(to right, rgba(168, 85, 247, 0.09), rgba(59, 130, 246, 0.09))';
+                    e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.27)';
+                  }} onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '';
+                    e.currentTarget.style.borderColor = '';
+                  }}>
                     <img 
                       src={hummingBirdIcon} 
                       alt="Hummingbird" 
