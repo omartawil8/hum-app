@@ -1126,7 +1126,7 @@ export default function HumApp() {
         if (dataInterval) {
           clearInterval(dataInterval);
         }
-      }, 15000);
+      }, 12000);
       
       // Store timeout for cleanup
       mediaRecorderRef.current._stopTimeout = stopTimeout;
