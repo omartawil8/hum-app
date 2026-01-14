@@ -3481,13 +3481,16 @@ export default function HumApp() {
                     <span className="text-lg">☕</span>
                   </a>
                 </div>
+              </div>
+            )}
 
-                {error && (
-                  <div className="mt-8 bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center gap-3">
-                    <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                    <p className="text-red-200">{error}</p>
-                  </div>
-                )}
+            {/* Global error banner - always show at top of content */}
+            {error && (
+              <div className="mb-6">
+                <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+                  <p className="text-red-200">{error}</p>
+                </div>
               </div>
             )}
 
