@@ -2229,13 +2229,7 @@ export default function HumApp() {
           {hasResult && matchData && (
             <button 
               onClick={handleResetApp}
-              className="group flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 hover:border-[#D8B5FE]/40 transition-all cursor-pointer relative"
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(216, 181, 254, 0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-              }}
+              className="group flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-[#D8B5FE]/10 hover:border-[#D8B5FE]/40 transition-all duration-200 cursor-pointer relative"
             >
               <img 
                 src={hummingBirdIcon} 
