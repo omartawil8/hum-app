@@ -1166,10 +1166,10 @@ export default function HumApp() {
           const bytesPerSecond = blob.size / Math.max(durationSeconds, 0.001);
           console.log('   Approx bytes per second:', bytesPerSecond.toFixed(2));
           
-          const MIN_BYTES_PER_SECOND = 1500; // heuristic threshold for \"real\" audio vs near-silence
+          const MIN_BYTES_PER_SECOND = 1500; // heuristic threshold for "real" audio vs near-silence
           if (bytesPerSecond < MIN_BYTES_PER_SECOND) {
             console.warn('❌ Recording appears silent/too quiet, skipping ACRCloud call');
-            setError('We couldn\\'t hear enough audio to recognize the song. Please hum or sing closer to the mic and try again.');
+            setError("We couldn't hear enough audio to recognize the song. Please hum or sing closer to the mic and try again.");
             setIsProcessing(false);
             setIsListening(false);
             setRecordingStartTime(null);
