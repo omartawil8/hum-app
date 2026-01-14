@@ -3167,13 +3167,13 @@ export default function HumApp() {
                       <div 
                         className="absolute inset-0 rounded-full pointer-events-none"
                         style={{
-                          background: `conic-gradient(from 0deg, transparent 280deg, rgba(168, 85, 247, 0.5) 300deg, rgba(59, 130, 246, 0.5) 320deg, transparent 340deg)`,
+                          background: `conic-gradient(from 0deg, transparent 280deg, rgba(168, 85, 247, 0.6) 300deg, rgba(59, 130, 246, 0.6) 320deg, transparent 340deg)`,
                           WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                           WebkitMaskComposite: 'xor',
                           mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                           maskComposite: 'exclude',
                           padding: '2px',
-                          animation: 'rotateShimmer 3s linear infinite'
+                          animation: 'rotateShimmer 4s ease-in-out infinite'
                         }}
                       />
                     )}
