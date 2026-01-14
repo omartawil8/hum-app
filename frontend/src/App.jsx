@@ -2043,44 +2043,50 @@ export default function HumApp() {
         }
 
         @keyframes shimmerOpacity {
-          0%, 16.67% {
+          0%, 14.5% {
             opacity: 0;
           }
-          17% {
+          15% {
             opacity: 0;
           }
-          19% {
+          16.5% {
             opacity: 1;
           }
-          22% {
+          19.5% {
             opacity: 1;
           }
-          25% {
+          21% {
             opacity: 0;
           }
-          38.89%, 55.56% {
+          38%, 52% {
             opacity: 0;
           }
-          56% {
+          52.5% {
             opacity: 0;
           }
-          58% {
+          54% {
             opacity: 1;
           }
-          61% {
+          57% {
             opacity: 1;
           }
-          64% {
+          58.5% {
             opacity: 0;
           }
-          77.78%, 94.44% {
+          72%, 88% {
             opacity: 0;
           }
-          95% {
+          88.5% {
             opacity: 0;
           }
-          97% {
+          90% {
             opacity: 1;
+          }
+          92.5% {
+            opacity: 1;
+          }
+          94% {
+            opacity: 0;
           }
           100% {
             opacity: 0;
