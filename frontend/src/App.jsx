@@ -3414,7 +3414,15 @@ export default function HumApp() {
             {/* Listening State */}
             {isListening && (
               <div className="flex flex-col items-center justify-center min-h-[70vh]">
-                <div className="relative mb-8">
+                <button
+                  onClick={() => {
+                    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+                      mediaRecorderRef.current.stop();
+                      setIsListening(false);
+                    }
+                  }}
+                  className="relative mb-8 cursor-pointer"
+                >
                   <div className="absolute -inset-8 rounded-full blur-3xl animate-pulse" style={{ background: 'rgba(168, 85, 247, 0.3)', opacity: 0.6 }}></div>
                   <div className="relative w-48 h-48 rounded-full backdrop-blur-sm flex items-center justify-center" style={{ 
                     background: 'linear-gradient(to right, rgba(168, 85, 247, 0.09), rgba(59, 130, 246, 0.09))',
@@ -3426,7 +3434,7 @@ export default function HumApp() {
                       className="w-24 h-24 object-contain animate-float"
                     />
                   </div>
-                </div>
+                </button>
                 
                 <h2 className="text-3xl font-bold mb-4 text-center">listening...</h2>
                 <p className="text-white/60 text-center mb-8">hum or sing the melody clearly</p>
