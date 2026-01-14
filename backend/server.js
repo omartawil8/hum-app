@@ -1071,9 +1071,47 @@ function combineWithSpotify(rankedMatches) {
     .filter(m => m.spotify?.popularity)
     .map(m => m.spotify.popularity), 0);
   
-  return rankedMatches.map(match => {
+  // Calculate title clusters (consensus boost)
+  // If multiple results have similar titles, it's a strong signal
+  const titleClusters = new Map();
+  
+  rankedMatches.forEach((match, index) => {
+    const cleanedTitle = cleanTitleForComparison(match.title);
+    let foundCluster = false;
+    
+    // Check if this title belongs to an existing cluster
+    for (const [clusterKey, clusterData] of titleClusters.entries()) {
+      const similarity = calculateSimilarity(cleanedTitle, clusterKey);
+      if (similarity >= 0.75) { // 75% similarity threshold
+        clusterData.count++;
+        clusterData.matches.push(index);
+        foundCluster = true;
+        break;
+      }
+    }
+    
+    // Create new cluster if no match found
+    if (!foundCluster) {
+      titleClusters.set(cleanedTitle, {
+        count: 1,
+        matches: [index],
+        key: cleanedTitle
+      });
+    }
+  });
+  
+  // Log clusters
+  console.log('\n🔗 Title clusters (consensus detection):');
+  for (const [key, cluster] of titleClusters.entries()) {
+    if (cluster.count > 1) {
+      console.log(`   "${key}": ${cluster.count} similar matches`);
+    }
+  }
+  
+  return rankedMatches.map((match, index) => {
     let finalScore = match.adjustedScore;
     
+    // Spotify popularity boost
     if (match.spotify && match.spotify.popularity) {
       // Non-linear boost: higher popularity gets exponentially more weight
       // Formula: (popularity/100)^1.5 * 0.80
@@ -1083,6 +1121,19 @@ function combineWithSpotify(rankedMatches) {
       finalScore += popularityBoost;
       
       console.log(`   📈 Spotify boost for "${match.title}": +${popularityBoost.toFixed(2)} (popularity: ${match.spotify.popularity}/100)`);
+    }
+    
+    // Consensus boost: if multiple results have similar titles, boost them
+    const cleanedTitle = cleanTitleForComparison(match.title);
+    for (const [clusterKey, clusterData] of titleClusters.entries()) {
+      if (clusterData.matches.includes(index) && clusterData.count > 1) {
+        // More matches = stronger signal
+        // Formula: (clusterSize - 1) * 0.10, capped at 0.30
+        const consensusBoost = Math.min((clusterData.count - 1) * 0.10, 0.30);
+        finalScore += consensusBoost;
+        console.log(`   🎯 Consensus boost for "${match.title}": +${consensusBoost.toFixed(2)} (${clusterData.count} similar matches)`);
+        break;
+      }
     }
     
     return {
