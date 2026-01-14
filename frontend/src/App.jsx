@@ -2034,44 +2034,53 @@ export default function HumApp() {
         }
 
         @keyframes rotateShimmer {
-          0%, 92% {
+          0%, 88% {
             opacity: 0;
             transform: rotate(0deg);
           }
           1% {
             opacity: 0;
           }
-          3% {
+          2% {
             opacity: 1;
-          }
-          5% {
-            opacity: 0;
           }
           8% {
-            opacity: 0;
-            transform: rotate(120deg);
-          }
-          10% {
             opacity: 1;
             transform: rotate(120deg);
           }
-          12% {
+          9% {
             opacity: 0;
             transform: rotate(120deg);
           }
-          15% {
+          20% {
             opacity: 0;
-            transform: rotate(240deg);
+            transform: rotate(120deg);
           }
-          17% {
+          21% {
+            opacity: 1;
+            transform: rotate(120deg);
+          }
+          27% {
             opacity: 1;
             transform: rotate(240deg);
           }
-          19% {
+          28% {
             opacity: 0;
             transform: rotate(240deg);
           }
-          22%, 100% {
+          40% {
+            opacity: 0;
+            transform: rotate(240deg);
+          }
+          41% {
+            opacity: 1;
+            transform: rotate(240deg);
+          }
+          47% {
+            opacity: 1;
+            transform: rotate(360deg);
+          }
+          48%, 100% {
             opacity: 0;
             transform: rotate(360deg);
           }
@@ -3189,7 +3198,7 @@ export default function HumApp() {
                           mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                           maskComposite: 'exclude',
                           padding: '2px',
-                          animation: 'rotateShimmer 10s ease-in-out infinite'
+                          animation: 'rotateShimmer 15s ease-in-out infinite'
                         }}
                       />
                     )}
