@@ -3159,8 +3159,8 @@ export default function HumApp() {
                     {isSearchingLyrics ? (
                       <div className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center justify-center w-5 h-5">
                         <div className="relative w-full h-full">
-                          <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-white/80 rounded-full" style={{ animation: 'dotRotate 1s ease-in-out infinite', animationDelay: '0s', animationFillMode: 'both', willChange: 'transform' }}></div>
-                          <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-white/80 rounded-full" style={{ animation: 'dotRotate 1s ease-in-out infinite', animationDelay: '0.5s', animationFillMode: 'both', willChange: 'transform' }}></div>
+                          <div className="absolute top-1/2 left-1/2 w-2 h-2 rounded-full" style={{ backgroundColor: '#D8B5FE', animation: 'dotRotate 1s ease-in-out infinite', animationDelay: '0s', animationFillMode: 'both', willChange: 'transform' }}></div>
+                          <div className="absolute top-1/2 left-1/2 w-2 h-2 rounded-full" style={{ backgroundColor: '#D8B5FE', animation: 'dotRotate 1s ease-in-out infinite', animationDelay: '0.5s', animationFillMode: 'both', willChange: 'transform' }}></div>
                         </div>
                       </div>
                     ) : lyricsInput.trim() && (
