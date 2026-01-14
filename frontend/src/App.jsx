@@ -3496,9 +3496,9 @@ export default function HumApp() {
               <div className="flex flex-col items-center justify-center min-h-[70vh]">
                 <button
                   onClick={() => {
-                    // Check if at least 4 seconds have elapsed
-                    if (recordingStartTime && Date.now() - recordingStartTime < 4000) {
-                      return; // Don't allow stopping before 4 seconds
+                    // Check if at least 5 seconds have elapsed
+                    if (recordingStartTime && Date.now() - recordingStartTime < 5000) {
+                      return; // Don't allow stopping before 5 seconds
                     }
                     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
                       mediaRecorderRef.current.stop();
@@ -3507,7 +3507,7 @@ export default function HumApp() {
                     }
                   }}
                   className={`relative mb-8 ${
-                    recordingStartTime && Date.now() - recordingStartTime < 4000
+                    recordingStartTime && Date.now() - recordingStartTime < 5000
                       ? 'cursor-not-allowed opacity-50'
                       : 'cursor-pointer'
                   }`}
