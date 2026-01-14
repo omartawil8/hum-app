@@ -2034,53 +2034,68 @@ export default function HumApp() {
         }
 
         @keyframes rotateShimmer {
-          0%, 88% {
+          0%, 85% {
             opacity: 0;
             transform: rotate(0deg);
           }
-          1% {
+          0.5% {
             opacity: 0;
           }
           2% {
             opacity: 1;
           }
-          8% {
+          12% {
             opacity: 1;
             transform: rotate(120deg);
           }
-          9% {
+          13% {
+            opacity: 0.8;
+          }
+          14% {
             opacity: 0;
             transform: rotate(120deg);
           }
-          20% {
+          25% {
             opacity: 0;
             transform: rotate(120deg);
           }
-          21% {
-            opacity: 1;
-            transform: rotate(120deg);
+          25.5% {
+            opacity: 0;
           }
           27% {
             opacity: 1;
-            transform: rotate(240deg);
+            transform: rotate(120deg);
           }
-          28% {
-            opacity: 0;
-            transform: rotate(240deg);
-          }
-          40% {
-            opacity: 0;
-            transform: rotate(240deg);
-          }
-          41% {
+          37% {
             opacity: 1;
             transform: rotate(240deg);
           }
-          47% {
+          38% {
+            opacity: 0.8;
+          }
+          39% {
+            opacity: 0;
+            transform: rotate(240deg);
+          }
+          50% {
+            opacity: 0;
+            transform: rotate(240deg);
+          }
+          50.5% {
+            opacity: 0;
+          }
+          52% {
+            opacity: 1;
+            transform: rotate(240deg);
+          }
+          62% {
             opacity: 1;
             transform: rotate(360deg);
           }
-          48%, 100% {
+          63% {
+            opacity: 0.8;
+          }
+          64%, 100% {
             opacity: 0;
             transform: rotate(360deg);
           }
@@ -3198,7 +3213,7 @@ export default function HumApp() {
                           mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                           maskComposite: 'exclude',
                           padding: '2px',
-                          animation: 'rotateShimmer 15s ease-in-out infinite'
+                          animation: 'rotateShimmer 20s ease-in-out infinite'
                         }}
                       />
                     )}
