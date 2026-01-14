@@ -2033,17 +2033,13 @@ export default function HumApp() {
           }
         }
 
-        @keyframes subtleShimmer {
-          0%, 100% {
-            background: linear-gradient(to br, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+        @keyframes rotateShimmer {
+          0% {
+            transform: rotate(0deg);
           }
-          50% {
-            background: linear-gradient(to right, rgba(168, 85, 247, 0.04), rgba(59, 130, 246, 0.04));
+          100% {
+            transform: rotate(360deg);
           }
-        }
-
-        .animate-subtle-shimmer {
-          animation: subtleShimmer 4s ease-in-out infinite;
         }
 
         /* Fix autofill styling to keep dark background - match exact input styling */
