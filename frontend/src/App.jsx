@@ -3385,7 +3385,7 @@ export default function HumApp() {
               <div className="flex flex-col items-center justify-center min-h-[70vh]">
                 <div className="relative mb-8">
                   <div className="absolute inset-0 rounded-full blur-3xl animate-pulse" style={{ background: 'rgba(216, 181, 254, 0.3)' }}></div>
-                  <div className="relative w-48 h-48 rounded-full bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border-2 border-white/20 flex items-center justify-center">
+                  <div className="relative w-48 h-48 rounded-full bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm flex items-center justify-center" style={{ border: '2px solid rgba(168, 85, 247, 0.47)' }}>
                     <img 
                       src={hummingBirdIcon} 
                       alt="Listening" 
