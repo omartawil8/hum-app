@@ -2101,7 +2101,7 @@ export default function HumApp() {
           color: #000000;
         }
         
-        /* Trigger new deployment */
+        /* Trigger deployment */
       `}</style>
 
       <div className="relative z-10">
@@ -2200,7 +2200,7 @@ export default function HumApp() {
           {/* Cancel Button - Only show while listening, before API call */}
           {isListening && !isProcessing && (
             <div className="flex flex-col items-center gap-2 group">
-              <button
+        <button
                 onClick={cancelListening}
                 className="flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all relative"
               >
@@ -2208,7 +2208,7 @@ export default function HumApp() {
               </button>
               <span className="text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" style={{ color: '#D8B5FE' }}>
                 cancel
-              </span>
+            </span>
             </div>
           )}
           
@@ -2222,7 +2222,7 @@ export default function HumApp() {
                 className={`w-5 h-5 transition-all duration-200 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse fill-purple-400/90 text-purple-400' : ''}`} 
                 strokeWidth={1.5}
               />
-            </button>
+        </button>
           )}
           
           {/* Return Home Bird Button - Only show when results are displayed */}
@@ -3136,11 +3136,11 @@ export default function HumApp() {
                           <path d="m43.281 31.086c-1.6094-4.3555-7.7656-4.3555-9.3789 0l-4.5312 12.242c-1.5195 4.1094-4.7539 7.3438-8.8594 8.8633l-12.246 4.5312c-4.3555 1.6094-4.3555 7.7695 0 9.3789l12.246 4.5312c4.1055 1.5195 7.3398 4.7578 8.8594 8.8633l4.5312 12.242c1.6133 4.3555 7.7695 4.3555 9.3789 0l4.5312-12.242c1.5195-4.1055 4.7578-7.3438 8.8633-8.8633l12.242-4.5312c4.3555-1.6094 4.3555-7.7695 0-9.3789l-12.242-4.5312c-4.1055-1.5195-7.3438-4.7578-8.8633-8.8633z" fill="#D8B5FE"/>
                         </svg>
                       ) : (
-                        <img 
-                          src={sparkleIcon} 
-                          alt="Sparkle" 
+                      <img 
+                        src={sparkleIcon} 
+                        alt="Sparkle" 
                           className="w-full h-full opacity-60 transition-all"
-                        />
+                      />
                       )}
                     </div>
                     <input
