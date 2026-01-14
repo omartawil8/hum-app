@@ -33,6 +33,7 @@ export default function HumApp() {
   const [bookmarkAnimating, setBookmarkAnimating] = useState(false);
   const [isClosingResults, setIsClosingResults] = useState(false);
   const [isHomepageAnimating, setIsHomepageAnimating] = useState(false);
+  const [birdButtonProximity, setBirdButtonProximity] = useState(0);
   const [showTips, setShowTips] = useState(false);
   const [isClosingTips, setIsClosingTips] = useState(false);
   const [recentSearches, setRecentSearches] = useState([]);
@@ -3089,6 +3090,28 @@ export default function HumApp() {
                       ? 'opacity-50 cursor-not-allowed' 
                       : ''
                   }`}
+                  onMouseMove={(e) => {
+                    const button = e.currentTarget;
+                    const rect = button.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    const mouseX = e.clientX;
+                    const mouseY = e.clientY;
+                    const distance = Math.sqrt(Math.pow(mouseX - centerX, 2) + Math.pow(mouseY - centerY, 2));
+                    
+                    // Activate when within 200px, max effect at 50px
+                    const maxDistance = 200;
+                    const minDistance = 50;
+                    if (distance <= maxDistance) {
+                      const normalized = Math.max(0, Math.min(1, (maxDistance - distance) / (maxDistance - minDistance)));
+                      setBirdButtonProximity(normalized);
+                    } else {
+                      setBirdButtonProximity(0);
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    setBirdButtonProximity(0);
+                  }}
                 >
                   <div className="absolute inset-0 rounded-full blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-500" style={{ background: 'rgba(168, 85, 247, 0.3)' }}></div>
                   
