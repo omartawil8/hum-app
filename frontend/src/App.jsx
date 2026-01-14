@@ -3099,11 +3099,12 @@ export default function HumApp() {
                     const mouseY = e.clientY;
                     const distance = Math.sqrt(Math.pow(mouseX - centerX, 2) + Math.pow(mouseY - centerY, 2));
                     
-                    // Activate when within 200px, max effect at 50px
-                    const maxDistance = 200;
-                    const minDistance = 50;
+                    // Activate when within 300px (further back), max effect at 80px (more concentrated)
+                    const maxDistance = 300;
+                    const minDistance = 80;
                     if (distance <= maxDistance) {
-                      const normalized = Math.max(0, Math.min(1, (maxDistance - distance) / (maxDistance - minDistance)));
+                      // Use exponential curve for more concentrated effect near cursor
+                      const normalized = Math.max(0, Math.min(1, Math.pow((maxDistance - distance) / (maxDistance - minDistance), 0.7)));
                       setBirdButtonProximity(normalized);
                     } else {
                       setBirdButtonProximity(0);
@@ -3116,8 +3117,8 @@ export default function HumApp() {
                   <div 
                     className="absolute inset-0 rounded-full blur-2xl transition-opacity duration-300" 
                     style={{ 
-                      background: 'rgba(168, 85, 247, 0.4)',
-                      opacity: birdButtonProximity * 0.7
+                      background: 'rgba(168, 85, 247, 0.3)',
+                      opacity: birdButtonProximity * 0.4
                     }}
                   ></div>
                   
@@ -3125,12 +3126,12 @@ export default function HumApp() {
                     className="relative w-48 h-48 rounded-full backdrop-blur-sm border-2 flex items-center justify-center transition-all duration-300" 
                     style={{ 
                       background: birdButtonProximity > 0 
-                        ? `linear-gradient(to right, rgba(168, 85, 247, ${0.15 * birdButtonProximity}), rgba(59, 130, 246, ${0.15 * birdButtonProximity}))`
+                        ? `linear-gradient(to right, rgba(168, 85, 247, ${0.09 * birdButtonProximity}), rgba(59, 130, 246, ${0.09 * birdButtonProximity}))`
                         : 'linear-gradient(to br, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02))',
                       borderColor: birdButtonProximity > 0 
-                        ? `rgba(168, 85, 247, ${0.5 * birdButtonProximity + 0.3})`
+                        ? `rgba(168, 85, 247, ${0.27 * birdButtonProximity + 0.2})`
                         : 'rgba(255, 255, 255, 0.2)',
-                      transform: birdButtonProximity > 0 ? `scale(${1 + birdButtonProximity * 0.08})` : 'scale(1)'
+                      transform: birdButtonProximity > 0 ? `scale(${1 + birdButtonProximity * 0.05})` : 'scale(1)'
                     }}
                   >
                     <img 
