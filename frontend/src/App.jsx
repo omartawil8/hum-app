@@ -3180,7 +3180,7 @@ export default function HumApp() {
                   ></div>
                   
                   <div 
-                    className="relative w-48 h-48 rounded-full backdrop-blur-sm flex items-center justify-center transition-all duration-300"
+                    className={`relative w-48 h-48 rounded-full flex items-center justify-center transition-all duration-300 ${birdButtonProximity > 0 ? 'backdrop-blur-sm' : ''}`}
                     style={{ 
                       background: birdButtonProximity > 0 
                         ? `linear-gradient(to right, rgba(168, 85, 247, ${0.09 * birdButtonProximity}), rgba(59, 130, 246, ${0.09 * birdButtonProximity}))`
@@ -3236,12 +3236,27 @@ export default function HumApp() {
 
                 <div className="w-full max-w-md mb-16">
                   <div className="relative group">
-                    <div className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center z-10">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" className="w-full h-full transition-all duration-200" style={{ opacity: isLyricsInputFocused ? 1 : 0.6 }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Focus the input when sparkle is clicked
+                        const input = document.querySelector('input[placeholder="smart search with lyrics..."]');
+                        if (input) {
+                          input.focus();
+                        }
+                        // If there's text, trigger search
+                        if (lyricsInput.trim() && !isSearchingLyrics) {
+                          searchByLyrics();
+                        }
+                      }}
+                      className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center z-10 cursor-pointer hover:opacity-100 transition-opacity"
+                      style={{ opacity: isLyricsInputFocused ? 1 : 0.6 }}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" className="w-full h-full transition-all duration-200 pointer-events-none">
                         <path d="m77.637 6.8359c-0.90625-2.4492-4.3672-2.4492-5.2734 0l-2.8477 7.6992c-0.85547 2.3086-2.6719 4.125-4.9805 4.9805l-7.6992 2.8477c-2.4492 0.90625-2.4492 4.3672 0 5.2734l7.6992 2.8477c2.3086 0.85547 4.125 2.6719 4.9805 4.9805l2.8477 7.6992c0.90625 2.4492 4.3672 2.4492 5.2734 0l2.8477-7.6992c0.85547-2.3086 2.6719-4.125 4.9805-4.9805l7.6992-2.8477c2.4492-0.90625 2.4492-4.3672 0-5.2734l-7.6992-2.8477c-2.3086-0.85547-4.125-2.6719-4.9805-4.9805z" fill={isLyricsInputFocused ? "#D8B5FE" : "currentColor"} style={{ color: 'white' }}/>
                         <path d="m43.281 31.086c-1.6094-4.3555-7.7656-4.3555-9.3789 0l-4.5312 12.242c-1.5195 4.1094-4.7539 7.3438-8.8594 8.8633l-12.246 4.5312c-4.3555 1.6094-4.3555 7.7695 0 9.3789l12.246 4.5312c4.1055 1.5195 7.3398 4.7578 8.8594 8.8633l4.5312 12.242c1.6133 4.3555 7.7695 4.3555 9.3789 0l4.5312-12.242c1.5195-4.1055 4.7578-7.3438 8.8633-8.8633l12.242-4.5312c4.3555-1.6094 4.3555-7.7695 0-9.3789l-12.242-4.5312c-4.1055-1.5195-7.3438-4.7578-8.8633-8.8633z" fill={isLyricsInputFocused ? "#D8B5FE" : "currentColor"} style={{ color: 'white' }}/>
                       </svg>
-                    </div>
+                    </button>
                     <input
                       type="text"
                       placeholder="smart search with lyrics..."
