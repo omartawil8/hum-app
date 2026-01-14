@@ -2034,44 +2034,44 @@ export default function HumApp() {
         }
 
         @keyframes rotateShimmer {
-          0%, 90% {
+          0%, 92% {
             opacity: 0;
             transform: rotate(0deg);
           }
-          2% {
+          1% {
             opacity: 0;
           }
-          5% {
+          3% {
             opacity: 1;
+          }
+          5% {
+            opacity: 0;
           }
           8% {
             opacity: 0;
+            transform: rotate(120deg);
+          }
+          10% {
+            opacity: 1;
+            transform: rotate(120deg);
           }
           12% {
             opacity: 0;
             transform: rotate(120deg);
           }
           15% {
-            opacity: 1;
-            transform: rotate(120deg);
-          }
-          18% {
-            opacity: 0;
-            transform: rotate(120deg);
-          }
-          22% {
             opacity: 0;
             transform: rotate(240deg);
           }
-          25% {
+          17% {
             opacity: 1;
             transform: rotate(240deg);
           }
-          28% {
+          19% {
             opacity: 0;
             transform: rotate(240deg);
           }
-          32%, 100% {
+          22%, 100% {
             opacity: 0;
             transform: rotate(360deg);
           }
@@ -3189,7 +3189,7 @@ export default function HumApp() {
                           mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                           maskComposite: 'exclude',
                           padding: '2px',
-                          animation: 'rotateShimmer 6s ease-in-out infinite'
+                          animation: 'rotateShimmer 10s ease-in-out infinite'
                         }}
                       />
                     )}
