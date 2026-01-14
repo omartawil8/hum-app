@@ -3132,37 +3132,32 @@ export default function HumApp() {
                   ></div>
                   
                   <div 
-                    className="relative w-48 h-48 rounded-full backdrop-blur-sm flex items-center justify-center transition-all duration-300 overflow-hidden"
+                    className="relative w-48 h-48 rounded-full backdrop-blur-sm flex items-center justify-center transition-all duration-300"
                     style={{ 
                       background: birdButtonProximity > 0 
                         ? `linear-gradient(to right, rgba(168, 85, 247, ${0.09 * birdButtonProximity}), rgba(59, 130, 246, ${0.09 * birdButtonProximity}))`
                         : 'linear-gradient(to br, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02))',
                       transform: birdButtonProximity > 0 ? `scale(${1 + birdButtonProximity * 0.02})` : 'scale(1)',
-                      border: '2px solid transparent'
+                      border: birdButtonProximity > 0 
+                        ? `2px solid rgba(168, 85, 247, ${0.27 * birdButtonProximity + 0.2})`
+                        : '2px solid rgba(255, 255, 255, 0.2)'
                     }}
                   >
-                    {/* Rotating shimmer border */}
+                    {/* Rotating shimmer border - only when at rest */}
                     {birdButtonProximity === 0 && (
                       <div 
-                        className="absolute inset-0 rounded-full"
+                        className="absolute inset-0 rounded-full pointer-events-none"
                         style={{
-                          padding: '2px',
-                          background: `conic-gradient(from 0deg, transparent 0deg, transparent 270deg, rgba(168, 85, 247, 0.4) 300deg, rgba(59, 130, 246, 0.4) 330deg, transparent 360deg)`,
+                          background: `conic-gradient(from 0deg, transparent 280deg, rgba(168, 85, 247, 0.5) 300deg, rgba(59, 130, 246, 0.5) 320deg, transparent 340deg)`,
                           WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                           WebkitMaskComposite: 'xor',
+                          mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                           maskComposite: 'exclude',
+                          padding: '2px',
                           animation: 'rotateShimmer 3s linear infinite'
                         }}
                       />
                     )}
-                    <div 
-                      className="absolute inset-[2px] rounded-full border-2"
-                      style={{
-                        borderColor: birdButtonProximity > 0 
-                          ? `rgba(168, 85, 247, ${0.27 * birdButtonProximity + 0.2})`
-                          : 'rgba(255, 255, 255, 0.2)'
-                      }}
-                    />
                     <img 
                       src={hummingBirdIcon} 
                       alt="Hummingbird" 
