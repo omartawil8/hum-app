@@ -2034,10 +2034,29 @@ export default function HumApp() {
         }
 
         @keyframes rotateShimmer {
-          0% {
+          0%, 85% {
+            opacity: 0;
             transform: rotate(0deg);
           }
-          100% {
+          5% {
+            opacity: 1;
+          }
+          10%, 80% {
+            opacity: 0;
+          }
+          15% {
+            opacity: 1;
+            transform: rotate(180deg);
+          }
+          20%, 75% {
+            opacity: 0;
+          }
+          25% {
+            opacity: 1;
+            transform: rotate(360deg);
+          }
+          30%, 100% {
+            opacity: 0;
             transform: rotate(360deg);
           }
         }
