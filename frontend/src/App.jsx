@@ -3113,17 +3113,26 @@ export default function HumApp() {
                     setBirdButtonProximity(0);
                   }}
                 >
-                  <div className="absolute inset-0 rounded-full blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-500" style={{ background: 'rgba(168, 85, 247, 0.3)' }}></div>
+                  <div 
+                    className="absolute inset-0 rounded-full blur-2xl transition-opacity duration-300" 
+                    style={{ 
+                      background: 'rgba(168, 85, 247, 0.3)',
+                      opacity: birdButtonProximity * 0.4
+                    }}
+                  ></div>
                   
-                  <div className="relative w-48 h-48 rounded-full bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm border-2 border-white/20 flex items-center justify-center transition-all duration-300 group-hover:scale-105" style={{ 
-                    background: 'var(--bg-default)',
-                  }} onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(to right, rgba(168, 85, 247, 0.09), rgba(59, 130, 246, 0.09))';
-                    e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.27)';
-                  }} onMouseLeave={(e) => {
-                    e.currentTarget.style.background = '';
-                    e.currentTarget.style.borderColor = '';
-                  }}>
+                  <div 
+                    className="relative w-48 h-48 rounded-full backdrop-blur-sm border-2 flex items-center justify-center transition-all duration-300" 
+                    style={{ 
+                      background: birdButtonProximity > 0 
+                        ? `linear-gradient(to right, rgba(168, 85, 247, ${0.09 * birdButtonProximity}), rgba(59, 130, 246, ${0.09 * birdButtonProximity}))`
+                        : 'linear-gradient(to br, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02))',
+                      borderColor: birdButtonProximity > 0 
+                        ? `rgba(168, 85, 247, ${0.27 * birdButtonProximity + 0.2})`
+                        : 'rgba(255, 255, 255, 0.2)',
+                      transform: birdButtonProximity > 0 ? `scale(${1 + birdButtonProximity * 0.05})` : 'scale(1)'
+                    }}
+                  >
                     <img 
                       src={hummingBirdIcon} 
                       alt="Hummingbird" 
