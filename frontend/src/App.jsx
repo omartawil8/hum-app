@@ -2101,7 +2101,7 @@ export default function HumApp() {
           color: #000000;
         }
         
-        /* Trigger deployment */
+        /* Deployment trigger */
       `}</style>
 
       <div className="relative z-10">
