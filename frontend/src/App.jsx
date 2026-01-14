@@ -2034,68 +2034,81 @@ export default function HumApp() {
         }
 
         @keyframes rotateShimmer {
-          0%, 85% {
+          0% {
             opacity: 0;
             transform: rotate(0deg);
           }
-          0.5% {
+          1% {
             opacity: 0;
           }
-          2% {
+          2.5% {
             opacity: 1;
+          }
+          9% {
+            opacity: 1;
+            transform: rotate(120deg);
+          }
+          10% {
+            opacity: 0.7;
+          }
+          11% {
+            opacity: 0.3;
           }
           12% {
-            opacity: 1;
-            transform: rotate(120deg);
-          }
-          13% {
-            opacity: 0.8;
-          }
-          14% {
             opacity: 0;
             transform: rotate(120deg);
           }
-          25% {
+          20% {
             opacity: 0;
             transform: rotate(120deg);
           }
-          25.5% {
+          21% {
             opacity: 0;
           }
-          27% {
+          23.5% {
             opacity: 1;
             transform: rotate(120deg);
           }
-          37% {
+          30% {
             opacity: 1;
             transform: rotate(240deg);
           }
-          38% {
-            opacity: 0.8;
+          31% {
+            opacity: 0.7;
           }
-          39% {
+          32% {
+            opacity: 0.3;
+          }
+          33% {
             opacity: 0;
             transform: rotate(240deg);
           }
-          50% {
+          41% {
             opacity: 0;
             transform: rotate(240deg);
           }
-          50.5% {
+          42% {
             opacity: 0;
           }
-          52% {
+          44.5% {
             opacity: 1;
             transform: rotate(240deg);
           }
-          62% {
+          51% {
             opacity: 1;
             transform: rotate(360deg);
           }
-          63% {
-            opacity: 0.8;
+          52% {
+            opacity: 0.7;
           }
-          64%, 100% {
+          53% {
+            opacity: 0.3;
+          }
+          54% {
+            opacity: 0;
+            transform: rotate(360deg);
+          }
+          100% {
             opacity: 0;
             transform: rotate(360deg);
           }
