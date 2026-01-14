@@ -1357,9 +1357,11 @@ export default function HumApp() {
         localStorage.setItem('hum-recent-searches', JSON.stringify(updatedSearches));
         }
       } else {
+        // No successful match from backend – show error and return to home state
         setError(data.message || 'No match found. Try humming more clearly.');
         setHasResult(false);
         setMatchData(null);
+        setIsProcessing(false);
       }
     } catch (err) {
       console.error('❌ Error identifying song:', err);
