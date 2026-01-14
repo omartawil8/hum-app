@@ -3111,7 +3111,23 @@ export default function HumApp() {
                   <button
                     onClick={handleSaveNickname}
                     disabled={!nicknameInput.trim()}
-                    className="px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-purple-500/80 to-blue-500/80 hover:from-purple-500 hover:to-blue-500 rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:from-purple-500/80 disabled:hover:to-blue-500/80 border border-purple-400/20 hover:border-purple-400/40 backdrop-blur-sm"
+                    className="px-6 py-2.5 text-sm font-medium text-white rounded-full transition-all disabled:opacity-30 disabled:cursor-not-allowed backdrop-blur-sm"
+                    style={{
+                      backgroundColor: nicknameInput.trim() ? '#D8B5FE' : 'rgba(216, 181, 254, 0.3)',
+                      border: nicknameInput.trim() ? '1px solid rgba(216, 181, 254, 0.4)' : '1px solid rgba(216, 181, 254, 0.2)'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (nicknameInput.trim()) {
+                        e.currentTarget.style.backgroundColor = '#C9A5F0';
+                        e.currentTarget.style.borderColor = 'rgba(216, 181, 254, 0.6)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (nicknameInput.trim()) {
+                        e.currentTarget.style.backgroundColor = '#D8B5FE';
+                        e.currentTarget.style.borderColor = 'rgba(216, 181, 254, 0.4)';
+                      }
+                    }}
                   >
                     save
                   </button>
