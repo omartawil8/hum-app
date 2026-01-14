@@ -2035,82 +2035,55 @@ export default function HumApp() {
 
         @keyframes rotateShimmer {
           0% {
-            opacity: 0;
             transform: rotate(0deg);
           }
-          1% {
-            opacity: 0;
-          }
-          2.5% {
-            opacity: 1;
-          }
-          9% {
-            opacity: 1;
-            transform: rotate(120deg);
-          }
-          10% {
-            opacity: 0.7;
-          }
-          11% {
-            opacity: 0.3;
-          }
-          12% {
-            opacity: 0;
-            transform: rotate(120deg);
-          }
-          20% {
-            opacity: 0;
-            transform: rotate(120deg);
-          }
-          21% {
-            opacity: 0;
-          }
-          23.5% {
-            opacity: 1;
-            transform: rotate(120deg);
-          }
-          30% {
-            opacity: 1;
-            transform: rotate(240deg);
-          }
-          31% {
-            opacity: 0.7;
-          }
-          32% {
-            opacity: 0.3;
-          }
-          33% {
-            opacity: 0;
-            transform: rotate(240deg);
-          }
-          41% {
-            opacity: 0;
-            transform: rotate(240deg);
-          }
-          42% {
-            opacity: 0;
-          }
-          44.5% {
-            opacity: 1;
-            transform: rotate(240deg);
-          }
-          51% {
-            opacity: 1;
+          100% {
             transform: rotate(360deg);
           }
-          52% {
-            opacity: 0.7;
-          }
-          53% {
-            opacity: 0.3;
-          }
-          54% {
+        }
+
+        @keyframes shimmerOpacity {
+          0%, 16.67% {
             opacity: 0;
-            transform: rotate(360deg);
+          }
+          17% {
+            opacity: 0;
+          }
+          19% {
+            opacity: 1;
+          }
+          22% {
+            opacity: 1;
+          }
+          25% {
+            opacity: 0;
+          }
+          38.89%, 55.56% {
+            opacity: 0;
+          }
+          56% {
+            opacity: 0;
+          }
+          58% {
+            opacity: 1;
+          }
+          61% {
+            opacity: 1;
+          }
+          64% {
+            opacity: 0;
+          }
+          77.78%, 94.44% {
+            opacity: 0;
+          }
+          95% {
+            opacity: 0;
+          }
+          97% {
+            opacity: 1;
           }
           100% {
             opacity: 0;
-            transform: rotate(360deg);
           }
         }
 
