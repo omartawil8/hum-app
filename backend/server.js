@@ -1066,11 +1066,20 @@ function rankACRResults(acrMatches) {
 }
 
 function combineWithSpotify(rankedMatches) {
+  // Find max popularity to normalize boosts
+  const maxPopularity = Math.max(...rankedMatches
+    .filter(m => m.spotify?.popularity)
+    .map(m => m.spotify.popularity), 0);
+  
   return rankedMatches.map(match => {
     let finalScore = match.adjustedScore;
     
     if (match.spotify && match.spotify.popularity) {
-      const popularityBoost = (match.spotify.popularity / 100) * 0.50;
+      // Non-linear boost: higher popularity gets exponentially more weight
+      // Formula: (popularity/100)^1.5 * 0.80
+      // This gives 84/100 → +0.61, 37/100 → +0.18 (bigger gap)
+      const normalizedPop = match.spotify.popularity / 100;
+      const popularityBoost = Math.pow(normalizedPop, 1.5) * 0.80;
       finalScore += popularityBoost;
       
       console.log(`   📈 Spotify boost for "${match.title}": +${popularityBoost.toFixed(2)} (popularity: ${match.spotify.popularity}/100)`);
