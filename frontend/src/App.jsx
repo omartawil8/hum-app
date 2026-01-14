@@ -3090,9 +3090,9 @@ export default function HumApp() {
                       : ''
                   }`}
                 >
-                  <div className="absolute inset-0 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'rgba(168, 85, 247, 0.3)' }}></div>
+                  <div className="absolute inset-0 rounded-full blur-2xl opacity-0 group-hover:opacity-50 transition-opacity duration-500" style={{ background: 'rgba(168, 85, 247, 0.3)' }}></div>
                   
-                  <div className="relative w-48 h-48 rounded-full bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm border-2 border-white/20 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-gradient-to-r group-hover:from-purple-500/20 group-hover:to-blue-500/20 group-hover:border-purple-500/40">
+                  <div className="relative w-48 h-48 rounded-full bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm border-2 border-white/20 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-gradient-to-r group-hover:from-purple-500/10 group-hover:to-blue-500/10 group-hover:border-purple-500/30">
                     <img 
                       src={hummingBirdIcon} 
                       alt="Hummingbird" 
