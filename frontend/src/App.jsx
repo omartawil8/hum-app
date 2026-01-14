@@ -2229,7 +2229,7 @@ export default function HumApp() {
           {hasResult && matchData && (
             <button 
               onClick={handleResetApp}
-              className="group flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-[#D8B5FE]/10 hover:border-[#D8B5FE]/40 transition-all duration-200 cursor-pointer relative"
+              className="group flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-[#d2b6f9]/10 hover:border-[#d2b6f9]/40 transition-all duration-200 cursor-pointer relative"
             >
               <img 
                 src={hummingBirdIcon} 
@@ -2238,7 +2238,7 @@ export default function HumApp() {
               />
               {/* Tooltip on hover */}
               <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                <span className="text-xs font-medium" style={{ color: '#D8B5FE' }}>back to home</span>
+                <span className="text-xs font-medium" style={{ color: '#d2b6f9' }}>back to home</span>
               </div>
             </button>
           )}
