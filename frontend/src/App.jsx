@@ -1126,24 +1126,6 @@ export default function HumApp() {
           return;
         }
         
-        // Check actual recording duration (avoid calling API for very short recordings)
-        const startTime = mediaRecorder._startTime || recordingStartTime;
-        if (startTime) {
-          const recordingDurationMs = Date.now() - startTime;
-          console.log('   Recording duration (ms):', recordingDurationMs);
-          
-          const minDurationMs = 5000; // Require at least 5 seconds of audio before calling API
-          if (recordingDurationMs < minDurationMs) {
-            console.warn('❌ Recording too short, skipping ACRCloud call');
-            setError('Recording was too short. Please hum for at least 5 seconds and try again.');
-            setIsProcessing(false);
-            setIsListening(false);
-            setRecordingStartTime(null);
-            setAudioLevel(0);
-            return;
-          }
-        }
-        
         // Use the same mimeType that was used for recording
         const blobType = mediaRecorder.mimeType || 'audio/webm';
         const blob = new Blob(audioChunksRef.current, { 
@@ -1161,6 +1143,40 @@ export default function HumApp() {
           track.stop();
           console.log('   Track stopped:', track.kind, track.readyState);
         });
+        
+        // Check actual recording duration (avoid calling API for very short recordings)
+        const startTime = mediaRecorder._startTime || recordingStartTime;
+        if (startTime) {
+          const recordingDurationMs = Date.now() - startTime;
+          console.log('   Recording duration (ms):', recordingDurationMs);
+          
+          const minDurationMs = 5000; // Require at least 5 seconds of audio before calling API
+          if (recordingDurationMs < minDurationMs) {
+            console.warn('❌ Recording too short, skipping ACRCloud call');
+            setError('Recording was too short. Please hum for at least 5 seconds and try again.');
+            setIsProcessing(false);
+            setIsListening(false);
+            setRecordingStartTime(null);
+            setAudioLevel(0);
+            return;
+          }
+          
+          // Also check for near-silence: long duration but almost no actual input
+          const durationSeconds = recordingDurationMs / 1000;
+          const bytesPerSecond = blob.size / Math.max(durationSeconds, 0.001);
+          console.log('   Approx bytes per second:', bytesPerSecond.toFixed(2));
+          
+          const MIN_BYTES_PER_SECOND = 1500; // heuristic threshold for \"real\" audio vs near-silence
+          if (bytesPerSecond < MIN_BYTES_PER_SECOND) {
+            console.warn('❌ Recording appears silent/too quiet, skipping ACRCloud call');
+            setError('We couldn\\'t hear enough audio to recognize the song. Please hum or sing closer to the mic and try again.');
+            setIsProcessing(false);
+            setIsListening(false);
+            setRecordingStartTime(null);
+            setAudioLevel(0);
+            return;
+          }
+        }
         
         if (blob.size < 100) {
           console.error('❌ Audio blob too small:', blob.size, 'bytes');
