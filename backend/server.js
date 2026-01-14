@@ -1450,6 +1450,39 @@ app.post('/api/search-lyrics', authenticateToken, checkSearchLimit, async (req, 
   }
 });
 
+// Endpoint to find original version of a song (for replacing covers/remixes)
+app.post('/api/find-original', authenticateToken, async (req, res) => {
+  try {
+    const { title, artist } = req.body;
+    
+    if (!title) {
+      return res.status(400).json({ error: 'Title is required' });
+    }
+    
+    const original = await findMostPopularVersion(title);
+    
+    if (original) {
+      return res.json({
+        success: true,
+        song: {
+          title: original.title,
+          artist: original.artist,
+          album: original.album,
+          confidence: 0, // Will be recalculated
+          spotify: original.spotify
+        }
+      });
+    }
+    
+    return res.json({
+      success: false,
+      message: 'Could not find original version'
+    });
+  } catch (error) {
+    console.error('❌ Error finding original:', error);
+    res.status(500).json({ error: 'Failed to find original version' });
+  }
+});
 
 // =========================
 // MAIN HYBRID ENDPOINT

@@ -888,6 +888,73 @@ export default function HumApp() {
     };
   }, []);
 
+  // Function to process results and replace covers/remixes with originals
+  const processResultsForOriginals = async (songs) => {
+    if (!songs || songs.length <= 1) return songs;
+    
+    const processedSongs = [...songs];
+    const songsToReplace = [];
+    
+    // Find songs with "cover" or "remix" in title (case-insensitive)
+    for (let i = 1; i < processedSongs.length; i++) {
+      const song = processedSongs[i];
+      if (song.isSeparator) continue;
+      
+      const titleLower = song.title.toLowerCase();
+      if (titleLower.includes('cover') || titleLower.includes('remix')) {
+        songsToReplace.push({ index: i, song });
+      }
+    }
+    
+    // Replace covers/remixes with originals
+    const token = localStorage.getItem('hum-auth-token');
+    for (const { index, song } of songsToReplace) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/find-original`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token && { 'Authorization': `Bearer ${token}` })
+          },
+          body: JSON.stringify({ title: song.title, artist: song.artist })
+        });
+        
+        const data = await response.json();
+        if (data.success && data.song) {
+          // Preserve confidence and other properties from original
+          processedSongs[index] = {
+            ...data.song,
+            confidence: song.confidence || 0,
+            isAlternative: song.isAlternative,
+            interpretationLabel: song.interpretationLabel
+          };
+        }
+      } catch (error) {
+        console.error('Error finding original for', song.title, error);
+        // Keep original if replacement fails
+      }
+    }
+    
+    // Remove duplicates (same title and artist)
+    const seen = new Set();
+    const uniqueSongs = [];
+    
+    for (const song of processedSongs) {
+      if (song.isSeparator) {
+        uniqueSongs.push(song);
+        continue;
+      }
+      
+      const key = `${song.title.toLowerCase()}|${song.artist.toLowerCase()}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniqueSongs.push(song);
+      }
+    }
+    
+    return uniqueSongs;
+  };
+
   useEffect(() => {
     if (matchData && matchData[0]) {
       const isSongSaved = savedSongs.some(
@@ -1206,7 +1273,9 @@ export default function HumApp() {
       }
       
       if (data.success && data.songs && data.songs.length > 0) {
-        setMatchData(data.songs);
+        // Process results to replace covers/remixes with originals
+        const processedSongs = await processResultsForOriginals(data.songs);
+        setMatchData(processedSongs);
         setHasResult(true);
         setIsProcessing(false); // Clear loading state immediately
         setError(null);
@@ -1340,9 +1409,13 @@ export default function HumApp() {
             }))
           ];
           
-          setMatchData(combinedResults);
+          // Process results to replace covers/remixes with originals
+          const processedCombined = await processResultsForOriginals(combinedResults);
+          setMatchData(processedCombined);
         } else {
-          setMatchData(data.songs);
+          // Process results to replace covers/remixes with originals
+          const processedSongs = await processResultsForOriginals(data.songs);
+          setMatchData(processedSongs);
         }
         
         setHasResult(true);
