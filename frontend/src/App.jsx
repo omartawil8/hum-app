@@ -1861,15 +1861,15 @@ export default function HumApp() {
       />
       
       {/* Floating background particles */}
-      <div className="pointer-events-none fixed inset-0 -z-10">
-        <div className="bg-particle" style={{ left: '10%', top: '20%', animationDelay: '0s', animationDuration: '25s' }}></div>
-        <div className="bg-particle" style={{ left: '85%', top: '15%', animationDelay: '3s', animationDuration: '30s' }}></div>
-        <div className="bg-particle" style={{ left: '20%', top: '70%', animationDelay: '6s', animationDuration: '28s' }}></div>
-        <div className="bg-particle" style={{ left: '75%', top: '80%', animationDelay: '9s', animationDuration: '32s' }}></div>
-        <div className="bg-particle" style={{ left: '50%', top: '10%', animationDelay: '12s', animationDuration: '27s' }}></div>
-        <div className="bg-particle" style={{ left: '15%', top: '50%', animationDelay: '15s', animationDuration: '29s' }}></div>
-        <div className="bg-particle" style={{ left: '90%', top: '60%', animationDelay: '18s', animationDuration: '31s' }}></div>
-        <div className="bg-particle" style={{ left: '60%', top: '85%', animationDelay: '21s', animationDuration: '26s' }}></div>
+      <div className="pointer-events-none fixed inset-0" style={{ zIndex: 1 }}>
+        <div className="bg-particle bg-particle-1" style={{ left: '10%', top: '20%' }}></div>
+        <div className="bg-particle bg-particle-2" style={{ left: '85%', top: '15%' }}></div>
+        <div className="bg-particle bg-particle-3" style={{ left: '20%', top: '70%' }}></div>
+        <div className="bg-particle bg-particle-4" style={{ left: '75%', top: '80%' }}></div>
+        <div className="bg-particle bg-particle-5" style={{ left: '50%', top: '10%' }}></div>
+        <div className="bg-particle bg-particle-6" style={{ left: '15%', top: '50%' }}></div>
+        <div className="bg-particle bg-particle-7" style={{ left: '90%', top: '60%' }}></div>
+        <div className="bg-particle bg-particle-8" style={{ left: '60%', top: '85%' }}></div>
       </div>
       
       <style>{`
@@ -2349,36 +2349,86 @@ export default function HumApp() {
         /* Background floating particles */
         .bg-particle {
           position: absolute;
-          width: 8px;
-          height: 8px;
+          width: 10px;
+          height: 10px;
           border-radius: 9999px;
-          background: rgba(216, 181, 254, 0.6);
-          filter: blur(1px);
-          box-shadow: 0 0 8px rgba(216, 181, 254, 0.4);
-          animation: bgParticleFloat 25s ease-in-out infinite;
+          background: rgba(216, 181, 254, 0.8);
+          filter: blur(0.5px);
+          box-shadow: 0 0 12px rgba(216, 181, 254, 0.6);
+          opacity: 0.7;
         }
 
-        @keyframes bgParticleFloat {
-          0% {
-            transform: translate(0, 0) scale(1);
-            opacity: 0.4;
-          }
-          25% {
-            transform: translate(30px, -40px) scale(1.2);
-            opacity: 0.7;
-          }
-          50% {
-            transform: translate(-20px, -60px) scale(0.9);
-            opacity: 0.5;
-          }
-          75% {
-            transform: translate(40px, -30px) scale(1.1);
-            opacity: 0.6;
-          }
-          100% {
-            transform: translate(0, 0) scale(1);
-            opacity: 0.4;
-          }
+        .bg-particle-1 { animation: bgParticleFloat1 25s ease-in-out infinite; animation-delay: 0s; }
+        .bg-particle-2 { animation: bgParticleFloat2 30s ease-in-out infinite; animation-delay: 3s; }
+        .bg-particle-3 { animation: bgParticleFloat3 28s ease-in-out infinite; animation-delay: 6s; }
+        .bg-particle-4 { animation: bgParticleFloat4 32s ease-in-out infinite; animation-delay: 9s; }
+        .bg-particle-5 { animation: bgParticleFloat5 27s ease-in-out infinite; animation-delay: 12s; }
+        .bg-particle-6 { animation: bgParticleFloat6 29s ease-in-out infinite; animation-delay: 15s; }
+        .bg-particle-7 { animation: bgParticleFloat7 31s ease-in-out infinite; animation-delay: 18s; }
+        .bg-particle-8 { animation: bgParticleFloat8 26s ease-in-out infinite; animation-delay: 21s; }
+
+        @keyframes bgParticleFloat1 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(40px, -50px) scale(1.3); opacity: 0.8; }
+          50% { transform: translate(-30px, -70px) scale(0.8); opacity: 0.6; }
+          75% { transform: translate(50px, -40px) scale(1.2); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat2 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(-35px, 45px) scale(1.2); opacity: 0.8; }
+          50% { transform: translate(25px, 60px) scale(0.9); opacity: 0.6; }
+          75% { transform: translate(-45px, 35px) scale(1.1); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat3 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(50px, 30px) scale(1.3); opacity: 0.8; }
+          50% { transform: translate(-40px, 50px) scale(0.8); opacity: 0.6; }
+          75% { transform: translate(35px, -45px) scale(1.2); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat4 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(-50px, -30px) scale(1.2); opacity: 0.8; }
+          50% { transform: translate(35px, -55px) scale(0.9); opacity: 0.6; }
+          75% { transform: translate(-40px, 40px) scale(1.1); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat5 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(30px, 50px) scale(1.3); opacity: 0.8; }
+          50% { transform: translate(-45px, 35px) scale(0.8); opacity: 0.6; }
+          75% { transform: translate(40px, -30px) scale(1.2); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat6 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(-40px, 50px) scale(1.2); opacity: 0.8; }
+          50% { transform: translate(50px, -35px) scale(0.9); opacity: 0.6; }
+          75% { transform: translate(-30px, -45px) scale(1.1); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat7 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(45px, -40px) scale(1.3); opacity: 0.8; }
+          50% { transform: translate(-35px, 55px) scale(0.8); opacity: 0.6; }
+          75% { transform: translate(50px, 30px) scale(1.2); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat8 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(-30px, -50px) scale(1.2); opacity: 0.8; }
+          50% { transform: translate(40px, 45px) scale(0.9); opacity: 0.6; }
+          75% { transform: translate(-50px, 35px) scale(1.1); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
         }
 
         /* Text selection highlight - lavender color */
