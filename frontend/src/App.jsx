@@ -3630,10 +3630,18 @@ export default function HumApp() {
                     background: 'linear-gradient(to right, rgba(168, 85, 247, 0.09), rgba(59, 130, 246, 0.09))',
                     border: '2px solid rgba(168, 85, 247, 0.47)'
                   }}>
+                    {/* Floating particles - always visible during listening */}
+                    <div className="bird-particles absolute inset-0 rounded-full pointer-events-none" style={{ opacity: 1 }}>
+                      <div className="bird-particle" style={{ left: '20%', top: '30%', animationDelay: '0s' }}></div>
+                      <div className="bird-particle" style={{ left: '70%', top: '25%', animationDelay: '0.8s' }}></div>
+                      <div className="bird-particle" style={{ left: '45%', top: '60%', animationDelay: '1.6s' }}></div>
+                      <div className="bird-particle" style={{ left: '25%', top: '70%', animationDelay: '2.4s' }}></div>
+                      <div className="bird-particle" style={{ left: '75%', top: '65%', animationDelay: '3.2s' }}></div>
+                    </div>
                     <img 
                       src={hummingBirdIcon} 
                       alt="Listening" 
-                      className="w-24 h-24 object-contain animate-float"
+                      className="w-24 h-24 object-contain animate-float relative z-10"
                     />
                   </div>
                 </button>
