@@ -841,7 +841,9 @@ export default function HumApp() {
 
     const updateCursorPosition = (x, y) => {
       if (cursorRef.current) {
-        cursorRef.current.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+        // Use left/top for fixed positioning - more reliable during scroll
+        cursorRef.current.style.left = `${x}px`;
+        cursorRef.current.style.top = `${y}px`;
       }
     };
 
@@ -869,10 +871,17 @@ export default function HumApp() {
       }
     };
 
+    // Re-apply cursor position on scroll to ensure it stays in sync
+    const handleScroll = () => {
+      updateCursorPosition(mouseX, mouseY);
+    };
+
     document.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
@@ -1966,7 +1975,7 @@ export default function HumApp() {
           zIndex: 9999,
           transition: 'background-color 0.3s ease, width 0.3s ease, height 0.3s ease',
           mixBlendMode: 'difference',
-          willChange: 'transform'
+          willChange: 'left, top'
         }}
       />
 
