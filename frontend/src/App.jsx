@@ -865,10 +865,13 @@ export default function HumApp() {
       const isInteractive = 
         target.tagName === 'BUTTON' ||
         target.tagName === 'A' ||
+        target.tagName === 'INPUT' ||
         target.closest('button') ||
         target.closest('a') ||
+        target.closest('input') ||
         target.closest('[role="button"]') ||
         target.closest('[onClick]') ||
+        target.closest('.cursor-pointer') ||
         window.getComputedStyle(target).cursor === 'pointer';
       
       if (isInteractive !== currentIsInteractive) {
