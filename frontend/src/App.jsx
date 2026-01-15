@@ -918,10 +918,10 @@ export default function HumApp() {
   // Hide/show top bar based on scroll direction
   useEffect(() => {
     // Initialize scroll position
-    lastScrollYRef.current = window.scrollY;
+    lastScrollYRef.current = window.pageYOffset || document.documentElement.scrollTop;
     
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      const currentScrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
       const lastScrollY = lastScrollYRef.current;
       
       // Show at top of page
@@ -938,8 +938,14 @@ export default function HumApp() {
       lastScrollYRef.current = currentScrollY;
     };
 
+    // Listen on both window and document
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    document.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   // Close user dropdown when clicking outside
