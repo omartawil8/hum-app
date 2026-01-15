@@ -963,9 +963,10 @@ export default function HumApp() {
       
       ctx.putImageData(imageData, 0, 0);
       
-      const grainOverlay = document.querySelector('.grain-overlay');
-      if (grainOverlay) {
-        grainOverlay.style.backgroundImage = `url(${canvas.toDataURL()})`;
+      const mainBackground = document.querySelector('.main-background');
+      if (mainBackground) {
+        // Set as CSS custom property so ::before can use it
+        mainBackground.style.setProperty('--grain-texture', `url(${canvas.toDataURL()})`);
       }
     }
   }, []);
@@ -1909,7 +1910,7 @@ export default function HumApp() {
   return (
     // OLD BACKGROUND (to revert, replace className below with): bg-gradient-to-b from-[#0A0E27] via-[#141937] to-[#1a1d3a]
     <div
-      className="min-h-screen text-white relative overflow-hidden"
+      className="min-h-screen text-white relative overflow-hidden main-background"
       style={{
         // Solid dark background with subtle grey dot grid, no lavender or interaction
         background: '#000000',
@@ -1939,9 +1940,6 @@ export default function HumApp() {
           transition: 'WebkitMask-image 0.15s ease-out, mask-image 0.15s ease-out'
         }}
       />
-      
-      {/* Grain overlay for professional texture */}
-      <div className="grain-overlay pointer-events-none fixed inset-0" style={{ zIndex: 2 }}></div>
       
       {/* Floating background particles */}
       <div className="pointer-events-none fixed inset-0" style={{ zIndex: 1 }}>
@@ -2707,13 +2705,15 @@ export default function HumApp() {
           100% { transform: translate3d(14px, 8px, 0); opacity: 0; }
         }
 
-        /* Grain overlay for professional texture */
-        .grain-overlay {
+        /* Grain overlay for professional texture - directly on main background */
+        .main-background::before {
+          content: '';
           position: fixed;
           inset: 0;
           pointer-events: none;
-          z-index: 2;
-          opacity: 0.4;
+          z-index: 1;
+          opacity: 0.5;
+          background-image: var(--grain-texture, none);
           background-size: 200px 200px;
           background-repeat: repeat;
           mix-blend-mode: overlay;
