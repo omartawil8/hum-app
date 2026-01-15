@@ -31,13 +31,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Epic dynamic background - lavender + black only */
+  /* Epic dynamic background - mostly black with soft lavender blobs */
   background:
-    radial-gradient(circle at 10% 0%, rgba(216, 181, 254, 0.20), transparent 55%),
-    radial-gradient(circle at 90% 10%, rgba(216, 181, 254, 0.18), transparent 55%),
-    radial-gradient(circle at 0% 80%, rgba(216, 181, 254, 0.16), transparent 55%),
-    radial-gradient(circle at 100% 90%, rgba(216, 181, 254, 0.14), transparent 55%),
-    radial-gradient(circle at 50% 50%, #020617, #000000 70%);
+    radial-gradient(circle at 50% -20%, rgba(216, 181, 254, 0.12), transparent 60%),
+    #000000;
   background-attachment: fixed;
   color: #fff;
   position: relative;
@@ -53,19 +50,19 @@ body {
 body::before {
   content: '';
   position: fixed;
-  inset: -40vmin;
+  inset: -50vmin;
   background:
     conic-gradient(
       from 130deg,
       rgba(216, 181, 254, 0.0),
-      rgba(216, 181, 254, 0.65),
-      rgba(216, 181, 254, 0.4),
-      rgba(216, 181, 254, 0.25),
+      rgba(216, 181, 254, 0.5),
+      rgba(216, 181, 254, 0.28),
+      rgba(216, 181, 254, 0.14),
       rgba(216, 181, 254, 0.0)
     );
-  opacity: 0.55;
-  mix-blend-mode: screen;
-  filter: blur(32px);
+  opacity: 0.3;
+  mix-blend-mode: soft-light;
+  filter: blur(70px);
   animation: hum-orbit 32s linear infinite;
   pointer-events: none;
   z-index: -2;
@@ -75,13 +72,13 @@ body::before {
 body::after {
   content: '';
   position: fixed;
-  inset: -30vmin;
+  inset: -45vmin;
   background:
-    radial-gradient(circle at 15% 20%, rgba(216, 181, 254, 0.20), transparent 55%),
-    radial-gradient(circle at 80% 75%, rgba(216, 181, 254, 0.26), transparent 55%),
-    radial-gradient(circle at 60% 10%, rgba(216, 181, 254, 0.18), transparent 55%);
-  opacity: 0.9;
-  filter: blur(40px);
+    radial-gradient(circle at 15% 20%, rgba(216, 181, 254, 0.16), transparent 60%),
+    radial-gradient(circle at 80% 75%, rgba(216, 181, 254, 0.22), transparent 60%),
+    radial-gradient(circle at 60% 10%, rgba(216, 181, 254, 0.14), transparent 60%);
+  opacity: 0.55;
+  filter: blur(80px);
   mix-blend-mode: soft-light;
   animation: hum-drift 38s ease-in-out infinite alternate;
   pointer-events: none;
