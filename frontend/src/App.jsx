@@ -2694,7 +2694,7 @@ export default function HumApp() {
             repeating-linear-gradient(90deg, rgba(255,255,255,0.15) 0px, transparent 0px, transparent 1px, rgba(255,255,255,0.15) 2px);
           background-size: 2px 2px;
           mix-blend-mode: screen;
-          opacity: 0.6;
+          opacity: 0.15;
         }
 
         /* Background floating particles */
