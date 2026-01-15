@@ -3294,8 +3294,8 @@ export default function HumApp() {
         )}
 
         {/* Top Right - User Account & Help Button */}
-        <div className={`fixed top-6 right-6 z-40 flex items-center gap-2 transition-all duration-300 ${
-          showTopBar ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'
+        <div className={`fixed top-6 right-6 z-40 flex items-center gap-2 transition-opacity duration-300 ${
+          showTopBar ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}>
           {/* User Account Dropdown (if logged in) */}
           {user && (
@@ -3394,7 +3394,7 @@ export default function HumApp() {
                 setShowAuthModal(true);
               }}
               className={`fixed top-6 left-1/2 -translate-x-1/2 z-40 px-4 py-2 bg-white/5 hover:bg-gradient-to-r hover:from-purple-500/20 hover:to-blue-500/20 backdrop-blur-sm border border-white/10 hover:border-purple-500/40 rounded-full transition-all duration-300 hover:scale-105 group cursor-pointer ${
-                showTopBar ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'
+                showTopBar ? 'opacity-100' : 'opacity-0 pointer-events-none'
               }`}
             >
               <div className="flex flex-col items-center gap-0.5">
@@ -3412,8 +3412,8 @@ export default function HumApp() {
             // Only show counter when they actually have a search available
             <div
               key="search-counter-anonymous"
-              className={`fixed top-6 left-1/2 -translate-x-1/2 z-40 px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full transition-all duration-300 ${
-                showTopBar ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'
+              className={`fixed top-6 left-1/2 -translate-x-1/2 z-40 px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full transition-opacity duration-300 ${
+                showTopBar ? 'opacity-100' : 'opacity-0 pointer-events-none'
               }`}
             >
               <span className="text-sm text-white/70">
@@ -3429,7 +3429,7 @@ export default function HumApp() {
               setShowUpgradeModal(true);
             }}
             className={`fixed top-6 left-1/2 -translate-x-1/2 z-40 px-4 py-2 bg-white/5 hover:bg-gradient-to-r hover:from-purple-500/20 hover:to-blue-500/20 backdrop-blur-sm border border-white/10 hover:border-purple-500/40 rounded-full transition-all duration-300 hover:scale-105 group cursor-pointer ${
-              showTopBar ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'
+              showTopBar ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}
           >
             <div className="flex flex-col items-center gap-0.5">
@@ -3453,7 +3453,7 @@ export default function HumApp() {
               setShowUpgradeModal(true);
             }}
             className={`fixed top-6 left-1/2 -translate-x-1/2 z-40 px-4 py-2 bg-teal-500/20 hover:bg-teal-500/30 backdrop-blur-sm border border-teal-500/30 hover:border-teal-500/50 rounded-full transition-all duration-300 hover:scale-105 group cursor-pointer ${
-              showTopBar ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'
+              showTopBar ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}
           >
             <span className="text-sm text-teal-300 font-semibold group-hover:hidden">
@@ -3466,8 +3466,8 @@ export default function HumApp() {
             </span>
           </button>
         ) : (
-          <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-40 px-4 py-2 bg-purple-500/20 backdrop-blur-sm border border-purple-500/30 rounded-full transition-all duration-300 ${
-            showTopBar ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'
+          <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-40 px-4 py-2 bg-purple-500/20 backdrop-blur-sm border border-purple-500/30 rounded-full transition-opacity duration-300 ${
+            showTopBar ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}>
             <span className="text-sm text-purple-300 font-semibold">
               🧙‍♂️ Unlimited - No Limits!
