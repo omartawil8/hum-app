@@ -1904,21 +1904,6 @@ export default function HumApp() {
         setFlashlightPos({ x, y });
       }}
     >
-      {/* Flashlight overlay - lavender dots that follow cursor */}
-      <div
-        className="pointer-events-none fixed inset-0 -z-10"
-        style={{
-          backgroundImage:
-            'radial-gradient(circle, rgba(216, 181, 254, 0.7) 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
-          backgroundPosition: '0 0',
-          backgroundAttachment: 'fixed',
-          WebkitMaskImage: `radial-gradient(circle at ${flashlightPos.x}% ${flashlightPos.y}%, rgba(0,0,0,1) 0, rgba(0,0,0,0) 260px)`,
-          maskImage: `radial-gradient(circle at ${flashlightPos.x}% ${flashlightPos.y}%, rgba(0,0,0,1) 0, rgba(0,0,0,0) 260px)`,
-          transition: 'WebkitMask-image 0.15s ease-out, mask-image 0.15s ease-out'
-        }}
-      />
-      
       {/* Grain overlay - on top of black background */}
       <div 
         className="grain-overlay pointer-events-none fixed inset-0" 
