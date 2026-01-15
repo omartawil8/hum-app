@@ -31,12 +31,99 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: black;
+  /* Epic dynamic background */
+  background:
+    radial-gradient(circle at 10% 0%, rgba(216, 181, 254, 0.16), transparent 55%),
+    radial-gradient(circle at 90% 10%, rgba(129, 140, 248, 0.18), transparent 55%),
+    radial-gradient(circle at 0% 80%, rgba(244, 114, 182, 0.14), transparent 55%),
+    radial-gradient(circle at 100% 90%, rgba(56, 189, 248, 0.12), transparent 55%),
+    radial-gradient(circle at 50% 50%, rgba(24, 24, 27, 1), #020617 70%);
+  background-attachment: fixed;
+  color: #fff;
+  position: relative;
+  overflow-x: hidden;
 }
 
 #root {
   width: 100%;
   min-height: 100vh;
+}
+
+/* Slow-moving conic glow that orbits behind everything */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -40vmin;
+  background:
+    conic-gradient(
+      from 130deg,
+      rgba(216, 181, 254, 0.0),
+      rgba(216, 181, 254, 0.65),
+      rgba(129, 140, 248, 0.55),
+      rgba(59, 130, 246, 0.45),
+      rgba(216, 181, 254, 0.0)
+    );
+  opacity: 0.55;
+  mix-blend-mode: screen;
+  filter: blur(32px);
+  animation: hum-orbit 32s linear infinite;
+  pointer-events: none;
+  z-index: -2;
+}
+
+/* Soft, drifting blobs for extra depth */
+body::after {
+  content: '';
+  position: fixed;
+  inset: -30vmin;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(216, 181, 254, 0.18), transparent 55%),
+    radial-gradient(circle at 80% 75%, rgba(216, 181, 254, 0.22), transparent 55%),
+    radial-gradient(circle at 60% 10%, rgba(56, 189, 248, 0.14), transparent 55%);
+  opacity: 0.9;
+  filter: blur(40px);
+  mix-blend-mode: soft-light;
+  animation: hum-drift 38s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: -3;
+}
+
+@keyframes hum-orbit {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1.05);
+    opacity: 0.35;
+  }
+  25% {
+    transform: translate3d(-4vw, 2vh, 0) rotate(45deg) scale(1.08);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate3d(2vw, 4vh, 0) rotate(120deg) scale(1.02);
+    opacity: 0.65;
+  }
+  75% {
+    transform: translate3d(4vw, -2vh, 0) rotate(220deg) scale(1.1);
+    opacity: 0.48;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(360deg) scale(1.05);
+    opacity: 0.35;
+  }
+}
+
+@keyframes hum-drift {
+  0% {
+    transform: translate3d(-3vw, 2vh, 0) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate3d(3vw, -3vh, 0) scale(1.05);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate3d(1vw, 1vh, 0) scale(1.02);
+    opacity: 0.82;
+  }
 }
 
 /* Ensure font weights work correctly with Tailwind classes */
