@@ -4268,7 +4268,7 @@ export default function HumApp() {
                               window.open(spotifyUrl, '_blank', 'noopener,noreferrer');
                             }
                           }}
-                          className="recent-search-item bg-white/5 backdrop-blur-sm rounded-2xl p-4 hover:bg-white/10 transition-all cursor-pointer border border-white/10 flex items-center justify-between"
+                          className="recent-search-item group bg-white/5 backdrop-blur-sm rounded-2xl p-4 hover:bg-white/10 transition-all cursor-pointer border border-white/10 flex items-center justify-between"
                         >
                           <div className="flex items-center gap-4">
                             <div className="w-14 h-14 bg-white/10 rounded-lg overflow-hidden flex-shrink-0">
@@ -4294,7 +4294,7 @@ export default function HumApp() {
                           <div className="flex items-center gap-3">
                             <button
                               onClick={(e) => toggleSearchBookmark(search, e)}
-                              className="p-2 hover:bg-white/10 rounded-lg transition-all group"
+                              className="p-2 hover:bg-white/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
                               title="Bookmark"
                             >
                               <Bookmark 
@@ -4302,7 +4302,7 @@ export default function HumApp() {
                                   savedSongs.some(
                                     s => s.title === (search.song || search.result?.title) && 
                                          s.artist === (search.artist || search.result?.artist)
-                                  ) ? 'text-white/60 group-hover:text-white/80' : 'text-white/40 group-hover:text-white/60'
+                                  ) ? 'text-white/60 hover:text-white/80' : 'text-white/40 hover:text-white/60'
                                 }`}
                                 style={
                                   savedSongs.some(
