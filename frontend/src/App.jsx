@@ -73,7 +73,10 @@ export default function HumApp() {
     { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
     { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
     { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
-    { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }
+    { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
+    { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
+    { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
+    { x: 0, y: 0 }, { x: 0, y: 0 }
   ]);
   
   const mediaRecorderRef = useRef(null);
@@ -902,7 +905,10 @@ export default function HumApp() {
       { x: 10, y: 20 }, { x: 85, y: 15 }, { x: 20, y: 70 }, { x: 75, y: 80 },
       { x: 50, y: 10 }, { x: 15, y: 50 }, { x: 90, y: 60 }, { x: 60, y: 85 },
       { x: 30, y: 30 }, { x: 70, y: 25 }, { x: 25, y: 80 }, { x: 80, y: 75 },
-      { x: 40, y: 5 }, { x: 5, y: 40 }, { x: 95, y: 50 }, { x: 55, y: 95 }
+      { x: 40, y: 5 }, { x: 5, y: 40 }, { x: 95, y: 50 }, { x: 55, y: 95 },
+      { x: 35, y: 45 }, { x: 65, y: 35 }, { x: 45, y: 65 }, { x: 12, y: 12 },
+      { x: 88, y: 88 }, { x: 22, y: 35 }, { x: 78, y: 55 }, { x: 8, y: 75 },
+      { x: 92, y: 25 }, { x: 65, y: 8 }
     ];
 
     const calculateRepulsion = () => {
@@ -2084,6 +2090,116 @@ export default function HumApp() {
         >
           <div className="bg-particle bg-particle-16"></div>
         </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '35%', 
+            top: '45%',
+            transform: `translate(${particleOffsets[16].x}px, ${particleOffsets[16].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-17"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '65%', 
+            top: '35%',
+            transform: `translate(${particleOffsets[17].x}px, ${particleOffsets[17].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-18"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '45%', 
+            top: '65%',
+            transform: `translate(${particleOffsets[18].x}px, ${particleOffsets[18].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-19"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '12%', 
+            top: '12%',
+            transform: `translate(${particleOffsets[19].x}px, ${particleOffsets[19].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-20"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '88%', 
+            top: '88%',
+            transform: `translate(${particleOffsets[20].x}px, ${particleOffsets[20].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-21"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '22%', 
+            top: '35%',
+            transform: `translate(${particleOffsets[21].x}px, ${particleOffsets[21].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-22"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '78%', 
+            top: '55%',
+            transform: `translate(${particleOffsets[22].x}px, ${particleOffsets[22].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-23"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '8%', 
+            top: '75%',
+            transform: `translate(${particleOffsets[23].x}px, ${particleOffsets[23].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-24"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '92%', 
+            top: '25%',
+            transform: `translate(${particleOffsets[24].x}px, ${particleOffsets[24].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-25"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '65%', 
+            top: '8%',
+            transform: `translate(${particleOffsets[25].x}px, ${particleOffsets[25].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-26"></div>
+        </div>
       </div>
       
       <style>{`
@@ -2588,6 +2704,16 @@ export default function HumApp() {
         .bg-particle-14 { animation: bgParticleFloat14 30s ease-in-out infinite; }
         .bg-particle-15 { animation: bgParticleFloat15 26s ease-in-out infinite; }
         .bg-particle-16 { animation: bgParticleFloat16 29s ease-in-out infinite; }
+        .bg-particle-17 { animation: bgParticleFloat17 31s ease-in-out infinite; }
+        .bg-particle-18 { animation: bgParticleFloat18 27s ease-in-out infinite; }
+        .bg-particle-19 { animation: bgParticleFloat19 34s ease-in-out infinite; }
+        .bg-particle-20 { animation: bgParticleFloat20 23s ease-in-out infinite; }
+        .bg-particle-21 { animation: bgParticleFloat21 36s ease-in-out infinite; }
+        .bg-particle-22 { animation: bgParticleFloat22 25s ease-in-out infinite; }
+        .bg-particle-23 { animation: bgParticleFloat23 30s ease-in-out infinite; }
+        .bg-particle-24 { animation: bgParticleFloat24 28s ease-in-out infinite; }
+        .bg-particle-25 { animation: bgParticleFloat25 32s ease-in-out infinite; }
+        .bg-particle-26 { animation: bgParticleFloat26 26s ease-in-out infinite; }
 
         @keyframes bgParticleFloat1 {
           0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
@@ -2714,6 +2840,86 @@ export default function HumApp() {
           25% { transform: translate(-35px, -40px) scale(1.3); opacity: 0.8; }
           50% { transform: translate(45px, 35px) scale(0.8); opacity: 0.6; }
           75% { transform: translate(-30px, -50px) scale(1.2); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat17 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(38px, -42px) scale(1.2); opacity: 0.8; }
+          50% { transform: translate(-28px, 48px) scale(0.9); opacity: 0.6; }
+          75% { transform: translate(42px, -38px) scale(1.1); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat18 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(-32px, 38px) scale(1.3); opacity: 0.8; }
+          50% { transform: translate(40px, -32px) scale(0.8); opacity: 0.6; }
+          75% { transform: translate(-38px, 42px) scale(1.2); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat19 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(45px, 38px) scale(1.2); opacity: 0.8; }
+          50% { transform: translate(-35px, -42px) scale(0.9); opacity: 0.6; }
+          75% { transform: translate(38px, 45px) scale(1.1); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat20 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(-28px, 35px) scale(1.3); opacity: 0.8; }
+          50% { transform: translate(32px, -38px) scale(0.8); opacity: 0.6; }
+          75% { transform: translate(-35px, 40px) scale(1.2); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat21 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(40px, 42px) scale(1.2); opacity: 0.8; }
+          50% { transform: translate(-38px, -45px) scale(0.9); opacity: 0.6; }
+          75% { transform: translate(42px, 38px) scale(1.1); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat22 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(-40px, 35px) scale(1.3); opacity: 0.8; }
+          50% { transform: translate(38px, -40px) scale(0.8); opacity: 0.6; }
+          75% { transform: translate(-42px, 38px) scale(1.2); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat23 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(35px, -45px) scale(1.2); opacity: 0.8; }
+          50% { transform: translate(-40px, 42px) scale(0.9); opacity: 0.6; }
+          75% { transform: translate(38px, -38px) scale(1.1); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat24 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(-38px, -35px) scale(1.3); opacity: 0.8; }
+          50% { transform: translate(42px, 40px) scale(0.8); opacity: 0.6; }
+          75% { transform: translate(-40px, -38px) scale(1.2); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat25 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(42px, -38px) scale(1.2); opacity: 0.8; }
+          50% { transform: translate(-35px, 45px) scale(0.9); opacity: 0.6; }
+          75% { transform: translate(40px, -40px) scale(1.1); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat26 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(-42px, 40px) scale(1.3); opacity: 0.8; }
+          50% { transform: translate(38px, -42px) scale(0.8); opacity: 0.6; }
+          75% { transform: translate(-38px, 45px) scale(1.2); opacity: 0.7; }
           100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
         }
 
