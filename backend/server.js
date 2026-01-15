@@ -1718,9 +1718,48 @@ app.post('/api/identify', upload.single('audio'), authenticateToken, checkSearch
         console.log(`  ${i + 1}. "${match.title}" - ${match.artists?.[0]?.name}`);
         console.log(`     Final Score: ${match.finalScore.toFixed(2)}${spotifyInfo}`);
       });
+
+      // NEW: If the current winner has no Spotify data but similar versions do,
+      // prefer the version with the highest Spotify popularity.
+      let winner = finalMatches[0];
+      if (!winner.spotify || !winner.spotify.popularity) {
+        const winnerCleanTitle = cleanTitleForComparison(winner.title || '');
+
+        const candidatesWithSpotify = finalMatches
+          .filter(match => match.spotify && match.spotify.popularity)
+          .map(match => {
+            const cleaned = cleanTitleForComparison(match.title || '');
+            const similarity = calculateSimilarity(winnerCleanTitle, cleaned);
+            return { match, similarity };
+          })
+          // Require very similar titles so we don't jump to a different song
+          .filter(entry => entry.similarity >= 0.9);
+
+        if (candidatesWithSpotify.length > 0) {
+          // Pick the one with the highest Spotify popularity
+          candidatesWithSpotify.sort(
+            (a, b) => (b.match.spotify.popularity || 0) - (a.match.spotify.popularity || 0)
+          );
+
+          const best = candidatesWithSpotify[0].match;
+
+          if (best !== winner) {
+            console.log('\n🏅 Promoting Spotify-backed version over ACR-only winner:');
+            console.log(
+              `   Original winner: "${winner.title}" by ${winner.artists?.[0]?.name} (no Spotify data)`
+            );
+            console.log(
+              `   New winner: "${best.title}" by ${best.artists?.[0]?.name} (Spotify popularity ${best.spotify.popularity}/100)`
+            );
+
+            // Move the Spotify-backed candidate to the front, preserving order of others
+            finalMatches = [best, ...finalMatches.filter(m => m !== best)];
+            winner = finalMatches[0];
+          }
+        }
+      }
       
       // NEW: Check if the winner might be a cover - search for most popular version
-      const winner = finalMatches[0];
       
       // NEW: Skip auto-replacement for generic nursery rhyme titles
       if (isGenericTitle(winner.title)) {

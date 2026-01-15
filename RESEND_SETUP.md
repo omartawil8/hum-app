@@ -75,3 +75,7 @@ Once you're sending emails successfully:
 2. Set `RESEND_FROM_EMAIL` to use your own domain
 3. Monitor your email usage in Resend dashboard
 
+
+
+
+

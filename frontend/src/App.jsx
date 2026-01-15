@@ -68,6 +68,7 @@ export default function HumApp() {
   const [isClosingAuth, setIsClosingAuth] = useState(false);
   const [welcomeMessage, setWelcomeMessage] = useState(null);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [flashlightPos, setFlashlightPos] = useState({ x: 50, y: 50 });
   
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -1825,16 +1826,14 @@ export default function HumApp() {
     }
   };
 
-  const [flashlightPos, setFlashlightPos] = useState({ x: 50, y: 50 });
-
   return (
     // OLD BACKGROUND (to revert, replace className below with): bg-gradient-to-b from-[#0A0E27] via-[#141937] to-[#1a1d3a]
     <div
       className="min-h-screen text-white relative overflow-hidden"
       style={{
-        background: 'transparent',
-        // Base dot grid: low-opacity grey dots (static)
-        backgroundImage: `radial-gradient(circle, rgba(148, 163, 184, 0.18) 1px, transparent 1px)`,
+        // Solid dark background with subtle grey dot grid, no lavender or interaction
+        background: '#000000',
+        backgroundImage: `radial-gradient(circle, rgba(148, 163, 184, 0.162) 1px, transparent 1px)`,
         backgroundSize: '32px 32px',
         backgroundPosition: '0 0',
         backgroundAttachment: 'fixed'
@@ -1846,6 +1845,19 @@ export default function HumApp() {
         setFlashlightPos({ x, y });
       }}
     >
+      {/* Flashlight overlay - lavender dots that follow cursor */}
+      <div
+        className="pointer-events-none fixed inset-0 -z-10"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle, rgba(216, 181, 254, 0.5) 1px, transparent 1px)',
+          backgroundSize: '32px 32px',
+          backgroundPosition: '0 0',
+          WebkitMaskImage: `radial-gradient(circle at ${flashlightPos.x}% ${flashlightPos.y}%, rgba(0,0,0,1) 0, rgba(0,0,0,0) 260px)`,
+          maskImage: `radial-gradient(circle at ${flashlightPos.x}% ${flashlightPos.y}%, rgba(0,0,0,1) 0, rgba(0,0,0,0) 260px)`,
+          transition: 'WebkitMask-image 0.15s ease-out, mask-image 0.15s ease-out'
+        }}
+      />
       <style>{`
 
         /* Animated blob keyframes - organic, large movements with subtle fade */
@@ -2299,20 +2311,6 @@ export default function HumApp() {
         
         /* Deployment trigger */
       `}</style>
-
-      {/* Lavender flashlight overlay following the cursor */}
-      <div
-        className="pointer-events-none fixed inset-0 -z-10"
-        style={{
-          backgroundImage:
-            'radial-gradient(circle, rgba(216, 181, 254, 0.5) 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
-          backgroundPosition: '0 0',
-          WebkitMaskImage: `radial-gradient(circle at ${flashlightPos.x}% ${flashlightPos.y}%, rgba(0,0,0,1) 0, rgba(0,0,0,0) 260px)`,
-          maskImage: `radial-gradient(circle at ${flashlightPos.x}% ${flashlightPos.y}%, rgba(0,0,0,1) 0, rgba(0,0,0,0) 260px)`,
-          transition: 'WebkitMask-image 0.15s ease-out, mask-image 0.15s ease-out'
-        }}
-      />
 
       <div className="relative z-10">
         {/* Welcome Notification */}
