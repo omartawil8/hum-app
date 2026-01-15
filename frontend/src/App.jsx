@@ -3678,7 +3678,7 @@ export default function HumApp() {
 
                 {/* Support Button */}
                 <div className="w-full max-w-md mt-12 text-center">
-                  <p className="text-white/60 mb-4">enjoying hüm?</p>
+                  <p className="text-white/60 mb-4">enjoying <span style={{ color: '#D8B5FE' }}>hüm</span>?</p>
                   <a
                     href="https://ko-fi.com/otizzle"
                     target="_blank"
@@ -3987,7 +3987,7 @@ export default function HumApp() {
 
                 {/* Support Button - Results Page */}
                 <div className="w-full mt-8 text-center">
-                  <p className="text-white/60 mb-4">enjoying hüm?</p>
+                  <p className="text-white/60 mb-4">enjoying <span style={{ color: '#D8B5FE' }}>hüm</span>?</p>
                   <a
                     href="https://ko-fi.com/otizzle"
                     target="_blank"
