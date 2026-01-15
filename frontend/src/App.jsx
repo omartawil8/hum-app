@@ -71,6 +71,7 @@ export default function HumApp() {
   const [flashlightPos, setFlashlightPos] = useState({ x: 50, y: 50 });
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [isHoveringInteractive, setIsHoveringInteractive] = useState(false);
+  const [isMouseInViewport, setIsMouseInViewport] = useState(true);
   const cursorRef = useRef(null);
   const [particleOffsets, setParticleOffsets] = useState([
     { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
@@ -835,24 +836,22 @@ export default function HumApp() {
 
   // Custom cursor tracking and interactive element detection
   useEffect(() => {
-    let rafId = null;
-    let needsUpdate = false;
     let mouseX = 0;
     let mouseY = 0;
     let currentIsInteractive = false;
 
-    const updateCursor = () => {
-      if (cursorRef.current && needsUpdate) {
-        cursorRef.current.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
-        needsUpdate = false;
+    const updateCursorPosition = (x, y) => {
+      if (cursorRef.current) {
+        cursorRef.current.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
       }
-      rafId = null;
     };
 
     const handleMouseMove = (e) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
-      needsUpdate = true;
+      
+      // Update cursor position immediately for 1:1 tracking
+      updateCursorPosition(mouseX, mouseY);
       
       // Check if hovering over interactive element (only update state if changed)
       const target = e.target;
@@ -869,20 +868,24 @@ export default function HumApp() {
         currentIsInteractive = isInteractive;
         setIsHoveringInteractive(isInteractive);
       }
+    };
 
-      // Schedule update on next frame if not already scheduled
-      if (!rafId) {
-        rafId = requestAnimationFrame(updateCursor);
-      }
+    const handleMouseEnter = () => {
+      setIsMouseInViewport(true);
+    };
+
+    const handleMouseLeave = () => {
+      setIsMouseInViewport(false);
     };
 
     document.addEventListener('mousemove', handleMouseMove, { passive: true });
+    document.addEventListener('mouseenter', handleMouseEnter, true);
+    document.addEventListener('mouseleave', handleMouseLeave, true);
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
-      if (rafId) {
-        cancelAnimationFrame(rafId);
-      }
+      document.removeEventListener('mouseenter', handleMouseEnter, true);
+      document.removeEventListener('mouseleave', handleMouseLeave, true);
     };
   }, []);
 
@@ -1976,7 +1979,8 @@ export default function HumApp() {
           zIndex: 9999,
           transition: 'background-color 0.3s ease, width 0.3s ease, height 0.3s ease',
           mixBlendMode: 'difference',
-          willChange: 'transform'
+          willChange: 'transform',
+          opacity: isMouseInViewport ? 1 : 0
         }}
       />
 
