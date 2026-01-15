@@ -2431,6 +2431,24 @@ export default function HumApp() {
           100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
         }
 
+        /* Umlaut styling - lavender dots above ü */
+        .umlaut-u {
+          position: relative;
+          color: white;
+        }
+        
+        .umlaut-u::after {
+          content: '¨';
+          position: absolute;
+          top: -0.4em;
+          left: 50%;
+          transform: translateX(-50%);
+          color: #D8B5FE;
+          font-size: 0.65em;
+          line-height: 1;
+          font-weight: normal;
+        }
+
         /* Text selection highlight - lavender color */
         ::selection {
           background-color: #D8B5FE;
@@ -3446,7 +3464,7 @@ export default function HumApp() {
                 }}
               >
                 <h1 className="text-5xl font-bold text-white text-center mb-12 mt-20">
-                  tap to hummm
+                  tap to h<span className="umlaut-u">u</span>mmm
                 </h1>
 
                 <button
