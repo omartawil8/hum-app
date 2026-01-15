@@ -3745,7 +3745,7 @@ export default function HumApp() {
                 </button>
                 
                 <h2 className="text-3xl font-bold mb-4 text-center">listening...</h2>
-                <p className="text-white/60 text-center mb-8">hum or sing the melody clearly</p>
+                <p className="text-white/60 text-center mb-8">hum, sing, or play a melody clearly</p>
                 
                 <div className="w-64 bg-white/5 rounded-full h-2 overflow-hidden">
                   <div 
