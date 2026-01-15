@@ -1859,6 +1859,19 @@ export default function HumApp() {
           transition: 'WebkitMask-image 0.15s ease-out, mask-image 0.15s ease-out'
         }}
       />
+      
+      {/* Floating background particles */}
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <div className="bg-particle" style={{ left: '10%', top: '20%', animationDelay: '0s', animationDuration: '25s' }}></div>
+        <div className="bg-particle" style={{ left: '85%', top: '15%', animationDelay: '3s', animationDuration: '30s' }}></div>
+        <div className="bg-particle" style={{ left: '20%', top: '70%', animationDelay: '6s', animationDuration: '28s' }}></div>
+        <div className="bg-particle" style={{ left: '75%', top: '80%', animationDelay: '9s', animationDuration: '32s' }}></div>
+        <div className="bg-particle" style={{ left: '50%', top: '10%', animationDelay: '12s', animationDuration: '27s' }}></div>
+        <div className="bg-particle" style={{ left: '15%', top: '50%', animationDelay: '15s', animationDuration: '29s' }}></div>
+        <div className="bg-particle" style={{ left: '90%', top: '60%', animationDelay: '18s', animationDuration: '31s' }}></div>
+        <div className="bg-particle" style={{ left: '60%', top: '85%', animationDelay: '21s', animationDuration: '26s' }}></div>
+      </div>
+      
       <style>{`
 
         /* Animated blob keyframes - organic, large movements with subtle fade */
@@ -2331,6 +2344,41 @@ export default function HumApp() {
           50%  { transform: translate3d(10px, -10px, 0); opacity: 0.7; }
           80%  { opacity: 0; }
           100% { transform: translate3d(14px, 8px, 0); opacity: 0; }
+        }
+
+        /* Background floating particles */
+        .bg-particle {
+          position: absolute;
+          width: 8px;
+          height: 8px;
+          border-radius: 9999px;
+          background: rgba(216, 181, 254, 0.6);
+          filter: blur(1px);
+          box-shadow: 0 0 8px rgba(216, 181, 254, 0.4);
+          animation: bgParticleFloat 25s ease-in-out infinite;
+        }
+
+        @keyframes bgParticleFloat {
+          0% {
+            transform: translate(0, 0) scale(1);
+            opacity: 0.4;
+          }
+          25% {
+            transform: translate(30px, -40px) scale(1.2);
+            opacity: 0.7;
+          }
+          50% {
+            transform: translate(-20px, -60px) scale(0.9);
+            opacity: 0.5;
+          }
+          75% {
+            transform: translate(40px, -30px) scale(1.1);
+            opacity: 0.6;
+          }
+          100% {
+            transform: translate(0, 0) scale(1);
+            opacity: 0.4;
+          }
         }
 
         /* Text selection highlight - lavender color */
