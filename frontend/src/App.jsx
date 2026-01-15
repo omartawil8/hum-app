@@ -963,10 +963,9 @@ export default function HumApp() {
       
       ctx.putImageData(imageData, 0, 0);
       
-      const mainBackground = document.querySelector('.main-background');
-      if (mainBackground) {
-        // Set as CSS custom property so ::before can use it
-        mainBackground.style.setProperty('--grain-texture', `url(${canvas.toDataURL()})`);
+      const grainOverlay = document.querySelector('.grain-overlay');
+      if (grainOverlay) {
+        grainOverlay.style.backgroundImage = `url(${canvas.toDataURL()})`;
       }
     }
   }, []);
@@ -1941,6 +1940,12 @@ export default function HumApp() {
         }}
       />
       
+      {/* Grain overlay - on top of black background */}
+      <div 
+        className="grain-overlay pointer-events-none fixed inset-0" 
+        style={{ zIndex: 1 }}
+      />
+      
       {/* Floating background particles */}
       <div className="pointer-events-none fixed inset-0" style={{ zIndex: 1 }}>
         <div 
@@ -2705,15 +2710,13 @@ export default function HumApp() {
           100% { transform: translate3d(14px, 8px, 0); opacity: 0; }
         }
 
-        /* Grain overlay for professional texture - directly on main background */
-        .main-background::before {
-          content: '';
+        /* Grain overlay for professional texture */
+        .grain-overlay {
           position: fixed;
           inset: 0;
           pointer-events: none;
           z-index: 1;
           opacity: 0.5;
-          background-image: var(--grain-texture, none);
           background-size: 200px 200px;
           background-repeat: repeat;
           mix-blend-mode: overlay;
