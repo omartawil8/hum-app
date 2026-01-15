@@ -888,13 +888,10 @@ export default function HumApp() {
     };
   }, []);
 
-  // Scroll bookmarks panel to top when it opens
+  // Scroll bookmarks panel to top when it opens (independent of page scroll)
   useEffect(() => {
     if (showBookmarks && !isClosingBookmarks) {
-      // Reset window scroll first
-      window.scrollTo(0, 0);
-      
-      // Use multiple methods to ensure scroll resets
+      // Use multiple methods to ensure scroll resets only the bookmarks panel
       const scrollToTop = () => {
         if (bookmarksScrollRef.current) {
           bookmarksScrollRef.current.scrollTop = 0;
