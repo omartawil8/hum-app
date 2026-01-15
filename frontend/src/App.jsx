@@ -4291,28 +4291,28 @@ export default function HumApp() {
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-3 relative">
-                            <button
-                              onClick={(e) => toggleSearchBookmark(search, e)}
-                              className="absolute right-full mr-3 top-1/2 -translate-y-1/2 p-2 hover:bg-white/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                              title="Bookmark"
-                            >
-                              <Bookmark 
-                                className={`w-4 h-4 transition-all duration-200 ${bookmarkAnimating ? 'animate-bookmark-pulse' : ''} ${
-                                  savedSongs.some(
-                                    s => s.title === (search.song || search.result?.title) && 
-                                         s.artist === (search.artist || search.result?.artist)
-                                  ) ? 'text-white/60 hover:text-white/80' : 'text-white/40 hover:text-white/60'
-                                }`}
-                                style={
-                                  savedSongs.some(
-                                    s => s.title === (search.song || search.result?.title) && 
-                                         s.artist === (search.artist || search.result?.artist)
-                                  ) ? { fill: '#D8B5FE', color: '#D8B5FE' } : {}
-                                }
-                                strokeWidth={1.5} 
-                              />
-                            </button>
+                          <button
+                            onClick={(e) => toggleSearchBookmark(search, e)}
+                            className="absolute right-20 top-1/2 -translate-y-1/2 p-2 hover:bg-white/10 rounded-lg transition-all opacity-0 group-hover:opacity-100 z-10"
+                            title="Bookmark"
+                          >
+                            <Bookmark 
+                              className={`w-4 h-4 transition-all duration-200 ${bookmarkAnimating ? 'animate-bookmark-pulse' : ''} ${
+                                savedSongs.some(
+                                  s => s.title === (search.song || search.result?.title) && 
+                                       s.artist === (search.artist || search.result?.artist)
+                                ) ? 'text-white/60 hover:text-white/80' : 'text-white/40 hover:text-white/60'
+                              }`}
+                              style={
+                                savedSongs.some(
+                                  s => s.title === (search.song || search.result?.title) && 
+                                       s.artist === (search.artist || search.result?.artist)
+                                ) ? { fill: '#D8B5FE', color: '#D8B5FE' } : {}
+                              }
+                              strokeWidth={1.5} 
+                            />
+                          </button>
+                          <div className="flex items-center gap-3">
                             <span className="text-sm text-white/40">
                             {search.timestamp ? getRelativeTime(search.timestamp) : search.time}
                           </span>
