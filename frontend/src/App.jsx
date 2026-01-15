@@ -69,6 +69,7 @@ export default function HumApp() {
   const [welcomeMessage, setWelcomeMessage] = useState(null);
   const [showWelcome, setShowWelcome] = useState(false);
   const [flashlightPos, setFlashlightPos] = useState({ x: 50, y: 50 });
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [particleOffsets, setParticleOffsets] = useState([
     { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
     { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
@@ -823,6 +824,11 @@ export default function HumApp() {
     }, 60000); // Every minute
     
     return () => clearInterval(interval);
+  }, []);
+
+  // Trigger fade-in animation on page load
+  useEffect(() => {
+    setIsPageLoaded(true);
   }, []);
 
   // Close user dropdown when clicking outside
@@ -1882,7 +1888,7 @@ export default function HumApp() {
   return (
     // OLD BACKGROUND (to revert, replace className below with): bg-gradient-to-b from-[#0A0E27] via-[#141937] to-[#1a1d3a]
     <div
-      className="min-h-screen text-white relative overflow-hidden main-background"
+      className={`min-h-screen text-white relative overflow-hidden main-background ${isPageLoaded ? 'page-fade-in' : 'opacity-0'}`}
       style={{
         // Solid dark background with subtle grey dot grid, no lavender or interaction
         background: '#000000',
@@ -2210,6 +2216,22 @@ export default function HumApp() {
       </div>
       
       <style>{`
+
+        /* Modern fade-in animation for page load */
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .page-fade-in {
+          animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
 
         /* Animated blob keyframes - organic, large movements with subtle fade */
         @keyframes blobFloat1 {
