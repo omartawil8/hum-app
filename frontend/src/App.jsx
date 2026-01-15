@@ -2290,6 +2290,12 @@ export default function HumApp() {
           border-width: 2px !important;
         }
 
+        /* Recent search and bookmark hover lavender border */
+        .recent-search-item:hover,
+        .bookmark-item:hover {
+          border-color: #D8B5FE !important;
+        }
+
         /* Animated blob keyframes - organic, large movements with subtle fade */
         @keyframes blobFloat1 {
           0% {
@@ -3749,7 +3755,13 @@ export default function HumApp() {
                     {savedSongs.map((song, idx) => (
                       <div 
                         key={idx}
-                        className="group relative bg-white/[0.03] backdrop-blur-sm rounded-xl p-3 border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-200 hover:scale-[1.01] cursor-pointer"
+                        onClick={() => {
+                          // Open Spotify URL if available
+                          if (song.spotifyUrl) {
+                            window.open(song.spotifyUrl, '_blank', 'noopener,noreferrer');
+                          }
+                        }}
+                        className="bookmark-item group relative bg-white/[0.03] backdrop-blur-sm rounded-xl p-3 border border-white/[0.06] hover:bg-white/[0.06] transition-all duration-200 hover:scale-[1.01] cursor-pointer"
                       >
                         <div className="flex items-center gap-3">
                           {/* Album Art */}
@@ -4217,7 +4229,14 @@ export default function HumApp() {
                     })().map((search, idx) => (
                         <div 
                           key={idx} 
-                          className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 hover:bg-white/10 transition-all cursor-pointer border border-white/10 flex items-center justify-between"
+                          onClick={() => {
+                            // Open Spotify URL if available
+                            const spotifyUrl = search.spotifyUrl || search.result?.spotifyUrl;
+                            if (spotifyUrl) {
+                              window.open(spotifyUrl, '_blank', 'noopener,noreferrer');
+                            }
+                          }}
+                          className="recent-search-item bg-white/5 backdrop-blur-sm rounded-2xl p-4 hover:bg-white/10 transition-all cursor-pointer border border-white/10 flex items-center justify-between"
                         >
                           <div className="flex items-center gap-4">
                             <div className="w-14 h-14 bg-white/10 rounded-lg overflow-hidden flex-shrink-0">
@@ -4484,11 +4503,16 @@ export default function HumApp() {
                             
                             <div 
                               onClick={() => {
-                                // Open Spotify URL if available
-                                const spotifyUrl = song.spotify?.external_url || song.spotifyUrl;
-                                if (spotifyUrl) {
-                                  window.open(spotifyUrl, '_blank', 'noopener,noreferrer');
-                                }
+                                // Filter out separators when reordering
+                                const realSongs = matchData.filter(s => !s.isSeparator);
+                                const clickedSong = realSongs.find(s => 
+                                  s.title === song.title && s.artist === song.artist
+                                );
+                                const otherSongs = realSongs.filter(s => 
+                                  s.title !== song.title || s.artist !== song.artist
+                                );
+                                const newMatches = [clickedSong, ...otherSongs];
+                                setMatchData(newMatches);
                               }}
                               className={`song-item bg-white/[0.02] backdrop-blur-sm rounded-2xl p-5 hover:bg-white/[0.04] transition-all cursor-pointer border-2 group ${
                                 song.isAlternative ? 'border-green-500/20 bg-green-500/5' : 'border-white/5'
