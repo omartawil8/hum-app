@@ -4293,7 +4293,7 @@ export default function HumApp() {
 
                           <button
                             onClick={(e) => toggleSearchBookmark(search, e)}
-                            className="absolute right-20 top-1/2 -translate-y-1/2 p-2 hover:bg-white/10 rounded-lg transition-all opacity-0 group-hover:opacity-100 z-10"
+                            className="absolute right-20 top-1/2 -translate-y-1/2 p-2 hover:bg-white/10 rounded-full transition-all opacity-0 group-hover:opacity-100 z-10"
                             title="Bookmark"
                           >
                             <Bookmark 
