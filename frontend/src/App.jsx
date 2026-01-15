@@ -71,6 +71,8 @@ export default function HumApp() {
   const [flashlightPos, setFlashlightPos] = useState({ x: 50, y: 50 });
   const [particleOffsets, setParticleOffsets] = useState([
     { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
+    { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
+    { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
     { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }
   ]);
   
@@ -898,7 +900,9 @@ export default function HumApp() {
   useEffect(() => {
     const basePositions = [
       { x: 10, y: 20 }, { x: 85, y: 15 }, { x: 20, y: 70 }, { x: 75, y: 80 },
-      { x: 50, y: 10 }, { x: 15, y: 50 }, { x: 90, y: 60 }, { x: 60, y: 85 }
+      { x: 50, y: 10 }, { x: 15, y: 50 }, { x: 90, y: 60 }, { x: 60, y: 85 },
+      { x: 30, y: 30 }, { x: 70, y: 25 }, { x: 25, y: 80 }, { x: 80, y: 75 },
+      { x: 40, y: 5 }, { x: 5, y: 40 }, { x: 95, y: 50 }, { x: 55, y: 95 }
     ];
 
     const calculateRepulsion = () => {
@@ -1992,6 +1996,94 @@ export default function HumApp() {
         >
           <div className="bg-particle bg-particle-8"></div>
         </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '30%', 
+            top: '30%',
+            transform: `translate(${particleOffsets[8].x}px, ${particleOffsets[8].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-9"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '70%', 
+            top: '25%',
+            transform: `translate(${particleOffsets[9].x}px, ${particleOffsets[9].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-10"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '25%', 
+            top: '80%',
+            transform: `translate(${particleOffsets[10].x}px, ${particleOffsets[10].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-11"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '80%', 
+            top: '75%',
+            transform: `translate(${particleOffsets[11].x}px, ${particleOffsets[11].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-12"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '40%', 
+            top: '5%',
+            transform: `translate(${particleOffsets[12].x}px, ${particleOffsets[12].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-13"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '5%', 
+            top: '40%',
+            transform: `translate(${particleOffsets[13].x}px, ${particleOffsets[13].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-14"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '95%', 
+            top: '50%',
+            transform: `translate(${particleOffsets[14].x}px, ${particleOffsets[14].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-15"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '55%', 
+            top: '95%',
+            transform: `translate(${particleOffsets[15].x}px, ${particleOffsets[15].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-16"></div>
+        </div>
       </div>
       
       <style>{`
@@ -2471,12 +2563,12 @@ export default function HumApp() {
         /* Background floating particles */
         .bg-particle {
           position: absolute;
-          width: 4px;
-          height: 4px;
+          width: 2px;
+          height: 2px;
           border-radius: 9999px;
           background: rgba(216, 181, 254, 0.8);
           filter: blur(0.5px);
-          box-shadow: 0 0 6px rgba(216, 181, 254, 0.6);
+          box-shadow: 0 0 4px rgba(216, 181, 254, 0.6);
           opacity: 0.7;
         }
 
@@ -2488,6 +2580,14 @@ export default function HumApp() {
         .bg-particle-6 { animation: bgParticleFloat6 29s ease-in-out infinite; }
         .bg-particle-7 { animation: bgParticleFloat7 31s ease-in-out infinite; }
         .bg-particle-8 { animation: bgParticleFloat8 26s ease-in-out infinite; }
+        .bg-particle-9 { animation: bgParticleFloat9 33s ease-in-out infinite; }
+        .bg-particle-10 { animation: bgParticleFloat10 24s ease-in-out infinite; }
+        .bg-particle-11 { animation: bgParticleFloat11 35s ease-in-out infinite; }
+        .bg-particle-12 { animation: bgParticleFloat12 22s ease-in-out infinite; }
+        .bg-particle-13 { animation: bgParticleFloat13 28s ease-in-out infinite; }
+        .bg-particle-14 { animation: bgParticleFloat14 30s ease-in-out infinite; }
+        .bg-particle-15 { animation: bgParticleFloat15 26s ease-in-out infinite; }
+        .bg-particle-16 { animation: bgParticleFloat16 29s ease-in-out infinite; }
 
         @keyframes bgParticleFloat1 {
           0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
@@ -2550,6 +2650,70 @@ export default function HumApp() {
           25% { transform: translate(-30px, -50px) scale(1.2); opacity: 0.8; }
           50% { transform: translate(40px, 45px) scale(0.9); opacity: 0.6; }
           75% { transform: translate(-50px, 35px) scale(1.1); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat9 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(35px, -45px) scale(1.2); opacity: 0.8; }
+          50% { transform: translate(-25px, 55px) scale(0.9); opacity: 0.6; }
+          75% { transform: translate(45px, -35px) scale(1.1); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat10 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(-25px, 40px) scale(1.3); opacity: 0.8; }
+          50% { transform: translate(35px, -30px) scale(0.8); opacity: 0.6; }
+          75% { transform: translate(-40px, 50px) scale(1.2); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat11 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(50px, 35px) scale(1.2); opacity: 0.8; }
+          50% { transform: translate(-30px, -40px) scale(0.9); opacity: 0.6; }
+          75% { transform: translate(40px, 45px) scale(1.1); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat12 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(-45px, 30px) scale(1.3); opacity: 0.8; }
+          50% { transform: translate(30px, -50px) scale(0.8); opacity: 0.6; }
+          75% { transform: translate(-35px, 40px) scale(1.2); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat13 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(40px, 50px) scale(1.2); opacity: 0.8; }
+          50% { transform: translate(-35px, -45px) scale(0.9); opacity: 0.6; }
+          75% { transform: translate(45px, 35px) scale(1.1); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat14 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(-50px, 40px) scale(1.3); opacity: 0.8; }
+          50% { transform: translate(35px, -35px) scale(0.8); opacity: 0.6; }
+          75% { transform: translate(-40px, 50px) scale(1.2); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat15 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(30px, -45px) scale(1.2); opacity: 0.8; }
+          50% { transform: translate(-40px, 50px) scale(0.9); opacity: 0.6; }
+          75% { transform: translate(50px, -30px) scale(1.1); opacity: 0.7; }
+          100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bgParticleFloat16 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+          25% { transform: translate(-35px, -40px) scale(1.3); opacity: 0.8; }
+          50% { transform: translate(45px, 35px) scale(0.8); opacity: 0.6; }
+          75% { transform: translate(-30px, -50px) scale(1.2); opacity: 0.7; }
           100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
         }
 
