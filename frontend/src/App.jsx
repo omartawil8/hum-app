@@ -1829,7 +1829,7 @@ export default function HumApp() {
     // OLD BACKGROUND (to revert, replace className below with): bg-gradient-to-b from-[#0A0E27] via-[#141937] to-[#1a1d3a]
     <div className="min-h-screen text-white relative overflow-hidden" style={{ 
       background: 'transparent',
-      backgroundImage: `radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px)`,
+      backgroundImage: `radial-gradient(circle, rgba(216, 181, 254, 0.08) 1px, transparent 1px)`,
       backgroundSize: '32px 32px',
       backgroundPosition: '0 0'
     }}>
