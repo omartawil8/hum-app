@@ -71,7 +71,6 @@ export default function HumApp() {
   const [flashlightPos, setFlashlightPos] = useState({ x: 50, y: 50 });
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [isHoveringInteractive, setIsHoveringInteractive] = useState(false);
-  const [isMouseInViewport, setIsMouseInViewport] = useState(true);
   const cursorRef = useRef(null);
   const [particleOffsets, setParticleOffsets] = useState([
     { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
@@ -870,22 +869,10 @@ export default function HumApp() {
       }
     };
 
-    const handleMouseEnter = () => {
-      setIsMouseInViewport(true);
-    };
-
-    const handleMouseLeave = () => {
-      setIsMouseInViewport(false);
-    };
-
     document.addEventListener('mousemove', handleMouseMove, { passive: true });
-    document.addEventListener('mouseenter', handleMouseEnter, true);
-    document.addEventListener('mouseleave', handleMouseLeave, true);
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseenter', handleMouseEnter, true);
-      document.removeEventListener('mouseleave', handleMouseLeave, true);
     };
   }, []);
 
@@ -1979,8 +1966,7 @@ export default function HumApp() {
           zIndex: 9999,
           transition: 'background-color 0.3s ease, width 0.3s ease, height 0.3s ease',
           mixBlendMode: 'difference',
-          willChange: 'transform',
-          opacity: isMouseInViewport ? 1 : 0
+          willChange: 'transform'
         }}
       />
 
