@@ -3178,62 +3178,65 @@ export default function HumApp() {
           ⚡ Exhaust Searches
         </button>
 
-        {/* Bookmarks Button - Top Left */}
-        <div 
-          className="flex items-center gap-2"
-          style={{
-            position: 'fixed',
-            top: '24px',
-            left: '24px',
-            zIndex: 9999
-          }}
-        >
-          {/* Cancel Button - Only show while listening, before API call */}
-          {isListening && !isProcessing && (
-            <div className="flex flex-col items-center gap-2 group">
-        <button
-                onClick={cancelListening}
-                className="flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all relative"
-              >
-                <X className="w-5 h-5" strokeWidth={1.5} style={{ color: '#D8B5FE' }} />
-              </button>
-              <span className="text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" style={{ color: '#D8B5FE' }}>
-                cancel
-            </span>
-            </div>
-          )}
-          
-          {/* Bookmarks Button - Hide during listening */}
-          {!(isListening && !isProcessing) && (
-            <button
-              onClick={() => setShowBookmarks(!showBookmarks)}
-              className="flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all group"
-            >
-              <Bookmark 
-                className={`w-5 h-5 transition-all duration-200 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse fill-purple-400/90 text-purple-400' : ''}`} 
-                strokeWidth={1.5}
-              />
-        </button>
-          )}
-          
-          {/* Return Home Bird Button - Only show when results are displayed */}
-          {hasResult && matchData && (
-            <button 
-              onClick={handleResetApp}
-              className="group flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 hover:border-[#D8B5FE]/40 transition-all duration-200 cursor-pointer relative"
-            >
-              <img 
-                src={hummingBirdIcon} 
-                alt="Home" 
-                className="w-5 h-5 object-contain"
-              />
-              {/* Tooltip on hover */}
-              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                <span className="text-xs font-medium" style={{ color: '#D8B5FE' }}>back to home</span>
+        {/* Bookmarks Button - Top Left - Rendered via portal for true fixed positioning */}
+        {createPortal(
+          <div 
+            className="flex items-center gap-2"
+            style={{
+              position: 'fixed',
+              top: '24px',
+              left: '24px',
+              zIndex: 9999
+            }}
+          >
+            {/* Cancel Button - Only show while listening, before API call */}
+            {isListening && !isProcessing && (
+              <div className="flex flex-col items-center gap-2 group">
+                <button
+                  onClick={cancelListening}
+                  className="flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all relative"
+                >
+                  <X className="w-5 h-5" strokeWidth={1.5} style={{ color: '#D8B5FE' }} />
+                </button>
+                <span className="text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" style={{ color: '#D8B5FE' }}>
+                  cancel
+                </span>
               </div>
-            </button>
-          )}
-        </div>
+            )}
+            
+            {/* Bookmarks Button - Hide during listening */}
+            {!(isListening && !isProcessing) && (
+              <button
+                onClick={() => setShowBookmarks(!showBookmarks)}
+                className="flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all group"
+              >
+                <Bookmark 
+                  className={`w-5 h-5 transition-all duration-200 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse fill-purple-400/90 text-purple-400' : ''}`} 
+                  strokeWidth={1.5}
+                />
+              </button>
+            )}
+            
+            {/* Return Home Bird Button - Only show when results are displayed */}
+            {hasResult && matchData && (
+              <button 
+                onClick={handleResetApp}
+                className="group flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 hover:border-[#D8B5FE]/40 transition-all duration-200 cursor-pointer relative"
+              >
+                <img 
+                  src={hummingBirdIcon} 
+                  alt="Home" 
+                  className="w-5 h-5 object-contain"
+                />
+                {/* Tooltip on hover */}
+                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                  <span className="text-xs font-medium" style={{ color: '#D8B5FE' }}>back to home</span>
+                </div>
+              </button>
+            )}
+          </div>,
+          document.body
+        )}
 
         {/* Top Right - User Account & Help Button */}
         <div className="fixed top-6 right-6 z-40 flex items-center gap-2">
