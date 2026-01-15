@@ -1795,6 +1795,51 @@ export default function HumApp() {
     }
   };
 
+  const toggleSearchBookmark = (search, e) => {
+    e.stopPropagation(); // Prevent opening Spotify
+    
+    const songTitle = search.song || search.result?.title;
+    const songArtist = search.artist || search.result?.artist;
+    
+    if (!songTitle || !songArtist) return;
+    
+    // Check if already bookmarked
+    const isBookmarked = savedSongs.some(
+      s => s.title === songTitle && s.artist === songArtist
+    );
+    
+    let newSavedSongs;
+    if (isBookmarked) {
+      // Unbookmark
+      newSavedSongs = savedSongs.filter(
+        s => !(s.title === songTitle && s.artist === songArtist)
+      );
+    } else {
+      // Bookmark - trigger animation
+      setBookmarkAnimating(true);
+      setTimeout(() => setBookmarkAnimating(false), 400);
+      
+      const songData = {
+        title: songTitle,
+        artist: songArtist,
+        album: search.album || search.result?.album || null,
+        albumArt: search.albumArt || search.result?.albumArt || null,
+        spotifyUrl: search.spotifyUrl || search.result?.spotifyUrl || null,
+        timestamp: new Date().toISOString()
+      };
+      
+      newSavedSongs = [songData, ...savedSongs];
+    }
+    
+    setSavedSongs(newSavedSongs);
+    // Save to API if logged in, otherwise localStorage
+    if (user) {
+      saveBookmarksToAPI(newSavedSongs);
+    } else {
+      localStorage.setItem('hum-saved-songs', JSON.stringify(newSavedSongs));
+    }
+  };
+
   const resetApp = () => {
     setHasResult(false);
     setMatchData(null);
@@ -4246,9 +4291,32 @@ export default function HumApp() {
                             </div>
                           </div>
 
-                          <span className="text-sm text-white/40 ml-4">
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={(e) => toggleSearchBookmark(search, e)}
+                              className="p-2 hover:bg-white/10 rounded-lg transition-all group"
+                              title="Bookmark"
+                            >
+                              <Bookmark 
+                                className={`w-4 h-4 transition-all duration-200 ${bookmarkAnimating ? 'animate-bookmark-pulse' : ''} ${
+                                  savedSongs.some(
+                                    s => s.title === (search.song || search.result?.title) && 
+                                         s.artist === (search.artist || search.result?.artist)
+                                  ) ? 'text-white/60 group-hover:text-white/80' : 'text-white/40 group-hover:text-white/60'
+                                }`}
+                                style={
+                                  savedSongs.some(
+                                    s => s.title === (search.song || search.result?.title) && 
+                                         s.artist === (search.artist || search.result?.artist)
+                                  ) ? { fill: '#D8B5FE', color: '#D8B5FE' } : {}
+                                }
+                                strokeWidth={1.5} 
+                              />
+                            </button>
+                            <span className="text-sm text-white/40">
                             {search.timestamp ? getRelativeTime(search.timestamp) : search.time}
                           </span>
+                          </div>
                         </div>
                       ))}
                   </div>
