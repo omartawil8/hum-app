@@ -1885,7 +1885,7 @@ export default function HumApp() {
       style={{
         // Solid dark background with subtle grey dot grid, no lavender or interaction
         background: '#000000',
-        backgroundImage: `radial-gradient(circle, rgba(148, 163, 184, 0.146) 1px, transparent 1px)`,
+        backgroundImage: `radial-gradient(circle, rgba(148, 163, 184, 0) 1px, transparent 1px)`,
         backgroundSize: '32px 32px',
         backgroundPosition: '0 0',
         backgroundAttachment: 'fixed'
