@@ -890,10 +890,31 @@ export default function HumApp() {
 
   // Scroll bookmarks panel to top when it opens
   useEffect(() => {
-    if (showBookmarks && bookmarksScrollRef.current) {
-      bookmarksScrollRef.current.scrollTop = 0;
+    if (showBookmarks && !isClosingBookmarks) {
+      // Reset window scroll first
+      window.scrollTo(0, 0);
+      
+      // Use multiple methods to ensure scroll resets
+      const scrollToTop = () => {
+        if (bookmarksScrollRef.current) {
+          bookmarksScrollRef.current.scrollTop = 0;
+          bookmarksScrollRef.current.scrollTo({ top: 0, behavior: 'instant' });
+        }
+      };
+      
+      // Try immediately
+      scrollToTop();
+      
+      // Try after animation frame
+      requestAnimationFrame(() => {
+        requestAnimationFrame(scrollToTop);
+      });
+      
+      // Try after a small delay as fallback
+      setTimeout(scrollToTop, 50);
+      setTimeout(scrollToTop, 200);
     }
-  }, [showBookmarks]);
+  }, [showBookmarks, isClosingBookmarks]);
 
   // Close user dropdown when clicking outside
   useEffect(() => {
