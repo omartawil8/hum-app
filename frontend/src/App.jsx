@@ -1216,7 +1216,7 @@ export default function HumApp() {
         mediaRecorder._dataInterval = dataInterval;
       } else {
         // For other platforms, use timeslice
-        mediaRecorder.start(100);
+      mediaRecorder.start(100);
       }
       
       // Track recording start time (for UI + backend safety)
@@ -1829,7 +1829,7 @@ export default function HumApp() {
     // OLD BACKGROUND (to revert, replace className below with): bg-gradient-to-b from-[#0A0E27] via-[#141937] to-[#1a1d3a]
     <div className="min-h-screen text-white relative overflow-hidden" style={{ 
       background: 'transparent',
-      backgroundImage: `radial-gradient(circle, rgba(216, 181, 254, 0.08) 1px, transparent 1px)`,
+      backgroundImage: `radial-gradient(circle, rgba(216, 181, 254, 0.25) 1px, transparent 1px)`,
       backgroundSize: '32px 32px',
       backgroundPosition: '0 0'
     }}>
@@ -3525,12 +3525,12 @@ export default function HumApp() {
             )}
 
             {/* Global error banner - always show at top of content */}
-            {error && (
+                {error && (
               <div className="mb-6">
                 <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                  <p className="text-red-200">{error}</p>
-                </div>
+                    <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+                    <p className="text-red-200">{error}</p>
+                  </div>
               </div>
             )}
 
