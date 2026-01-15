@@ -2299,6 +2299,40 @@ export default function HumApp() {
           background-clip: padding-box;
         }
 
+        /* Homescreen bird button inner particles */
+        .bird-particles {
+          position: absolute;
+          inset: 18%;
+          border-radius: 9999px;
+          overflow: hidden;
+          pointer-events: none;
+        }
+
+        .bird-particle {
+          position: absolute;
+          width: 6px;
+          height: 6px;
+          border-radius: 9999px;
+          background: rgba(216, 181, 254, 0.9);
+          filter: blur(0.5px);
+          opacity: 0;
+          animation: birdParticleFloat 7s ease-in-out infinite;
+        }
+
+        .bird-particle:nth-child(1) { top: 22%; left: 32%; animation-delay: 0s; }
+        .bird-particle:nth-child(2) { top: 35%; left: 62%; animation-delay: 1.1s; }
+        .bird-particle:nth-child(3) { top: 55%; left: 44%; animation-delay: 2.4s; }
+        .bird-particle:nth-child(4) { top: 68%; left: 70%; animation-delay: 3.7s; }
+        .bird-particle:nth-child(5) { top: 48%; left: 20%; animation-delay: 4.8s; }
+
+        @keyframes birdParticleFloat {
+          0%   { transform: translate3d(-6px, 6px, 0); opacity: 0; }
+          15%  { opacity: 0.9; }
+          50%  { transform: translate3d(10px, -10px, 0); opacity: 0.7; }
+          80%  { opacity: 0; }
+          100% { transform: translate3d(14px, 8px, 0); opacity: 0; }
+        }
+
         /* Text selection highlight - lavender color */
         ::selection {
           background-color: #D8B5FE;
@@ -3387,6 +3421,16 @@ export default function HumApp() {
                           animation: 'rotateShimmer 21.5s linear infinite, shimmerOpacity 21.5s ease-in-out infinite'
                         }}
                       />
+                    )}
+                    {/* Inner floating particles - only when hovered/nearby */}
+                    {birdButtonProximity > 0 && (
+                      <div className="bird-particles">
+                        <div className="bird-particle" />
+                        <div className="bird-particle" />
+                        <div className="bird-particle" />
+                        <div className="bird-particle" />
+                        <div className="bird-particle" />
+                      </div>
                     )}
                     <img 
                       src={hummingBirdIcon} 
