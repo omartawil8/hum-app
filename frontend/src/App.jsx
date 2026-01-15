@@ -3179,7 +3179,7 @@ export default function HumApp() {
         </button>
 
         {/* Bookmarks Button - Top Left */}
-        <div className="fixed top-6 left-6 z-40 flex items-center gap-2">
+        <div className="fixed top-6 left-6 z-50 flex items-center gap-2">
           {/* Cancel Button - Only show while listening, before API call */}
           {isListening && !isProcessing && (
             <div className="flex flex-col items-center gap-2 group">
