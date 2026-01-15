@@ -1833,7 +1833,7 @@ export default function HumApp() {
       style={{
         // Solid dark background with subtle grey dot grid, no lavender or interaction
         background: '#000000',
-        backgroundImage: `radial-gradient(circle, rgba(148, 163, 184, 0.162) 1px, transparent 1px)`,
+        backgroundImage: `radial-gradient(circle, rgba(148, 163, 184, 0.146) 1px, transparent 1px)`,
         backgroundSize: '32px 32px',
         backgroundPosition: '0 0',
         backgroundAttachment: 'fixed'
@@ -1850,9 +1850,10 @@ export default function HumApp() {
         className="pointer-events-none fixed inset-0 -z-10"
         style={{
           backgroundImage:
-            'radial-gradient(circle, rgba(216, 181, 254, 0.5) 1px, transparent 1px)',
+            'radial-gradient(circle, rgba(216, 181, 254, 0.7) 1px, transparent 1px)',
           backgroundSize: '32px 32px',
           backgroundPosition: '0 0',
+          backgroundAttachment: 'fixed',
           WebkitMaskImage: `radial-gradient(circle at ${flashlightPos.x}% ${flashlightPos.y}%, rgba(0,0,0,1) 0, rgba(0,0,0,0) 260px)`,
           maskImage: `radial-gradient(circle at ${flashlightPos.x}% ${flashlightPos.y}%, rgba(0,0,0,1) 0, rgba(0,0,0,0) 260px)`,
           transition: 'WebkitMask-image 0.15s ease-out, mask-image 0.15s ease-out'
