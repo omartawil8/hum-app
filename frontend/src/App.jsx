@@ -2287,7 +2287,6 @@ export default function HumApp() {
         /* Song hover lavender border */
         .song-item:hover {
           border-color: #D8B5FE !important;
-          border-width: 2px !important;
         }
 
         /* Recent search and bookmark hover lavender border */
@@ -3787,18 +3786,6 @@ export default function HumApp() {
 
                           {/* Actions */}
                           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            {song.spotifyUrl && (
-                              <a
-                                href={song.spotifyUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}
-                                className="p-1.5 hover:bg-white/10 rounded-lg transition-all hover:scale-110"
-                                title="Open in Spotify"
-                              >
-                                <Music className="w-4 h-4 text-white/60" strokeWidth={1.5} />
-                              </a>
-                            )}
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -4514,7 +4501,7 @@ export default function HumApp() {
                                 const newMatches = [clickedSong, ...otherSongs];
                                 setMatchData(newMatches);
                               }}
-                              className={`song-item bg-white/[0.02] backdrop-blur-sm rounded-2xl p-5 hover:bg-white/[0.04] transition-all cursor-pointer border-2 group ${
+                              className={`song-item bg-white/[0.02] backdrop-blur-sm rounded-2xl p-5 hover:bg-white/[0.04] transition-all cursor-pointer border group ${
                                 song.isAlternative ? 'border-green-500/20 bg-green-500/5' : 'border-white/5'
                               }`}
                             >
