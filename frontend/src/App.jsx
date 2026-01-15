@@ -2349,23 +2349,23 @@ export default function HumApp() {
         /* Background floating particles */
         .bg-particle {
           position: absolute;
-          width: 10px;
-          height: 10px;
+          width: 6px;
+          height: 6px;
           border-radius: 9999px;
           background: rgba(216, 181, 254, 0.8);
           filter: blur(0.5px);
-          box-shadow: 0 0 12px rgba(216, 181, 254, 0.6);
+          box-shadow: 0 0 8px rgba(216, 181, 254, 0.6);
           opacity: 0.7;
         }
 
-        .bg-particle-1 { animation: bgParticleFloat1 25s ease-in-out infinite; animation-delay: 0s; }
-        .bg-particle-2 { animation: bgParticleFloat2 30s ease-in-out infinite; animation-delay: 3s; }
-        .bg-particle-3 { animation: bgParticleFloat3 28s ease-in-out infinite; animation-delay: 6s; }
-        .bg-particle-4 { animation: bgParticleFloat4 32s ease-in-out infinite; animation-delay: 9s; }
-        .bg-particle-5 { animation: bgParticleFloat5 27s ease-in-out infinite; animation-delay: 12s; }
-        .bg-particle-6 { animation: bgParticleFloat6 29s ease-in-out infinite; animation-delay: 15s; }
-        .bg-particle-7 { animation: bgParticleFloat7 31s ease-in-out infinite; animation-delay: 18s; }
-        .bg-particle-8 { animation: bgParticleFloat8 26s ease-in-out infinite; animation-delay: 21s; }
+        .bg-particle-1 { animation: bgParticleFloat1 25s ease-in-out infinite; }
+        .bg-particle-2 { animation: bgParticleFloat2 30s ease-in-out infinite; }
+        .bg-particle-3 { animation: bgParticleFloat3 28s ease-in-out infinite; }
+        .bg-particle-4 { animation: bgParticleFloat4 32s ease-in-out infinite; }
+        .bg-particle-5 { animation: bgParticleFloat5 27s ease-in-out infinite; }
+        .bg-particle-6 { animation: bgParticleFloat6 29s ease-in-out infinite; }
+        .bg-particle-7 { animation: bgParticleFloat7 31s ease-in-out infinite; }
+        .bg-particle-8 { animation: bgParticleFloat8 26s ease-in-out infinite; }
 
         @keyframes bgParticleFloat1 {
           0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
