@@ -4478,19 +4478,14 @@ export default function HumApp() {
                             
                             <div 
                               onClick={() => {
-                                // Filter out separators when reordering
-                                const realSongs = matchData.filter(s => !s.isSeparator);
-                                const clickedSong = realSongs.find(s => 
-                                  s.title === song.title && s.artist === song.artist
-                                );
-                                const otherSongs = realSongs.filter(s => 
-                                  s.title !== song.title || s.artist !== song.artist
-                                );
-                                const newMatches = [clickedSong, ...otherSongs];
-                                setMatchData(newMatches);
+                                // Open Spotify URL if available
+                                const spotifyUrl = song.spotify?.external_url || song.spotifyUrl;
+                                if (spotifyUrl) {
+                                  window.open(spotifyUrl, '_blank', 'noopener,noreferrer');
+                                }
                               }}
                               className={`bg-white/[0.02] backdrop-blur-sm rounded-2xl p-5 hover:bg-white/[0.04] transition-all cursor-pointer border group ${
-                                song.isAlternative ? 'border-green-500/20 bg-green-500/5' : 'border-white/5'
+                                song.isAlternative ? 'border-green-500/20 bg-green-500/5 hover:border-[#D8B5FE]' : 'border-white/5 hover:border-[#D8B5FE]'
                               }`}
                             >
                               <div className="flex items-center justify-between">
