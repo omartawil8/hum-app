@@ -69,6 +69,10 @@ export default function HumApp() {
   const [welcomeMessage, setWelcomeMessage] = useState(null);
   const [showWelcome, setShowWelcome] = useState(false);
   const [flashlightPos, setFlashlightPos] = useState({ x: 50, y: 50 });
+  const [particleOffsets, setParticleOffsets] = useState([
+    { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
+    { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }
+  ]);
   
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -889,6 +893,44 @@ export default function HumApp() {
       }
     };
   }, []);
+
+  // Calculate particle repulsion from cursor
+  useEffect(() => {
+    const basePositions = [
+      { x: 10, y: 20 }, { x: 85, y: 15 }, { x: 20, y: 70 }, { x: 75, y: 80 },
+      { x: 50, y: 10 }, { x: 15, y: 50 }, { x: 90, y: 60 }, { x: 60, y: 85 }
+    ];
+
+    const calculateRepulsion = () => {
+      const newOffsets = basePositions.map((basePos) => {
+        const dx = flashlightPos.x - basePos.x;
+        const dy = flashlightPos.y - basePos.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // Repulsion radius - particles within 15% distance get repelled
+        const repulsionRadius = 15;
+        const maxRepulsion = 8; // Maximum pixels to push away
+        
+        if (distance < repulsionRadius && distance > 0) {
+          // Calculate repulsion force (stronger when closer)
+          const force = (1 - distance / repulsionRadius) * maxRepulsion;
+          const angle = Math.atan2(dy, dx);
+          
+          // Push away from cursor
+          return {
+            x: -Math.cos(angle) * force,
+            y: -Math.sin(angle) * force
+          };
+        }
+        
+        return { x: 0, y: 0 };
+      });
+      
+      setParticleOffsets(newOffsets);
+    };
+
+    calculateRepulsion();
+  }, [flashlightPos]);
 
   // Function to process results and replace covers/remixes with originals
   const processResultsForOriginals = async (songs) => {
@@ -1862,14 +1904,94 @@ export default function HumApp() {
       
       {/* Floating background particles */}
       <div className="pointer-events-none fixed inset-0" style={{ zIndex: 1 }}>
-        <div className="bg-particle bg-particle-1" style={{ left: '10%', top: '20%' }}></div>
-        <div className="bg-particle bg-particle-2" style={{ left: '85%', top: '15%' }}></div>
-        <div className="bg-particle bg-particle-3" style={{ left: '20%', top: '70%' }}></div>
-        <div className="bg-particle bg-particle-4" style={{ left: '75%', top: '80%' }}></div>
-        <div className="bg-particle bg-particle-5" style={{ left: '50%', top: '10%' }}></div>
-        <div className="bg-particle bg-particle-6" style={{ left: '15%', top: '50%' }}></div>
-        <div className="bg-particle bg-particle-7" style={{ left: '90%', top: '60%' }}></div>
-        <div className="bg-particle bg-particle-8" style={{ left: '60%', top: '85%' }}></div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '10%', 
+            top: '20%',
+            transform: `translate(${particleOffsets[0].x}px, ${particleOffsets[0].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-1"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '85%', 
+            top: '15%',
+            transform: `translate(${particleOffsets[1].x}px, ${particleOffsets[1].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-2"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '20%', 
+            top: '70%',
+            transform: `translate(${particleOffsets[2].x}px, ${particleOffsets[2].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-3"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '75%', 
+            top: '80%',
+            transform: `translate(${particleOffsets[3].x}px, ${particleOffsets[3].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-4"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '50%', 
+            top: '10%',
+            transform: `translate(${particleOffsets[4].x}px, ${particleOffsets[4].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-5"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '15%', 
+            top: '50%',
+            transform: `translate(${particleOffsets[5].x}px, ${particleOffsets[5].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-6"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '90%', 
+            top: '60%',
+            transform: `translate(${particleOffsets[6].x}px, ${particleOffsets[6].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-7"></div>
+        </div>
+        <div 
+          style={{ 
+            position: 'absolute',
+            left: '60%', 
+            top: '85%',
+            transform: `translate(${particleOffsets[7].x}px, ${particleOffsets[7].y}px)`,
+            transition: 'transform 0.2s ease-out'
+          }}
+        >
+          <div className="bg-particle bg-particle-8"></div>
+        </div>
       </div>
       
       <style>{`
