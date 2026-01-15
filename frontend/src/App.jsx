@@ -85,6 +85,7 @@ export default function HumApp() {
   
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
+  const bookmarksScrollRef = useRef(null);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const userDropdownRef = useRef(null);
   const [showEmojiDropdown, setShowEmojiDropdown] = useState(false);
@@ -886,6 +887,13 @@ export default function HumApp() {
       document.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
+
+  // Scroll bookmarks panel to top when it opens
+  useEffect(() => {
+    if (showBookmarks && bookmarksScrollRef.current) {
+      bookmarksScrollRef.current.scrollTop = 0;
+    }
+  }, [showBookmarks]);
 
   // Close user dropdown when clicking outside
   useEffect(() => {
@@ -3192,7 +3200,7 @@ export default function HumApp() {
             {/* Cancel Button - Only show while listening, before API call */}
             {isListening && !isProcessing && (
               <div className="flex flex-col items-center gap-2 group">
-                <button
+        <button
                   onClick={cancelListening}
                   className="flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all relative"
                 >
@@ -3200,7 +3208,7 @@ export default function HumApp() {
                 </button>
                 <span className="text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" style={{ color: '#D8B5FE' }}>
                   cancel
-                </span>
+            </span>
               </div>
             )}
             
@@ -3214,7 +3222,7 @@ export default function HumApp() {
                   className={`w-5 h-5 transition-all duration-200 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse fill-purple-400/90 text-purple-400' : ''}`} 
                   strokeWidth={1.5}
                 />
-              </button>
+        </button>
             )}
             
             {/* Return Home Bird Button - Only show when results are displayed */}
@@ -3794,7 +3802,7 @@ export default function HumApp() {
               </div>
 
               {/* Bookmarks List */}
-              <div className="flex-1 overflow-y-auto p-5">
+              <div ref={bookmarksScrollRef} className="flex-1 overflow-y-auto p-5">
                 {savedSongs.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center px-8">
                     <div className="w-24 h-24 rounded-full bg-white/5 backdrop-blur-sm flex items-center justify-center mb-5">
