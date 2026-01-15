@@ -835,14 +835,9 @@ export default function HumApp() {
 
   // Custom cursor tracking and interactive element detection
   useEffect(() => {
-    let mouseX = 0;
-    let mouseY = 0;
-    let currentX = 0;
-    let currentY = 0;
-
     const handleMouseMove = (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
+      // Direct 1:1 mapping to cursor position
+      setCursorPos({ x: e.clientX, y: e.clientY });
       
       // Check if hovering over interactive element
       const target = e.target;
@@ -858,20 +853,10 @@ export default function HumApp() {
       setIsHoveringInteractive(isInteractive);
     };
 
-    const animateCursor = () => {
-      // Smooth interpolation for cursor position
-      currentX += (mouseX - currentX) * 0.15;
-      currentY += (mouseY - currentY) * 0.15;
-      setCursorPos({ x: currentX, y: currentY });
-      requestAnimationFrame(animateCursor);
-    };
-
     document.addEventListener('mousemove', handleMouseMove);
-    const animationId = requestAnimationFrame(animateCursor);
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
-      cancelAnimationFrame(animationId);
     };
   }, []);
 
@@ -1963,7 +1948,8 @@ export default function HumApp() {
           transform: 'translate(-50%, -50%)',
           zIndex: 9999,
           transition: 'background-color 0.3s ease, width 0.3s ease, height 0.3s ease',
-          mixBlendMode: 'difference'
+          mixBlendMode: 'difference',
+          willChange: 'left, top'
         }}
       />
 
