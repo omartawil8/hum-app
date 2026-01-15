@@ -1829,7 +1829,8 @@ export default function HumApp() {
     // OLD BACKGROUND (to revert, replace className below with): bg-gradient-to-b from-[#0A0E27] via-[#141937] to-[#1a1d3a]
     <div className="min-h-screen text-white relative overflow-hidden" style={{ 
       background: 'transparent',
-      backgroundImage: `radial-gradient(circle, rgba(216, 181, 254, 0.25) 1px, transparent 1px)`,
+      // Base dot grid: low-opacity grey dots
+      backgroundImage: `radial-gradient(circle, rgba(148, 163, 184, 0.16) 1px, transparent 1px)`,
       backgroundSize: '32px 32px',
       backgroundPosition: '0 0',
       backgroundAttachment: 'fixed'
@@ -1918,55 +1919,55 @@ export default function HumApp() {
           }
         }
 
-        /* Twinkling starfield layer */
+        /* Twinkling starfield layer - tints patches of dots lavender */
         .starfield {
           position: fixed;
           inset: 0;
           pointer-events: none;
           z-index: -1;
           background-image:
-            radial-gradient(circle at 10% 15%, rgba(216, 181, 254, 1) 0, rgba(216, 181, 254, 0) 3px),
-            radial-gradient(circle at 80% 25%, rgba(216, 181, 254, 0.9) 0, rgba(216, 181, 254, 0) 3px),
-            radial-gradient(circle at 30% 70%, rgba(216, 181, 254, 1) 0, rgba(216, 181, 254, 0) 3px),
-            radial-gradient(circle at 65% 80%, rgba(216, 181, 254, 0.95) 0, rgba(216, 181, 254, 0) 3px),
-            radial-gradient(circle at 50% 40%, rgba(216, 181, 254, 0.9) 0, rgba(216, 181, 254, 0) 3px),
-            radial-gradient(circle at 20% 50%, rgba(216, 181, 254, 0.95) 0, rgba(216, 181, 254, 0) 3px);
+            radial-gradient(circle at 8% 18%, rgba(216, 181, 254, 0.9) 0, rgba(216, 181, 254, 0) 24px),
+            radial-gradient(circle at 82% 22%, rgba(216, 181, 254, 0.85) 0, rgba(216, 181, 254, 0) 22px),
+            radial-gradient(circle at 28% 68%, rgba(216, 181, 254, 0.9) 0, rgba(216, 181, 254, 0) 26px),
+            radial-gradient(circle at 68% 78%, rgba(216, 181, 254, 0.9) 0, rgba(216, 181, 254, 0) 24px),
+            radial-gradient(circle at 50% 42%, rgba(216, 181, 254, 0.85) 0, rgba(216, 181, 254, 0) 22px),
+            radial-gradient(circle at 18% 52%, rgba(216, 181, 254, 0.9) 0, rgba(216, 181, 254, 0) 24px);
           background-repeat: no-repeat;
-          animation: starTwinkle 12s ease-in-out infinite;
-          opacity: 0.2;
+          animation: starTwinkle 18s ease-in-out infinite;
+          opacity: 0.0;
         }
 
         @keyframes starTwinkle {
           0% {
-            opacity: 0.3;
+            opacity: 0;
             background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
           }
           10% {
-            opacity: 1;
+            opacity: 0.85;
           }
           20% {
-            opacity: 0.4;
+            opacity: 0.2;
             background-position: 5% 5%, -3% 4%, 2% -4%, -4% -3%, 3% 2%, -5% 1%;
           }
           30% {
-            opacity: 0.9;
+            opacity: 0.75;
           }
           40% {
-            opacity: 0.35;
+            opacity: 0.15;
             background-position: -4% -2%, 4% -3%, -3% 5%, 5% -4%, -2% 3%, 4% 2%;
           }
           55% {
-            opacity: 0.95;
+            opacity: 0.85;
           }
           70% {
-            opacity: 0.4;
+            opacity: 0.2;
             background-position: 3% -4%, -5% 2%, 4% 3%, -2% -5%, 5% -1%, -3% 4%;
           }
           85% {
-            opacity: 1;
+            opacity: 0.9;
           }
           100% {
-            opacity: 0.3;
+            opacity: 0;
             background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
           }
         }
