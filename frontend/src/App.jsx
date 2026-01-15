@@ -70,8 +70,8 @@ export default function HumApp() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [flashlightPos, setFlashlightPos] = useState({ x: 50, y: 50 });
   const [isPageLoaded, setIsPageLoaded] = useState(false);
-  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [isHoveringInteractive, setIsHoveringInteractive] = useState(false);
+  const cursorRef = useRef(null);
   const [particleOffsets, setParticleOffsets] = useState([
     { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
     { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
@@ -835,11 +835,26 @@ export default function HumApp() {
 
   // Custom cursor tracking and interactive element detection
   useEffect(() => {
+    let rafId = null;
+    let needsUpdate = false;
+    let mouseX = 0;
+    let mouseY = 0;
+    let currentIsInteractive = false;
+
+    const updateCursor = () => {
+      if (cursorRef.current && needsUpdate) {
+        cursorRef.current.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
+        needsUpdate = false;
+      }
+      rafId = null;
+    };
+
     const handleMouseMove = (e) => {
-      // Direct 1:1 mapping to cursor position
-      setCursorPos({ x: e.clientX, y: e.clientY });
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      needsUpdate = true;
       
-      // Check if hovering over interactive element
+      // Check if hovering over interactive element (only update state if changed)
       const target = e.target;
       const isInteractive = 
         target.tagName === 'BUTTON' ||
@@ -850,13 +865,24 @@ export default function HumApp() {
         target.closest('[onClick]') ||
         window.getComputedStyle(target).cursor === 'pointer';
       
-      setIsHoveringInteractive(isInteractive);
+      if (isInteractive !== currentIsInteractive) {
+        currentIsInteractive = isInteractive;
+        setIsHoveringInteractive(isInteractive);
+      }
+
+      // Schedule update on next frame if not already scheduled
+      if (!rafId) {
+        rafId = requestAnimationFrame(updateCursor);
+      }
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
     };
   }, []);
 
@@ -1935,11 +1961,12 @@ export default function HumApp() {
     >
       {/* Custom cursor */}
       <div
+        ref={cursorRef}
         className="custom-cursor"
         style={{
           position: 'fixed',
-          left: `${cursorPos.x}px`,
-          top: `${cursorPos.y}px`,
+          left: 0,
+          top: 0,
           width: isHoveringInteractive ? '30px' : '20px',
           height: isHoveringInteractive ? '30px' : '20px',
           borderRadius: '50%',
@@ -1949,7 +1976,7 @@ export default function HumApp() {
           zIndex: 9999,
           transition: 'background-color 0.3s ease, width 0.3s ease, height 0.3s ease',
           mixBlendMode: 'difference',
-          willChange: 'left, top'
+          willChange: 'transform'
         }}
       />
 
