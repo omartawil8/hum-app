@@ -73,7 +73,7 @@ export default function HumApp() {
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [isHoveringInteractive, setIsHoveringInteractive] = useState(false);
   const [showTopBar, setShowTopBar] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollYRef = useRef(0);
   const cursorRef = useRef(null);
   const [particleOffsets, setParticleOffsets] = useState([
     { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
@@ -917,26 +917,30 @@ export default function HumApp() {
 
   // Hide/show top bar based on scroll direction
   useEffect(() => {
+    // Initialize scroll position
+    lastScrollYRef.current = window.scrollY;
+    
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+      const lastScrollY = lastScrollYRef.current;
       
       // Show at top of page
       if (currentScrollY < 10) {
         setShowTopBar(true);
-      } else if (currentScrollY > lastScrollY) {
-        // Scrolling down - hide
+      } else if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        // Scrolling down - hide (only after scrolling past 50px)
         setShowTopBar(false);
       } else if (currentScrollY < lastScrollY) {
         // Scrolling up - show
         setShowTopBar(true);
       }
       
-      setLastScrollY(currentScrollY);
+      lastScrollYRef.current = currentScrollY;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
   // Close user dropdown when clicking outside
   useEffect(() => {
