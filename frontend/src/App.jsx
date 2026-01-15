@@ -1831,7 +1831,8 @@ export default function HumApp() {
       background: 'transparent',
       backgroundImage: `radial-gradient(circle, rgba(216, 181, 254, 0.25) 1px, transparent 1px)`,
       backgroundSize: '32px 32px',
-      backgroundPosition: '0 0'
+      backgroundPosition: '0 0',
+      backgroundAttachment: 'fixed'
     }}>
       <style>{`
 
