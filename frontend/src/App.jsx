@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, ChevronRight, LogOut, User, Eye, EyeOff, ArrowLeft, ArrowRight } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
@@ -848,11 +849,16 @@ export default function HumApp() {
     };
 
     const handleMouseMove = (e) => {
+      // Use clientX/clientY which are viewport coordinates - perfect for position: fixed
       mouseX = e.clientX;
       mouseY = e.clientY;
       
       // Update cursor position immediately for 1:1 tracking
-      updateCursorPosition(mouseX, mouseY);
+      // No need for scroll handler - position: fixed handles viewport positioning automatically
+      if (cursorRef.current) {
+        cursorRef.current.style.left = `${mouseX}px`;
+        cursorRef.current.style.top = `${mouseY}px`;
+      }
       
       // Check if hovering over interactive element (only update state if changed)
       const target = e.target;
@@ -871,17 +877,10 @@ export default function HumApp() {
       }
     };
 
-    // Re-apply cursor position on scroll to ensure it stays in sync
-    const handleScroll = () => {
-      updateCursorPosition(mouseX, mouseY);
-    };
-
     document.addEventListener('mousemove', handleMouseMove, { passive: true });
-    window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
@@ -1958,27 +1957,6 @@ export default function HumApp() {
         setFlashlightPos({ x, y });
       }}
     >
-      {/* Custom cursor */}
-      <div
-        ref={cursorRef}
-        className="custom-cursor"
-        style={{
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          width: isHoveringInteractive ? '30px' : '20px',
-          height: isHoveringInteractive ? '30px' : '20px',
-          borderRadius: '50%',
-          backgroundColor: isHoveringInteractive ? '#D8B5FE' : '#FFFFFF',
-          pointerEvents: 'none',
-          transform: 'translate(-50%, -50%)',
-          zIndex: 9999,
-          transition: 'background-color 0.3s ease, width 0.3s ease, height 0.3s ease',
-          mixBlendMode: 'difference',
-          willChange: 'left, top'
-        }}
-      />
-
       {/* Grain overlay - on top of black background */}
       <div 
         className="grain-overlay pointer-events-none fixed inset-0" 
@@ -4608,6 +4586,29 @@ export default function HumApp() {
           </div>
         </div>
       </div>
+      {/* Custom cursor - rendered via portal to body for true fixed positioning */}
+      {createPortal(
+        <div
+          ref={cursorRef}
+          className="custom-cursor"
+          style={{
+            position: 'fixed',
+            left: 0,
+            top: 0,
+            width: isHoveringInteractive ? '30px' : '20px',
+            height: isHoveringInteractive ? '30px' : '20px',
+            borderRadius: '50%',
+            backgroundColor: isHoveringInteractive ? '#D8B5FE' : '#FFFFFF',
+            pointerEvents: 'none',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 9999,
+            transition: 'background-color 0.3s ease, width 0.3s ease, height 0.3s ease',
+            mixBlendMode: 'difference',
+            willChange: 'left, top'
+          }}
+        />,
+        document.body
+      )}
     </div>
   );
 }
