@@ -2284,6 +2284,12 @@ export default function HumApp() {
           will-change: transform;
         }
 
+        /* Song hover lavender border */
+        .song-item:hover {
+          border-color: #D8B5FE !important;
+          border-width: 2px !important;
+        }
+
         /* Animated blob keyframes - organic, large movements with subtle fade */
         @keyframes blobFloat1 {
           0% {
@@ -4484,8 +4490,8 @@ export default function HumApp() {
                                   window.open(spotifyUrl, '_blank', 'noopener,noreferrer');
                                 }
                               }}
-                              className={`bg-white/[0.02] backdrop-blur-sm rounded-2xl p-5 hover:bg-white/[0.04] transition-all cursor-pointer border group ${
-                                song.isAlternative ? 'border-green-500/20 bg-green-500/5 hover:border-[#D8B5FE]' : 'border-white/5 hover:border-[#D8B5FE]'
+                              className={`song-item bg-white/[0.02] backdrop-blur-sm rounded-2xl p-5 hover:bg-white/[0.04] transition-all cursor-pointer border-2 group ${
+                                song.isAlternative ? 'border-green-500/20 bg-green-500/5' : 'border-white/5'
                               }`}
                             >
                               <div className="flex items-center justify-between">
