@@ -2471,12 +2471,12 @@ export default function HumApp() {
         /* Background floating particles */
         .bg-particle {
           position: absolute;
-          width: 6px;
-          height: 6px;
+          width: 4px;
+          height: 4px;
           border-radius: 9999px;
           background: rgba(216, 181, 254, 0.8);
           filter: blur(0.5px);
-          box-shadow: 0 0 8px rgba(216, 181, 254, 0.6);
+          box-shadow: 0 0 6px rgba(216, 181, 254, 0.6);
           opacity: 0.7;
         }
 
