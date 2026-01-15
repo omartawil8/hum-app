@@ -70,6 +70,8 @@ export default function HumApp() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [flashlightPos, setFlashlightPos] = useState({ x: 50, y: 50 });
   const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
+  const [isHoveringInteractive, setIsHoveringInteractive] = useState(false);
   const [particleOffsets, setParticleOffsets] = useState([
     { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
     { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
@@ -829,6 +831,48 @@ export default function HumApp() {
   // Trigger fade-in animation on page load
   useEffect(() => {
     setIsPageLoaded(true);
+  }, []);
+
+  // Custom cursor tracking and interactive element detection
+  useEffect(() => {
+    let mouseX = 0;
+    let mouseY = 0;
+    let currentX = 0;
+    let currentY = 0;
+
+    const handleMouseMove = (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      
+      // Check if hovering over interactive element
+      const target = e.target;
+      const isInteractive = 
+        target.tagName === 'BUTTON' ||
+        target.tagName === 'A' ||
+        target.closest('button') ||
+        target.closest('a') ||
+        target.closest('[role="button"]') ||
+        target.closest('[onClick]') ||
+        window.getComputedStyle(target).cursor === 'pointer';
+      
+      setIsHoveringInteractive(isInteractive);
+    };
+
+    const animateCursor = () => {
+      // Smooth interpolation for cursor position
+      currentX += (mouseX - currentX) * 0.15;
+      currentY += (mouseY - currentY) * 0.15;
+      setCursorPos({ x: currentX, y: currentY });
+      requestAnimationFrame(animateCursor);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    const animationId = requestAnimationFrame(animateCursor);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(animationId);
+    };
   }, []);
 
   // Close user dropdown when clicking outside
@@ -1904,6 +1948,25 @@ export default function HumApp() {
         setFlashlightPos({ x, y });
       }}
     >
+      {/* Custom cursor */}
+      <div
+        className="custom-cursor"
+        style={{
+          position: 'fixed',
+          left: `${cursorPos.x}px`,
+          top: `${cursorPos.y}px`,
+          width: isHoveringInteractive ? '30px' : '20px',
+          height: isHoveringInteractive ? '30px' : '20px',
+          borderRadius: '50%',
+          backgroundColor: isHoveringInteractive ? '#D8B5FE' : '#FFFFFF',
+          pointerEvents: 'none',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 9999,
+          transition: 'background-color 0.3s ease, width 0.3s ease, height 0.3s ease',
+          mixBlendMode: 'difference'
+        }}
+      />
+
       {/* Grain overlay - on top of black background */}
       <div 
         className="grain-overlay pointer-events-none fixed inset-0" 
@@ -2216,6 +2279,16 @@ export default function HumApp() {
 
         .page-fade-in {
           animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        /* Hide default cursor */
+        * {
+          cursor: none !important;
+        }
+
+        /* Custom cursor smooth animation */
+        .custom-cursor {
+          will-change: transform;
         }
 
         /* Animated blob keyframes - organic, large movements with subtle fade */
