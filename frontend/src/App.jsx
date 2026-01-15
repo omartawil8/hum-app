@@ -942,33 +942,6 @@ export default function HumApp() {
     calculateRepulsion();
   }, [flashlightPos]);
 
-  // Generate grain texture using canvas
-  useEffect(() => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 200;
-    canvas.height = 200;
-    const ctx = canvas.getContext('2d');
-    
-    if (ctx) {
-      const imageData = ctx.createImageData(canvas.width, canvas.height);
-      const data = imageData.data;
-      
-      for (let i = 0; i < data.length; i += 4) {
-        const value = Math.random() * 255;
-        data[i] = value;     // R
-        data[i + 1] = value; // G
-        data[i + 2] = value; // B
-        data[i + 3] = 255;   // A
-      }
-      
-      ctx.putImageData(imageData, 0, 0);
-      
-      const grainOverlay = document.querySelector('.grain-overlay');
-      if (grainOverlay) {
-        grainOverlay.style.backgroundImage = `url(${canvas.toDataURL()})`;
-      }
-    }
-  }, []);
 
   // Function to process results and replace covers/remixes with originals
   const processResultsForOriginals = async (songs) => {
@@ -2716,10 +2689,12 @@ export default function HumApp() {
           inset: 0;
           pointer-events: none;
           z-index: 1;
-          opacity: 0.5;
-          background-size: 200px 200px;
-          background-repeat: repeat;
-          mix-blend-mode: overlay;
+          background: 
+            repeating-linear-gradient(0deg, rgba(255,255,255,0.15) 0px, transparent 0px, transparent 1px, rgba(255,255,255,0.15) 2px),
+            repeating-linear-gradient(90deg, rgba(255,255,255,0.15) 0px, transparent 0px, transparent 1px, rgba(255,255,255,0.15) 2px);
+          background-size: 2px 2px;
+          mix-blend-mode: screen;
+          opacity: 0.6;
         }
 
         /* Background floating particles */
