@@ -3301,14 +3301,18 @@ export default function HumApp() {
 
         {/* Top Right - User Account & Help Button */}
         <div 
-          className="flex items-center gap-2 transition-opacity duration-300"
+          className="flex items-center gap-2 transition-opacity duration-300 justify-end"
           style={{
-            position: 'fixed',
+            position: 'sticky',
             top: '24px',
             right: '24px',
             zIndex: 40,
             opacity: showTopBar ? 1 : 0,
-            pointerEvents: showTopBar ? 'auto' : 'none'
+            pointerEvents: showTopBar ? 'auto' : 'none',
+            marginTop: '24px',
+            marginBottom: '24px',
+            marginLeft: 'auto',
+            width: 'fit-content'
           }}
         >
           {/* User Account Dropdown (if logged in) */}
@@ -3409,13 +3413,15 @@ export default function HumApp() {
               }}
               className="px-4 py-2 bg-white/5 hover:bg-gradient-to-r hover:from-purple-500/20 hover:to-blue-500/20 backdrop-blur-sm border border-white/10 hover:border-purple-500/40 rounded-full transition-all duration-300 hover:scale-105 group cursor-pointer"
               style={{
-                position: 'fixed',
+                position: 'sticky',
                 top: '24px',
                 left: '50%',
                 transform: 'translateX(-50%)',
                 zIndex: 40,
                 opacity: showTopBar ? 1 : 0,
-                pointerEvents: showTopBar ? 'auto' : 'none'
+                pointerEvents: showTopBar ? 'auto' : 'none',
+                marginTop: '24px',
+                marginBottom: '24px'
               }}
             >
               <div className="flex flex-col items-center gap-0.5">
@@ -3435,13 +3441,15 @@ export default function HumApp() {
               key="search-counter-anonymous"
               className="px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full transition-opacity duration-300"
               style={{
-                position: 'fixed',
+                position: 'sticky',
                 top: '24px',
                 left: '50%',
                 transform: 'translateX(-50%)',
                 zIndex: 40,
                 opacity: showTopBar ? 1 : 0,
-                pointerEvents: showTopBar ? 'auto' : 'none'
+                pointerEvents: showTopBar ? 'auto' : 'none',
+                marginTop: '24px',
+                marginBottom: '24px'
               }}
             >
               <span className="text-sm text-white/70">
@@ -3489,13 +3497,15 @@ export default function HumApp() {
             }}
             className="px-4 py-2 bg-teal-500/20 hover:bg-teal-500/30 backdrop-blur-sm border border-teal-500/30 hover:border-teal-500/50 rounded-full transition-all duration-300 hover:scale-105 group cursor-pointer"
             style={{
-              position: 'fixed',
+              position: 'sticky',
               top: '24px',
               left: '50%',
               transform: 'translateX(-50%)',
               zIndex: 40,
               opacity: showTopBar ? 1 : 0,
-              pointerEvents: showTopBar ? 'auto' : 'none'
+              pointerEvents: showTopBar ? 'auto' : 'none',
+              marginTop: '24px',
+              marginBottom: '24px'
             }}
           >
             <span className="text-sm text-teal-300 font-semibold group-hover:hidden">
@@ -3511,13 +3521,15 @@ export default function HumApp() {
           <div 
             className="px-4 py-2 bg-purple-500/20 backdrop-blur-sm border border-purple-500/30 rounded-full transition-opacity duration-300"
             style={{
-              position: 'fixed',
+              position: 'sticky',
               top: '24px',
               left: '50%',
               transform: 'translateX(-50%)',
               zIndex: 40,
               opacity: showTopBar ? 1 : 0,
-              pointerEvents: showTopBar ? 'auto' : 'none'
+              pointerEvents: showTopBar ? 'auto' : 'none',
+              marginTop: '24px',
+              marginBottom: '24px'
             }}
           >
             <span className="text-sm text-purple-300 font-semibold">
