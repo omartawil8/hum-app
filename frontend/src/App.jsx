@@ -942,6 +942,34 @@ export default function HumApp() {
     calculateRepulsion();
   }, [flashlightPos]);
 
+  // Generate grain texture using canvas
+  useEffect(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 200;
+    canvas.height = 200;
+    const ctx = canvas.getContext('2d');
+    
+    if (ctx) {
+      const imageData = ctx.createImageData(canvas.width, canvas.height);
+      const data = imageData.data;
+      
+      for (let i = 0; i < data.length; i += 4) {
+        const value = Math.random() * 255;
+        data[i] = value;     // R
+        data[i + 1] = value; // G
+        data[i + 2] = value; // B
+        data[i + 3] = 255;   // A
+      }
+      
+      ctx.putImageData(imageData, 0, 0);
+      
+      const grainOverlay = document.querySelector('.grain-overlay');
+      if (grainOverlay) {
+        grainOverlay.style.backgroundImage = `url(${canvas.toDataURL()})`;
+      }
+    }
+  }, []);
+
   // Function to process results and replace covers/remixes with originals
   const processResultsForOriginals = async (songs) => {
     if (!songs || songs.length <= 1) return songs;
@@ -1913,12 +1941,7 @@ export default function HumApp() {
       />
       
       {/* Grain overlay for professional texture */}
-      <div
-        className="grain-overlay pointer-events-none fixed inset-0"
-        style={{
-          zIndex: 2
-        }}
-      />
+      <div className="grain-overlay pointer-events-none fixed inset-0" style={{ zIndex: 2 }}></div>
       
       {/* Floating background particles */}
       <div className="pointer-events-none fixed inset-0" style={{ zIndex: 1 }}>
@@ -2686,12 +2709,14 @@ export default function HumApp() {
 
         /* Grain overlay for professional texture */
         .grain-overlay {
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix in='colorNoise' type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-          opacity: 0.5;
-          mix-blend-mode: soft-light;
+          position: fixed;
+          inset: 0;
           pointer-events: none;
+          z-index: 2;
+          opacity: 0.4;
           background-size: 200px 200px;
           background-repeat: repeat;
+          mix-blend-mode: overlay;
         }
 
         /* Background floating particles */
