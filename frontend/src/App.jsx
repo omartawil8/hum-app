@@ -1912,6 +1912,14 @@ export default function HumApp() {
         }}
       />
       
+      {/* Grain overlay for professional texture */}
+      <div
+        className="grain-overlay pointer-events-none fixed inset-0"
+        style={{
+          zIndex: 2
+        }}
+      />
+      
       {/* Floating background particles */}
       <div className="pointer-events-none fixed inset-0" style={{ zIndex: 1 }}>
         <div 
@@ -2674,6 +2682,14 @@ export default function HumApp() {
           50%  { transform: translate3d(10px, -10px, 0); opacity: 0.7; }
           80%  { opacity: 0; }
           100% { transform: translate3d(14px, 8px, 0); opacity: 0; }
+        }
+
+        /* Grain overlay for professional texture */
+        .grain-overlay {
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix in='colorNoise' type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.4'/%3E%3C/svg%3E");
+          opacity: 0.12;
+          mix-blend-mode: overlay;
+          pointer-events: none;
         }
 
         /* Background floating particles */
