@@ -3782,8 +3782,8 @@ export default function HumApp() {
           </div>
         )}
 
-        {/* Bookmarks Panel */}
-        {showBookmarks && (
+        {/* Bookmarks Panel - Rendered via portal for complete independence */}
+        {showBookmarks && createPortal(
           <>
             {/* Backdrop */}
             <div 
@@ -3886,7 +3886,8 @@ export default function HumApp() {
                 )}
               </div>
             </div>
-          </>
+          </>,
+          document.body
         )}
 
         {/* Feedback Modal */}
