@@ -3395,22 +3395,25 @@ export default function HumApp() {
               </ul>
             </div>
           )}
-          </div>
+        </div>
           </div>,
           document.body
         )}
 
         {/* Search Counter - Top Center - Rendered via portal */}
         {createPortal(
-          <div style={{
-            position: 'fixed',
-            top: '24px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 9999,
-            opacity: showTopBar ? 1 : 0,
-            pointerEvents: showTopBar ? 'auto' : 'none'
-          }}>
+          <div 
+            className="transition-opacity duration-300"
+            style={{
+              position: 'fixed',
+              top: '24px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 9999,
+              opacity: showTopBar ? 1 : 0,
+              pointerEvents: showTopBar ? 'auto' : 'none'
+            }}
+          >
         {!user ? (
           anonymousSearchCount >= ANONYMOUS_SEARCH_LIMIT ? (
             // Show login prompt when no searches left
