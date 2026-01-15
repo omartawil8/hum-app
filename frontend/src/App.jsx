@@ -1925,48 +1925,48 @@ export default function HumApp() {
           pointer-events: none;
           z-index: -1;
           background-image:
-            radial-gradient(circle at 10% 15%, rgba(216, 181, 254, 0.9) 0, rgba(216, 181, 254, 0) 2px),
-            radial-gradient(circle at 80% 25%, rgba(216, 181, 254, 0.7) 0, rgba(216, 181, 254, 0) 2px),
-            radial-gradient(circle at 30% 70%, rgba(216, 181, 254, 0.85) 0, rgba(216, 181, 254, 0) 2px),
-            radial-gradient(circle at 65% 80%, rgba(216, 181, 254, 0.8) 0, rgba(216, 181, 254, 0) 2px),
-            radial-gradient(circle at 50% 40%, rgba(216, 181, 254, 0.75) 0, rgba(216, 181, 254, 0) 2px),
-            radial-gradient(circle at 20% 50%, rgba(216, 181, 254, 0.8) 0, rgba(216, 181, 254, 0) 2px);
+            radial-gradient(circle at 10% 15%, rgba(216, 181, 254, 1) 0, rgba(216, 181, 254, 0) 3px),
+            radial-gradient(circle at 80% 25%, rgba(216, 181, 254, 0.9) 0, rgba(216, 181, 254, 0) 3px),
+            radial-gradient(circle at 30% 70%, rgba(216, 181, 254, 1) 0, rgba(216, 181, 254, 0) 3px),
+            radial-gradient(circle at 65% 80%, rgba(216, 181, 254, 0.95) 0, rgba(216, 181, 254, 0) 3px),
+            radial-gradient(circle at 50% 40%, rgba(216, 181, 254, 0.9) 0, rgba(216, 181, 254, 0) 3px),
+            radial-gradient(circle at 20% 50%, rgba(216, 181, 254, 0.95) 0, rgba(216, 181, 254, 0) 3px);
           background-repeat: no-repeat;
-          animation: starTwinkle 16s linear infinite;
-          opacity: 0;
+          animation: starTwinkle 12s ease-in-out infinite;
+          opacity: 0.2;
         }
 
         @keyframes starTwinkle {
           0% {
-            opacity: 0;
+            opacity: 0.3;
             background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
           }
           10% {
-            opacity: 0.9;
+            opacity: 1;
           }
           20% {
-            opacity: 0.1;
+            opacity: 0.4;
             background-position: 5% 5%, -3% 4%, 2% -4%, -4% -3%, 3% 2%, -5% 1%;
           }
           30% {
-            opacity: 0.8;
+            opacity: 0.9;
           }
           40% {
-            opacity: 0.05;
+            opacity: 0.35;
             background-position: -4% -2%, 4% -3%, -3% 5%, 5% -4%, -2% 3%, 4% 2%;
           }
           55% {
-            opacity: 0.85;
+            opacity: 0.95;
           }
           70% {
-            opacity: 0.08;
+            opacity: 0.4;
             background-position: 3% -4%, -5% 2%, 4% 3%, -2% -5%, 5% -1%, -3% 4%;
           }
           85% {
-            opacity: 0.9;
+            opacity: 1;
           }
           100% {
-            opacity: 0;
+            opacity: 0.3;
             background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
           }
         }
