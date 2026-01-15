@@ -1827,14 +1827,20 @@ export default function HumApp() {
 
   return (
     // OLD BACKGROUND (to revert, replace className below with): bg-gradient-to-b from-[#0A0E27] via-[#141937] to-[#1a1d3a]
-    <div className="min-h-screen text-white relative overflow-hidden" style={{ 
-      background: 'transparent',
-      // Base dot grid: low-opacity grey dots
-      backgroundImage: `radial-gradient(circle, rgba(148, 163, 184, 0.16) 1px, transparent 1px)`,
-      backgroundSize: '32px 32px',
-      backgroundPosition: '0 0',
-      backgroundAttachment: 'fixed'
-    }}>
+    <div
+      className="min-h-screen text-white relative overflow-hidden"
+      style={{
+        background: 'transparent',
+        // Base dot grid: low-opacity grey dots (static), plus lavender layer we animate via CSS var
+        backgroundImage:
+          `radial-gradient(circle, rgba(148, 163, 184, 0.18) 1px, transparent 1px),` +
+          `radial-gradient(circle, rgba(216, 181, 254, var(--lavender-opacity, 0)) 1px, transparent 1px)`,
+        backgroundSize: '32px 32px, 32px 32px',
+        backgroundPosition: '0 0, 0 0',
+        backgroundAttachment: 'fixed',
+        animation: 'dotLavenderPulse 18s ease-in-out infinite'
+      }}
+    >
       <style>{`
 
         /* Animated blob keyframes - organic, large movements with subtle fade */
@@ -1919,56 +1925,26 @@ export default function HumApp() {
           }
         }
 
-        /* Twinkling starfield layer - tints patches of dots lavender */
-        .starfield {
-          position: fixed;
-          inset: 0;
-          pointer-events: none;
-          z-index: -1;
-          background-image:
-            radial-gradient(circle at 8% 18%, rgba(216, 181, 254, 0.9) 0, rgba(216, 181, 254, 0) 24px),
-            radial-gradient(circle at 82% 22%, rgba(216, 181, 254, 0.85) 0, rgba(216, 181, 254, 0) 22px),
-            radial-gradient(circle at 28% 68%, rgba(216, 181, 254, 0.9) 0, rgba(216, 181, 254, 0) 26px),
-            radial-gradient(circle at 68% 78%, rgba(216, 181, 254, 0.9) 0, rgba(216, 181, 254, 0) 24px),
-            radial-gradient(circle at 50% 42%, rgba(216, 181, 254, 0.85) 0, rgba(216, 181, 254, 0) 22px),
-            radial-gradient(circle at 18% 52%, rgba(216, 181, 254, 0.9) 0, rgba(216, 181, 254, 0) 24px);
-          background-repeat: no-repeat;
-          animation: starTwinkle 18s ease-in-out infinite;
-          opacity: 0.0;
-        }
-
-        @keyframes starTwinkle {
+        /* Lavender twinkle on the same dot grid:
+           we animate the second background layer's color using a CSS variable */
+        @keyframes dotLavenderPulse {
           0% {
-            opacity: 0;
-            background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-          }
-          10% {
-            opacity: 0.85;
+            --lavender-opacity: 0.0;
           }
           20% {
-            opacity: 0.2;
-            background-position: 5% 5%, -3% 4%, 2% -4%, -4% -3%, 3% 2%, -5% 1%;
-          }
-          30% {
-            opacity: 0.75;
+            --lavender-opacity: 0.7;
           }
           40% {
-            opacity: 0.15;
-            background-position: -4% -2%, 4% -3%, -3% 5%, 5% -4%, -2% 3%, 4% 2%;
+            --lavender-opacity: 0.15;
           }
-          55% {
-            opacity: 0.85;
+          60% {
+            --lavender-opacity: 0.6;
           }
-          70% {
-            opacity: 0.2;
-            background-position: 3% -4%, -5% 2%, 4% 3%, -2% -5%, 5% -1%, -3% 4%;
-          }
-          85% {
-            opacity: 0.9;
+          80% {
+            --lavender-opacity: 0.1;
           }
           100% {
-            opacity: 0;
-            background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+            --lavender-opacity: 0.0;
           }
         }
 
@@ -2341,9 +2317,6 @@ export default function HumApp() {
         
         /* Deployment trigger */
       `}</style>
-
-      {/* Twinkling starfield overlay */}
-      <div className="starfield" />
 
       <div className="relative z-10">
         {/* Welcome Notification */}
