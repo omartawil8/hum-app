@@ -2633,7 +2633,7 @@ export default function HumApp() {
         }
         
         .animate-modal-content {
-          animation: modalSlideUp 3s cubic-bezier(0.16, 1, 0.3, 1) both;
+          animation: modalSlideUp 1.5s cubic-bezier(0.16, 1, 0.3, 1) both;
           will-change: transform, opacity;
         }
 
