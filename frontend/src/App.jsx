@@ -3756,11 +3756,11 @@ export default function HumApp() {
                           className="w-full h-full object-contain drop-shadow-2xl relative z-10"
                         />
                         {/* Stars decoration */}
-                        <div className="absolute inset-0 pointer-events-none">
-                          <Star className="absolute top-4 left-8 w-6 h-6 text-yellow-400 fill-yellow-400 opacity-80 z-0" />
-                          <Star className="absolute top-8 right-12 w-5 h-5 text-yellow-400 fill-yellow-400 opacity-60 z-0" />
-                          <Star className="absolute bottom-12 left-6 w-4 h-4 text-yellow-400 fill-yellow-400 opacity-70 z-0" />
-                          <Star className="absolute top-16 right-6 w-3 h-3 text-yellow-400 fill-yellow-400 opacity-50 z-0" />
+                        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                          <Star className="absolute top-2 left-4 w-5 h-5 text-yellow-400 fill-yellow-400 opacity-80" style={{ zIndex: 1 }} />
+                          <Star className="absolute top-6 right-8 w-4 h-4 text-yellow-400 fill-yellow-400 opacity-60" style={{ zIndex: 1 }} />
+                          <Star className="absolute bottom-8 left-4 w-4 h-4 text-yellow-400 fill-yellow-400 opacity-70" style={{ zIndex: 1 }} />
+                          <Star className="absolute top-12 right-4 w-3 h-3 text-yellow-400 fill-yellow-400 opacity-50" style={{ zIndex: 1 }} />
                         </div>
                       </div>
 
