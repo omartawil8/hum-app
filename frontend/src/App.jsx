@@ -3753,7 +3753,7 @@ export default function HumApp() {
                         <img 
                           src={wizardGuyIcon} 
                           alt="avid listener" 
-                          className="w-full h-full object-contain drop-shadow-2xl"
+                          className="w-full h-full object-contain drop-shadow-2xl relative z-10"
                         />
                         {/* Stars decoration */}
                         <div className="absolute inset-0 pointer-events-none">
