@@ -377,7 +377,7 @@ export default function HumApp() {
         await checkAuthStatus(token);
         
         const tierName = verifyData.tier === 'avid' ? 'Avid Listener' : 'Eat, Breath, Music';
-        const limit = verifyData.tier === 'avid' ? '100 searches/month' : 'unlimited searches';
+        const limit = verifyData.tier === 'avid' ? '200 searches/month' : 'unlimited searches';
         
         alert(`🎉 Welcome to ${tierName}! You now have ${limit}.`);
       } else {
@@ -393,7 +393,7 @@ export default function HumApp() {
         if (data.hasActiveSubscription) {
           await checkAuthStatus(token);
           const tierName = data.tier === 'avid' ? 'Avid Listener' : 'Eat, Breath, Music';
-          const limit = data.tier === 'avid' ? '100 searches/month' : 'unlimited searches';
+          const limit = data.tier === 'avid' ? '200 searches/month' : 'unlimited searches';
           alert(`🎉 Welcome to ${tierName}! You now have ${limit}.`);
         }
       }
@@ -1198,7 +1198,7 @@ export default function HumApp() {
     if (userTier === 'unlimited') return true; // Unlimited users have no limits
     
     if (userTier === 'avid') {
-      // Avid Listener: 100 searches per month
+      // Avid Listener: 200 searches per month
       if (searchCount >= AVID_LISTENER_LIMIT) {
         setShowUpgradeModal(true);
         return false;
@@ -3777,7 +3777,7 @@ export default function HumApp() {
                     </div>
                   </button>
 
-                  {/* Eat, Breath, Music Plan - Only show when avid tier has used 100 searches */}
+                  {/* Eat, Breath, Music Plan - Only show when avid tier has used 200 searches */}
                   {userTier === 'avid' && searchCount >= AVID_LISTENER_LIMIT && (
                   <button
                     onClick={() => handleSelectPlan('Eat, Breath, Music')}
