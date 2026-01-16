@@ -3687,7 +3687,6 @@ export default function HumApp() {
             <div 
               className={`relative z-[10000] ${isClosingUpgrade ? 'animate-modal-content-out' : 'animate-modal-content'}`}
               onClick={(e) => e.stopPropagation()}
-              style={{ position: 'relative', visibility: 'visible', opacity: 1 }}
             >
               {/* Close button */}
               <button 
@@ -3698,7 +3697,7 @@ export default function HumApp() {
               </button>
               
               {/* Modal */}
-              <div className="relative bg-white/[0.08] backdrop-blur-2xl rounded-3xl p-6 max-w-xl w-full max-h-[90vh] border border-white/30 shadow-2xl overflow-y-auto" style={{ position: 'relative', visibility: 'visible', opacity: 1, display: 'block' }}>
+              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-6 max-w-xl w-full max-h-[90vh] border border-white/20 shadow-2xl overflow-y-auto">
                 <h2 className="text-3xl font-bold text-center mb-6">wanna keep humming?</h2>
 
                 <div className={`grid gap-4 ${userTier === 'avid' && searchCount >= AVID_LISTENER_LIMIT ? 'md:grid-cols-2' : 'md:grid-cols-1 max-w-sm mx-auto'}`}>
@@ -4845,7 +4844,7 @@ export default function HumApp() {
             backgroundColor: isHoveringInteractive ? '#D8B5FE' : '#FFFFFF',
             pointerEvents: 'none',
             transform: 'translate(-50%, -50%)',
-            zIndex: 9999,
+            zIndex: 10001,
             transition: 'background-color 0.3s ease, width 0.3s ease, height 0.3s ease',
             mixBlendMode: 'difference',
             willChange: 'left, top'
