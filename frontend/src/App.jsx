@@ -3681,12 +3681,11 @@ export default function HumApp() {
         {/* Upgrade Modal */}
         {showUpgradeModal && createPortal(
           <div 
-            className={`fixed inset-0 bg-black/70 backdrop-blur-lg flex items-center justify-center z-50 p-4 ${isClosingUpgrade ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'}`}
+            className={`fixed inset-0 bg-black/70 backdrop-blur-lg flex items-center justify-center z-[9999] p-4 ${isClosingUpgrade ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'}`}
             onClick={handleCloseUpgrade}
-            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
           >
             <div 
-              className={`relative ${isClosingUpgrade ? 'animate-modal-content-out' : 'animate-modal-content'}`}
+              className={`relative z-[10000] ${isClosingUpgrade ? 'animate-modal-content-out' : 'animate-modal-content'}`}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close button */}
@@ -4178,8 +4177,8 @@ export default function HumApp() {
                               {emoji}
                             </button>
                           ))}
-                        </div>
-                      </div>
+            </div>
+          </div>
                     )}
                   </div>
                 </div>
