@@ -2633,8 +2633,6 @@ export default function HumApp() {
         }
         
         .animate-modal-content {
-          transform: translateY(20px) scale(0.96) !important;
-          opacity: 0 !important;
           animation: modalSlideUp 3s cubic-bezier(0.16, 1, 0.3, 1) both;
           will-change: transform, opacity;
         }
