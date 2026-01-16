@@ -3734,13 +3734,15 @@ export default function HumApp() {
                         </div>
                         
                         {/* Tooltip */}
-                        {showAvidInfo && (
-                          <div className="absolute top-6 right-0 w-48 bg-black/90 backdrop-blur-xl rounded-xl p-3 border border-[#D8B5FE]/30 shadow-2xl z-10 animate-slide-down">
-                            <p className="text-sm text-white/70 leading-relaxed">
-                              get <span className="text-[#D8B5FE] font-semibold">200 searches each month.</span> great for casual listening!
+                        <div className={`absolute top-6 right-0 w-48 bg-black/95 backdrop-blur-xl rounded-xl p-3 border border-[#D8B5FE]/40 shadow-2xl z-10 transition-all duration-300 ${
+                          showAvidInfo 
+                            ? 'opacity-100 translate-y-0 pointer-events-auto' 
+                            : 'opacity-0 -translate-y-2 pointer-events-none'
+                        }`}>
+                          <p className="text-sm text-white/90 leading-relaxed">
+                            get <span className="text-[#D8B5FE] font-semibold">200 searches each month.</span> great for casual listening!
                             </p>
                           </div>
-                        )}
                       </div>
 
                       {/* Price */}
