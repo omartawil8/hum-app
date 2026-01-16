@@ -3712,7 +3712,7 @@ export default function HumApp() {
                     }`}
                   >
                     {/* Card background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-[#D8B5FE]/10 backdrop-blur-sm rounded-2xl"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/15 via-purple-600/12 to-violet-500/10 backdrop-blur-sm rounded-2xl"></div>
                     <div className={`relative rounded-2xl p-4 border-2 transition-all ${
                       selectedPlan === 'Avid Listener' 
                         ? 'border-[#D8B5FE] shadow-[0_0_0_2px_rgba(216,181,254,0.5)]' 
