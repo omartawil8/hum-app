@@ -3530,10 +3530,11 @@ export default function HumApp() {
         )}
 
         {/* Authentication Modal */}
-        {showAuthModal && (
+        {showAuthModal && createPortal(
           <div 
             className={`fixed inset-0 bg-black/70 backdrop-blur-lg flex items-center justify-center z-50 p-4 ${isClosingAuth ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'}`}
             onClick={handleCloseAuth}
+            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
           >
             <div 
               className={`relative ${isClosingAuth ? 'animate-modal-content-out' : 'animate-modal-content'}`}
@@ -3673,14 +3674,16 @@ export default function HumApp() {
                 </div>
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
 
         {/* Upgrade Modal */}
-        {showUpgradeModal && (
+        {showUpgradeModal && createPortal(
           <div 
             className={`fixed inset-0 bg-black/70 backdrop-blur-lg flex items-center justify-center z-50 p-4 ${isClosingUpgrade ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'}`}
             onClick={handleCloseUpgrade}
+            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
           >
             <div 
               className={`relative ${isClosingUpgrade ? 'animate-modal-content-out' : 'animate-modal-content'}`}
@@ -4093,11 +4096,12 @@ export default function HumApp() {
                 </div>
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
 
         {/* Nickname Modal */}
-        {showNicknameModal && (
+        {showNicknameModal && createPortal(
           <div 
             className={`fixed inset-0 bg-black/60 backdrop-blur-lg flex items-center justify-center z-50 p-4 ${isClosingNickname ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'}`}
             onClick={() => {
@@ -4108,6 +4112,7 @@ export default function HumApp() {
                 setIsClosingNickname(false);
               }, 250);
             }}
+            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
           >
             <div 
               className={`relative ${isClosingNickname ? 'animate-modal-content-out' : 'animate-modal-content'}`}
@@ -4217,7 +4222,8 @@ export default function HumApp() {
                 </div>
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
 
         <div className="container mx-auto px-4 py-8">
