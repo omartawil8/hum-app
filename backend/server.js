@@ -488,7 +488,9 @@ app.post('/api/auth/login', async (req, res) => {
 // Google OAuth - Initiate login
 app.get('/api/auth/google', (req, res) => {
   const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-  const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/auth/google/callback`;
+  const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || `https://${req.get('host')}/api/auth/google/callback`;
+  
+  console.log('🔐 Google OAuth redirect URI:', REDIRECT_URI);
   
   if (!GOOGLE_CLIENT_ID) {
     return res.status(500).json({ error: 'Google OAuth not configured' });
