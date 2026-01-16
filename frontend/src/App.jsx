@@ -2604,7 +2604,7 @@ export default function HumApp() {
 
         @keyframes modalSlideUp {
           from {
-            transform: translateY(8px) scale(0.99);
+            transform: translateY(5px) scale(0.995);
             opacity: 0;
           }
           to {
@@ -2625,7 +2625,7 @@ export default function HumApp() {
         }
         
         .animate-modal-backdrop {
-          animation: modalFadeIn 0.4s ease-out forwards;
+          animation: modalFadeIn 0.8s ease-out forwards;
         }
 
         .animate-modal-backdrop-out {
@@ -2633,7 +2633,7 @@ export default function HumApp() {
         }
         
         .animate-modal-content {
-          animation: modalSlideUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: modalSlideUp 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .animate-modal-content-out {
@@ -3892,9 +3892,9 @@ export default function HumApp() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                       </svg>
                       <span>Secure payment processing</span>
-                    </div>
-                  </div>
-                </div>
+              </div>
+            </div>
+          </div>
               </div>
             </div>
           </div>,
