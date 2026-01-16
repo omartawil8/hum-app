@@ -2604,7 +2604,7 @@ export default function HumApp() {
 
         @keyframes modalSlideUp {
           from {
-            transform: translateY(10px) scale(0.98);
+            transform: translateY(8px) scale(0.99);
             opacity: 0;
           }
           to {
@@ -2633,7 +2633,7 @@ export default function HumApp() {
         }
         
         .animate-modal-content {
-          animation: modalSlideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: modalSlideUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .animate-modal-content-out {
