@@ -102,7 +102,7 @@ export default function HumApp() {
   
   const ANONYMOUS_SEARCH_LIMIT = 1; // 1 free search without login
   const FREE_SEARCH_LIMIT = 5; // Total free searches (1 anonymous + 4 authenticated)
-  const AVID_LISTENER_LIMIT = 100; // 100 searches per month for $1 tier
+  const AVID_LISTENER_LIMIT = 200; // 200 searches per month for $2 tier
   // Unlimited tier has no limit
   
   const defaultSearches = [
@@ -3712,15 +3712,15 @@ export default function HumApp() {
                     }`}
                   >
                     {/* Card background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 to-cyan-500/10 backdrop-blur-sm rounded-2xl"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-[#D8B5FE]/10 backdrop-blur-sm rounded-2xl"></div>
                     <div className={`relative rounded-2xl p-4 border-2 transition-all ${
                       selectedPlan === 'Avid Listener' 
-                        ? 'border-teal-500 shadow-[0_0_0_2px_rgba(20,184,166,0.5)]' 
-                        : 'border-teal-500/30 hover:border-teal-500/50'
+                        ? 'border-[#D8B5FE] shadow-[0_0_0_2px_rgba(216,181,254,0.5)]' 
+                        : 'border-[#D8B5FE]/30 hover:border-[#D8B5FE]/50'
                     }`}>
                       {/* Star badge */}
                       <div className="absolute top-4 left-4">
-                        <Star className="w-5 h-5 text-teal-400 fill-teal-400" />
+                        <Star className="w-5 h-5 text-[#D8B5FE] fill-[#D8B5FE]" />
                       </div>
 
                       {/* Info icon */}
@@ -3735,9 +3735,9 @@ export default function HumApp() {
                         
                         {/* Tooltip */}
                         {showAvidInfo && (
-                          <div className="absolute top-6 right-0 w-48 bg-black/90 backdrop-blur-xl rounded-xl p-3 border border-teal-500/30 shadow-2xl z-10 animate-slide-down">
+                          <div className="absolute top-6 right-0 w-48 bg-black/90 backdrop-blur-xl rounded-xl p-3 border border-[#D8B5FE]/30 shadow-2xl z-10 animate-slide-down">
                             <p className="text-sm text-white/70 leading-relaxed">
-                              get <span className="text-teal-300 font-semibold">100 searches each month.</span> great for casual listening!
+                              get <span className="text-[#D8B5FE] font-semibold">200 searches each month.</span> great for casual listening!
                             </p>
                           </div>
                         )}
@@ -3745,7 +3745,7 @@ export default function HumApp() {
 
                       {/* Price */}
                       <div className="text-center mt-2 mb-4">
-                        <div className="text-4xl font-bold mb-1">$1<span className="text-xl text-white/60">/month</span></div>
+                        <div className="text-4xl font-bold mb-1">$2<span className="text-xl text-white/60">/month</span></div>
                       </div>
 
                       {/* Character illustration */}
@@ -3767,7 +3767,7 @@ export default function HumApp() {
                       {/* Plan name */}
                       <div className="text-center">
                         <h3 className="text-lg font-bold">avid listener</h3>
-                        <p className="text-xs text-teal-300/80 mt-1">100 searches per month</p>
+                        <p className="text-xs text-[#D8B5FE]/80 mt-1">200 searches per month</p>
                         {userTier === 'avid' && (
                           <p className="text-xs text-white/50 mt-2">
                             resets in {getDaysUntilReset()} {getDaysUntilReset() === 1 ? 'day' : 'days'}
