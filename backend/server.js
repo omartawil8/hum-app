@@ -514,8 +514,10 @@ app.get('/api/auth/google/callback', async (req, res) => {
     const { code } = req.query;
     const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
     const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-    const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/auth/google/callback`;
+    const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || `https://${req.get('host')}/api/auth/google/callback`;
     const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+    
+    console.log('🔐 Google OAuth callback - redirect URI:', REDIRECT_URI);
 
     if (!code) {
       return res.redirect(`${FRONTEND_URL}?auth_error=no_code`);
