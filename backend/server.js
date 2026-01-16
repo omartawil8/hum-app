@@ -485,6 +485,121 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// Google OAuth - Initiate login
+app.get('/api/auth/google', (req, res) => {
+  const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+  const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/auth/google/callback`;
+  
+  if (!GOOGLE_CLIENT_ID) {
+    return res.status(500).json({ error: 'Google OAuth not configured' });
+  }
+
+  const scope = 'openid email profile';
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+    `client_id=${GOOGLE_CLIENT_ID}&` +
+    `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
+    `response_type=code&` +
+    `scope=${encodeURIComponent(scope)}&` +
+    `access_type=online&` +
+    `prompt=select_account`;
+
+  res.redirect(authUrl);
+});
+
+// Google OAuth - Callback
+app.get('/api/auth/google/callback', async (req, res) => {
+  try {
+    const { code } = req.query;
+    const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+    const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+    const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/auth/google/callback`;
+    const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+    if (!code) {
+      return res.redirect(`${FRONTEND_URL}?auth_error=no_code`);
+    }
+
+    if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+      return res.redirect(`${FRONTEND_URL}?auth_error=not_configured`);
+    }
+
+    // Exchange code for tokens
+    const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', {
+      code,
+      client_id: GOOGLE_CLIENT_ID,
+      client_secret: GOOGLE_CLIENT_SECRET,
+      redirect_uri: REDIRECT_URI,
+      grant_type: 'authorization_code'
+    });
+
+    const { access_token, id_token } = tokenResponse.data;
+
+    // Get user info from Google
+    const userInfoResponse = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: {
+        Authorization: `Bearer ${access_token}`
+      }
+    });
+
+    const { email, id: googleId, name, picture } = userInfoResponse.data;
+
+    if (!email) {
+      return res.redirect(`${FRONTEND_URL}?auth_error=no_email`);
+    }
+
+    if (!isMongoConnected()) {
+      return res.redirect(`${FRONTEND_URL}?auth_error=database_error`);
+    }
+
+    // Check if user exists
+    let user = await User.findOne({ 
+      $or: [
+        { email: email.toLowerCase() },
+        { googleId: googleId }
+      ]
+    });
+
+    if (user) {
+      // Update existing user with Google ID if they don't have it
+      if (!user.googleId) {
+        user.googleId = googleId;
+        await user.save();
+      }
+    } else {
+      // Create new user
+      const userCount = await User.countDocuments();
+      console.log(`📝 Creating new Google OAuth user: ${email} (${userCount} existing users)`);
+
+      const initialSearchCount = 0; // New signups start with 5/5 searches
+      
+      user = new User({
+        email: email.toLowerCase(),
+        googleId: googleId,
+        password: crypto.randomBytes(32).toString('hex'), // Random password for OAuth users
+        searchCount: initialSearchCount,
+        tier: 'free'
+      });
+
+      await user.save();
+      console.log(`✅ Google OAuth user created: ${user._id}`);
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id.toString(), email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '30d' }
+    );
+
+    // Redirect to frontend with token
+    res.redirect(`${FRONTEND_URL}?google_auth_success=true&token=${token}`);
+  } catch (error) {
+    console.error('Google OAuth error:', error);
+    const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+    res.redirect(`${FRONTEND_URL}?auth_error=oauth_failed`);
+  }
+});
+
 // Check auth status endpoint
 app.get('/api/auth/me', authenticateToken, async (req, res) => {
   if (!req.user) {

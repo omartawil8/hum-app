@@ -10,7 +10,14 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
+    required: function() {
+      return !this.googleId; // Password required only if not using Google OAuth
+    }
+  },
+  googleId: {
+    type: String,
+    default: null,
+    sparse: true // Allows multiple nulls but enforces uniqueness for non-null values
   },
   searchCount: {
     type: Number,
