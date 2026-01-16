@@ -2633,6 +2633,8 @@ export default function HumApp() {
         }
         
         .animate-modal-content {
+          transform: translateY(40px) scale(0.96);
+          opacity: 0;
           animation: modalSlideUp 5s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
@@ -3687,10 +3689,6 @@ export default function HumApp() {
             <div 
               className={`relative z-[10000] ${isClosingUpgrade ? 'animate-modal-content-out' : 'animate-modal-content'}`}
               onClick={(e) => e.stopPropagation()}
-              style={!isClosingUpgrade ? {
-                transform: 'translateY(40px) scale(0.96)',
-                opacity: 0
-              } : {}}
             >
               {/* Close button */}
               <button 
