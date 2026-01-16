@@ -923,39 +923,14 @@ export default function HumApp() {
     const authError = urlParams.get('auth_error');
 
     if (googleAuthSuccess && token) {
-      // Store token and fetch user data
+      // Store token and use checkAuthStatus to load all user data consistently
       localStorage.setItem('hum-auth-token', token);
       
-      // Fetch user data
-      fetch(`${API_BASE_URL}/api/auth/me`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.authenticated && data.user) {
-            setUser(data.user);
-            setSearchCount(data.user.searchCount || 0);
-            if (data.user.tier) {
-              setUserTier(data.user.tier);
-              localStorage.setItem('hum-user-tier', data.user.tier);
-            } else {
-              setUserTier('free');
-              localStorage.setItem('hum-user-tier', 'free');
-            }
-            if (data.user.nickname) {
-              setNickname(data.user.nickname);
-            }
-            if (data.user.bookmarks && data.user.bookmarks.length > 0) {
-              setSavedSongs(data.user.bookmarks);
-            }
-            if (data.user.recentSearches && data.user.recentSearches.length > 0) {
-              setRecentSearches(data.user.recentSearches);
-            }
-            setShowAuthModal(false);
-            setAuthError('');
-          }
+      // Use checkAuthStatus to load user data (handles recent searches transformation)
+      checkAuthStatus(token)
+        .then(() => {
+          setShowAuthModal(false);
+          setAuthError('');
         })
         .catch(err => {
           console.error('Error fetching user data after Google OAuth:', err);
