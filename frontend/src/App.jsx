@@ -3751,7 +3751,7 @@ export default function HumApp() {
                       {/* Character illustration */}
                       <div className="relative h-52 flex items-center justify-center mb-4">
                         <img 
-                          src={avidListenerIcon} 
+                          src={wizardGuyIcon} 
                           alt="avid listener" 
                           className="w-full h-full object-contain drop-shadow-2xl"
                         />
