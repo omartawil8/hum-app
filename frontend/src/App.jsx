@@ -1783,6 +1783,7 @@ export default function HumApp() {
         setHasResult(true);
         setIsSearchingLyrics(false); // Clear loading state immediately
         setLyricsInput('');
+        setCaretPosition(0);
         
         // Update search counts
         if (user) {
@@ -2063,6 +2064,8 @@ export default function HumApp() {
     setIsHoveringBirdButton(false);
     setShowFeedback(false);
     setAudioBlob(null);
+    setLyricsInput('');
+    setCaretPosition(0);
   };
 
   const cancelListening = () => {
@@ -4716,6 +4719,12 @@ export default function HumApp() {
                           setLyricsInput(newValue);
                           setLyricsInputLength(newValue.length);
                           
+                          // Reset caret position if input is empty
+                          if (!newValue) {
+                            setCaretPosition(0);
+                            return;
+                          }
+                          
                           // Calculate caret position
                           if (lyricsInputRef.current) {
                             const input = lyricsInputRef.current;
@@ -4869,9 +4878,9 @@ export default function HumApp() {
                           if (!user && anonymousSearchCount >= ANONYMOUS_SEARCH_LIMIT) {
                             setShowAuthModal(true);
                           } else if (user && userTier === 'free' && searchCount >= FREE_SEARCH_LIMIT) {
-                            setShowUpgradeModal(true);
-                          }
-                        }}
+                          setShowUpgradeModal(true);
+                        }
+                      }}
                       disabled={isSearchingLyrics}
                         className="w-full bg-white/10 backdrop-blur-sm border border-white/20 focus:border-purple-400/30 rounded-full py-4 pl-14 pr-14 text-white placeholder-white/50 focus:outline-none transition-all disabled:opacity-50 lyrics-input-smooth"
                         style={{
