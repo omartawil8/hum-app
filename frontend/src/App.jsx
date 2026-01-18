@@ -4851,7 +4851,14 @@ export default function HumApp() {
                       mediaRecorderRef.current.stop();
                       setIsListening(false);
                       setRecordingStartTime(null);
+                      setIsHoveringBirdButton(false);
                     }
+                  }}
+                  onMouseEnter={() => {
+                    setIsHoveringBirdButton(true);
+                  }}
+                  onMouseLeave={() => {
+                    setIsHoveringBirdButton(false);
                   }}
                   className={`relative mb-8 ${
                     recordingStartTime && Date.now() - recordingStartTime < 6000
