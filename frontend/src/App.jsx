@@ -2133,12 +2133,12 @@ export default function HumApp() {
       setIsClosingResults(false);
       // Force a reflow to ensure DOM is ready
       void document.body.offsetHeight;
-      // Start animation on next frame for smooth fade-in
+      // Start animation on next frame
       requestAnimationFrame(() => {
         setIsHomepageAnimating(true);
-        setTimeout(() => setIsHomepageAnimating(false), 500);
+        setTimeout(() => setIsHomepageAnimating(false), 450);
       });
-    }, 500); // Match the fade-out duration
+    }, 450);
   };
 
   const handleCloseTips = () => {
@@ -4574,8 +4574,8 @@ export default function HumApp() {
                 style={{
                   opacity: (!hasResult && !isClosingResults) ? 1 : 0,
                   transform: (!hasResult && !isClosingResults) ? 'translateY(0) translateZ(0)' : 'translateY(10px) translateZ(0)',
-                  transition: isHomepageAnimating ? 'opacity 0.5s ease-out, transform 0.5s ease-out' : 'opacity 0.3s ease-out, transform 0.3s ease-out',
-                  willChange: 'opacity, transform',
+                  transition: isHomepageAnimating ? 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)' : 'opacity 0.3s ease-out, transform 0.3s ease-out',
+                  willChange: 'transform, opacity',
                   backfaceVisibility: 'hidden',
                   pointerEvents: (!hasResult && !isClosingResults) ? 'auto' : 'none'
                 }}
@@ -5141,13 +5141,13 @@ export default function HumApp() {
             )}
 
             {/* Results State */}
-            {(hasResult || isClosingResults) && matchData && (
+            {hasResult && matchData && (
               <div 
                 className="pt-16 pb-8"
                 style={{
                   opacity: isClosingResults ? 0 : 1,
-                  transform: isClosingResults ? 'translateY(10px) translateZ(0)' : 'translateY(0) translateZ(0)',
-                  transition: 'opacity 0.5s ease-out, transform 0.5s ease-out',
+                  transform: isClosingResults ? 'translateY(20px) translateZ(0)' : 'translateY(0) translateZ(0)',
+                  transition: 'opacity 0.4s ease-out, transform 0.4s ease-out',
                   willChange: 'opacity, transform',
                   pointerEvents: isClosingResults ? 'none' : 'auto'
                 }}
