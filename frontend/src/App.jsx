@@ -76,6 +76,7 @@ export default function HumApp() {
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [isHoveringInteractive, setIsHoveringInteractive] = useState(false);
   const [isHoveringBookmark, setIsHoveringBookmark] = useState(false);
+  const [removingBookmarks, setRemovingBookmarks] = useState(new Set());
   const [showTopBar, setShowTopBar] = useState(true);
   const lastScrollYRef = useRef(0);
   const cursorRef = useRef(null);
@@ -1939,16 +1940,30 @@ export default function HumApp() {
   };
 
   const removeBookmark = (song) => {
+    const songId = `${song.title}|${song.artist}`;
+    
+    // Mark as removing to trigger animation
+    setRemovingBookmarks(prev => new Set(prev).add(songId));
+    
+    // Wait for animation to complete, then remove from list
+    setTimeout(() => {
     const newSavedSongs = savedSongs.filter(
       s => !(s.title === song.title && s.artist === song.artist)
     );
     setSavedSongs(newSavedSongs);
-    // Save to API if logged in, otherwise localStorage
-    if (user) {
-      saveBookmarksToAPI(newSavedSongs);
-    } else {
+      setRemovingBookmarks(prev => {
+        const next = new Set(prev);
+        next.delete(songId);
+        return next;
+      });
+      
+      // Save to API if logged in, otherwise localStorage
+      if (user) {
+        saveBookmarksToAPI(newSavedSongs);
+      } else {
     localStorage.setItem('hum-saved-songs', JSON.stringify(newSavedSongs));
-    }
+      }
+    }, 300); // Match animation duration
   };
 
   const toggleSearchBookmark = (search, e) => {
@@ -2639,6 +2654,21 @@ export default function HumApp() {
 
         .animate-slide-out {
           animation: slideOut 0.25s ease-in forwards;
+        }
+
+        @keyframes bookmarkRemove {
+          from {
+            opacity: 1;
+            transform: scale(1) translateX(0);
+          }
+          to {
+            opacity: 0;
+            transform: scale(0.95) translateX(-10px);
+          }
+        }
+
+        .animate-bookmark-remove {
+          animation: bookmarkRemove 0.3s ease-out forwards;
         }
 
         @keyframes wave {
@@ -4002,7 +4032,9 @@ export default function HumApp() {
                             window.open(song.spotifyUrl, '_blank', 'noopener,noreferrer');
                           }
                         }}
-                        className="bookmark-item group relative bg-white/[0.03] backdrop-blur-sm rounded-xl p-3 border border-white/[0.06] hover:bg-white/[0.06] transition-all duration-200 hover:scale-[1.01] cursor-pointer"
+                        className={`bookmark-item group relative bg-white/[0.03] backdrop-blur-sm rounded-xl p-3 border border-white/[0.06] hover:bg-white/[0.06] transition-all duration-200 hover:scale-[1.01] cursor-pointer ${
+                          removingBookmarks.has(`${song.title}|${song.artist}`) ? 'animate-bookmark-remove' : ''
+                        }`}
                       >
                         <div className="flex items-center gap-3">
                           {/* Album Art */}
