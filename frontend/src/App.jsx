@@ -4715,16 +4715,12 @@ export default function HumApp() {
                           setLyricsInput(newValue);
                           setLyricsInputLength(newValue.length);
                           
-                          // Calculate caret position using Range API for pixel-perfect alignment
+                          // Calculate caret position
                           if (lyricsInputRef.current) {
                             const input = lyricsInputRef.current;
                             setTimeout(() => {
                               const selectionStart = input.selectionStart || newValue.length;
-                              
-                              // Use Range API to get exact caret position
-                              const range = document.createRange();
-                              const selection = window.getSelection();
-                              selection.removeAllRanges();
+                              const textBeforeCaret = newValue.substring(0, selectionStart);
                               
                               // Create a mirror element to measure text
                               const mirror = document.createElement('span');
@@ -4737,7 +4733,7 @@ export default function HumApp() {
                               mirror.style.fontFamily = computedStyle.fontFamily;
                               mirror.style.fontWeight = computedStyle.fontWeight;
                               mirror.style.letterSpacing = computedStyle.letterSpacing;
-                              mirror.textContent = newValue.substring(0, selectionStart) || '\u200b';
+                              mirror.textContent = textBeforeCaret || '\u200b';
                               document.body.appendChild(mirror);
                               
                               const textWidth = mirror.offsetWidth;
@@ -4847,7 +4843,7 @@ export default function HumApp() {
                         <div
                           className="absolute top-1/2 -translate-y-1/2 pointer-events-none z-20"
                           style={{
-                            left: `${56 + 20 + caretPosition}px`, // pl-14 (56px) + icon width (20px) + text width (measured)
+                            left: `${56 + caretPosition}px`, // pl-14 (56px padding) + text width
                             width: '2px',
                             height: '1.2em',
                             background: '#D8B5FE',
