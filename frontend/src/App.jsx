@@ -56,6 +56,7 @@ export default function HumApp() {
   const [isHomepageAnimating, setIsHomepageAnimating] = useState(false);
   const [birdButtonProximity, setBirdButtonProximity] = useState(0);
   const [recordingStartTime, setRecordingStartTime] = useState(null);
+  const [isButtonClickable, setIsButtonClickable] = useState(false);
   const [showTips, setShowTips] = useState(false);
   const [isClosingTips, setIsClosingTips] = useState(false);
   const [recentSearches, setRecentSearches] = useState([]);
@@ -1156,6 +1157,19 @@ export default function HumApp() {
       }
     };
   }, []);
+
+  // Track when the listening button becomes clickable (after 6 seconds)
+  useEffect(() => {
+    if (isListening && recordingStartTime) {
+      setIsButtonClickable(false);
+      const timer = setTimeout(() => {
+        setIsButtonClickable(true);
+      }, 6000);
+      return () => clearTimeout(timer);
+    } else {
+      setIsButtonClickable(false);
+    }
+  }, [isListening, recordingStartTime]);
 
   // Calculate particle repulsion from cursor
   useEffect(() => {
@@ -5075,7 +5089,7 @@ export default function HumApp() {
                     setIsHoveringBirdButton(false);
                   }}
                   className={`relative mb-8 ${
-                    recordingStartTime && Date.now() - recordingStartTime < 6000
+                    !isButtonClickable
                       ? 'cursor-not-allowed opacity-50'
                       : 'cursor-pointer'
                   }`}
@@ -5369,9 +5383,9 @@ export default function HumApp() {
             position: 'fixed',
             left: 0,
             top: 0,
-            width: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? ((isListening && recordingStartTime && Date.now() - recordingStartTime >= 6000) ? '60px' : (isListening ? '16px' : '50px')) : (isHoveringBookmark ? '32px' : '16px'),
-            height: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? ((isListening && recordingStartTime && Date.now() - recordingStartTime >= 6000) ? '28px' : (isListening ? '16px' : '28px')) : (isHoveringBookmark ? '32px' : '16px'),
-            borderRadius: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? ((isListening && recordingStartTime && Date.now() - recordingStartTime >= 6000) ? '100px' : (isListening ? '50%' : '100px')) : '50%',
+            width: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? ((isListening && isButtonClickable) ? '60px' : (isListening ? '16px' : '50px')) : (isHoveringBookmark ? '32px' : '16px'),
+            height: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? ((isListening && isButtonClickable) ? '28px' : (isListening ? '16px' : '28px')) : (isHoveringBookmark ? '32px' : '16px'),
+            borderRadius: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? ((isListening && isButtonClickable) ? '100px' : (isListening ? '50%' : '100px')) : '50%',
             backgroundColor: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? '#D8B5FE' : (isHoveringBookmark ? '#1DB954' : (isHoveringInteractive ? '#D8B5FE' : '#FFFFFF')),
             pointerEvents: 'none',
             transform: 'translate(-50%, -50%)',
@@ -5382,8 +5396,8 @@ export default function HumApp() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? ((isListening && recordingStartTime && Date.now() - recordingStartTime >= 6000) ? '8px 10px' : (isListening ? '0' : '8px 10px')) : '0',
-            fontSize: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? ((isListening && recordingStartTime && Date.now() - recordingStartTime >= 6000) ? '14px' : (isListening ? '0' : '14px')) : '0',
+            padding: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? ((isListening && isButtonClickable) ? '8px 10px' : (isListening ? '0' : '8px 10px')) : '0',
+            fontSize: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? ((isListening && isButtonClickable) ? '14px' : (isListening ? '0' : '14px')) : '0',
             fontWeight: isHoveringBirdButton ? '600' : 'normal',
             color: isHoveringBirdButton ? '#FFFFFF' : 'transparent',
             whiteSpace: 'nowrap',
@@ -5405,11 +5419,11 @@ export default function HumApp() {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            opacity: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? ((isListening && recordingStartTime && Date.now() - recordingStartTime >= 6000) ? 1 : (isListening ? 0 : 1)) : 0,
+            opacity: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? ((isListening && isButtonClickable) ? 1 : (isListening ? 0 : 1)) : 0,
             transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             pointerEvents: 'none'
           }}>
-            {(isListening && recordingStartTime && Date.now() - recordingStartTime >= 6000) ? 'finish' : 'tap'}
+            {(isListening && isButtonClickable) ? 'finish' : 'tap'}
           </span>
           <svg
             width="18"
