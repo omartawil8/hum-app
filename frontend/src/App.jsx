@@ -5,9 +5,28 @@ import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
 import wizardGuyIcon from './assets/Wizard_guy.png';
 import avidListenerIcon from './assets/Avid_Listener.png';
+import crownIcon from './assets/crown.png';
+import potionIcon from './assets/potion.png';
+import treeIcon from './assets/tree.png';
+import fireFaceIcon from './assets/fire-face.png';
+import abstractIcon from './assets/abstract.png';
 
 // API base URL - use environment variable or default to localhost for development
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+// Icon mapping for pixel art icons
+const iconMap = {
+  'crown': crownIcon,
+  'potion': potionIcon,
+  'tree': treeIcon,
+  'fire-face': fireFaceIcon,
+  'abstract': abstractIcon
+};
+
+const getIconImage = (iconId) => {
+  if (!iconId) return null;
+  return iconMap[iconId] || null;
+};
 
 // Log API URL for debugging (remove in production if needed)
 console.log('🌐 API Base URL:', API_BASE_URL);
@@ -3466,7 +3485,11 @@ export default function HumApp() {
               }}
               className={`flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 backdrop-blur-sm border rounded-full text-sm text-white/70 hover:border-[#D8B5FE] transition-all ${showProfileModal ? 'border-[#D8B5FE]' : 'border-white/10'}`}
             >
-              {userIcon && <span className="text-lg">{userIcon}</span>}
+              {userIcon && getIconImage(userIcon) ? (
+                <img src={getIconImage(userIcon)} alt={userIcon} className="w-5 h-5 object-contain" />
+              ) : userIcon ? (
+                <span className="text-lg">{userIcon}</span>
+              ) : null}
               <span className="truncate max-w-[150px]">{nickname || user.email}</span>
             </button>
           )}
@@ -4391,18 +4414,24 @@ export default function HumApp() {
                     >
                       <XCircle className="w-5 h-5" />
                     </button>
-                    {['😎', '🔥', '✨', '⭐', '🚀'].map((emoji, idx) => (
+                    {[
+                      { id: 'crown', icon: crownIcon },
+                      { id: 'potion', icon: potionIcon },
+                      { id: 'tree', icon: treeIcon },
+                      { id: 'fire-face', icon: fireFaceIcon },
+                      { id: 'abstract', icon: abstractIcon }
+                    ].map((item, idx) => (
                       <button
                         key={idx}
                         onClick={() => {
-                          setIconInput(emoji);
+                          setIconInput(item.id);
                         }}
-                        className={`w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 transition-all text-xl leading-none ${
-                          iconInput === emoji ? 'bg-[#D8B5FE]/30 border-2 border-[#D8B5FE]' : 'border border-transparent'
+                        className={`w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 transition-all ${
+                          iconInput === item.id ? 'bg-[#D8B5FE]/30 border-2 border-[#D8B5FE]' : 'border border-transparent'
                         }`}
                         style={{ aspectRatio: '1' }}
                       >
-                        <span className="block" style={{ lineHeight: '1' }}>{emoji}</span>
+                        <img src={item.icon} alt={item.id} className="w-8 h-8 object-contain" />
                       </button>
                     ))}
                   </div>
