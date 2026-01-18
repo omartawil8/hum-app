@@ -4345,7 +4345,7 @@ export default function HumApp() {
                         }
                       }}
                       disabled={!nicknameInput || nicknameInput === nickname}
-                      className="px-3 py-2 bg-[#D8B5FE]/20 hover:bg-[#D8B5FE]/30 border border-[#D8B5FE]/40 rounded-xl text-sm text-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-2 bg-transparent hover:border-[#D8B5FE] border border-white/20 rounded-xl text-sm text-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       save
                     </button>
