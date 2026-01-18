@@ -4739,7 +4739,17 @@ export default function HumApp() {
                               const textWidth = mirror.offsetWidth;
                               document.body.removeChild(mirror);
                               
-                              setCaretPosition(textWidth);
+                              // Get input dimensions to clamp caret position
+                              const inputRect = input.getBoundingClientRect();
+                              const inputPaddingLeft = parseInt(computedStyle.paddingLeft, 10);
+                              const inputPaddingRight = parseInt(computedStyle.paddingRight, 10);
+                              const visibleWidth = inputRect.width - inputPaddingLeft - inputPaddingRight;
+                              
+                              // Clamp caret position to stay within visible area
+                              // When text scrolls, keep caret at right edge
+                              const clampedPosition = Math.min(textWidth, visibleWidth);
+                              
+                              setCaretPosition(clampedPosition);
                             }, 0);
                           }
                         }}
@@ -4765,7 +4775,17 @@ export default function HumApp() {
                               const textWidth = mirror.offsetWidth;
                               document.body.removeChild(mirror);
                               
-                              setCaretPosition(textWidth);
+                              // Get input dimensions to clamp caret position
+                              const inputRect = input.getBoundingClientRect();
+                              const inputPaddingLeft = parseInt(computedStyle.paddingLeft, 10);
+                              const inputPaddingRight = parseInt(computedStyle.paddingRight, 10);
+                              const visibleWidth = inputRect.width - inputPaddingLeft - inputPaddingRight;
+                              
+                              // Clamp caret position to stay within visible area
+                              // When text scrolls, keep caret at right edge
+                              const clampedPosition = Math.min(textWidth, visibleWidth);
+                              
+                              setCaretPosition(clampedPosition);
                             }, 0);
                           }
                         }}
@@ -4792,7 +4812,17 @@ export default function HumApp() {
                               const textWidth = mirror.offsetWidth;
                               document.body.removeChild(mirror);
                               
-                              setCaretPosition(textWidth);
+                              // Get input dimensions to clamp caret position
+                              const inputRect = input.getBoundingClientRect();
+                              const inputPaddingLeft = parseInt(computedStyle.paddingLeft, 10);
+                              const inputPaddingRight = parseInt(computedStyle.paddingRight, 10);
+                              const visibleWidth = inputRect.width - inputPaddingLeft - inputPaddingRight;
+                              
+                              // Clamp caret position to stay within visible area
+                              // When text scrolls, keep caret at right edge
+                              const clampedPosition = Math.min(textWidth, visibleWidth);
+                              
+                              setCaretPosition(clampedPosition);
                             }, 0);
                           }
                         }}
@@ -4820,7 +4850,17 @@ export default function HumApp() {
                               const textWidth = mirror.offsetWidth;
                               document.body.removeChild(mirror);
                               
-                              setCaretPosition(textWidth);
+                              // Get input dimensions to clamp caret position
+                              const inputRect = input.getBoundingClientRect();
+                              const inputPaddingLeft = parseInt(computedStyle.paddingLeft, 10);
+                              const inputPaddingRight = parseInt(computedStyle.paddingRight, 10);
+                              const visibleWidth = inputRect.width - inputPaddingLeft - inputPaddingRight;
+                              
+                              // Clamp caret position to stay within visible area
+                              // When text scrolls, keep caret at right edge
+                              const clampedPosition = Math.min(textWidth, visibleWidth);
+                              
+                              setCaretPosition(clampedPosition);
                             }, 0);
                           }
                           
