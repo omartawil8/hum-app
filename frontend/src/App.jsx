@@ -4333,19 +4333,30 @@ export default function HumApp() {
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-white/80 mb-2">nickname</label>
                   <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={nicknameInput !== null ? nicknameInput : (nickname || '')}
-                      onChange={(e) => setNicknameInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          handleSaveNickname();
-                        }
-                      }}
-                      placeholder="set a nickname"
-                      maxLength={16}
-                      className="flex-1 px-3 py-2 bg-white/[0.05] border border-white/15 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#D8B5FE]/40 focus:bg-white/[0.08] transition-all text-sm"
-                    />
+                    <div className="flex-1 relative">
+                      <input
+                        type="text"
+                        value={nicknameInput !== null ? nicknameInput : (nickname || '')}
+                        onChange={(e) => setNicknameInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handleSaveNickname();
+                          }
+                        }}
+                        placeholder="set a nickname"
+                        maxLength={16}
+                        className="w-full px-3 py-2 pr-10 bg-white/[0.05] border border-white/15 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#D8B5FE]/40 focus:bg-white/[0.08] transition-all text-sm"
+                      />
+                      {(nicknameInput !== null ? nicknameInput : (nickname || '')) && (
+                        <button
+                          onClick={() => setNicknameInput('')}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full hover:bg-white/20 transition-all"
+                          type="button"
+                        >
+                          <X className="w-3 h-3 text-white/60" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                   {nickname && (
                     <button
@@ -4403,6 +4414,16 @@ export default function HumApp() {
                 {/* Save and Logout Buttons */}
                 <div className="flex justify-center gap-3">
                   <button
+                    onClick={() => {
+                      handleLogout();
+                      handleCloseProfile();
+                    }}
+                    className="px-4 py-2 rounded-full border-2 border-red-500/40 hover:bg-red-500/30 hover:border-red-500/60 flex items-center gap-2 transition-all text-sm text-red-300 font-semibold"
+                  >
+                    <span>logout</span>
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                  <button
                     onClick={async () => {
                       if (nicknameInput !== null && (nicknameInput.trim() !== (nickname || ''))) {
                         await handleSaveNickname();
@@ -4412,16 +4433,6 @@ export default function HumApp() {
                     className="px-4 py-2 bg-transparent hover:border-[#D8B5FE] border border-white/20 rounded-full text-sm text-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     save
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      handleCloseProfile();
-                    }}
-                    className="px-4 py-2 rounded-full border-2 border-red-500/40 hover:bg-red-500/30 hover:border-red-500/60 flex items-center gap-2 transition-all text-sm text-red-300 font-semibold"
-                  >
-                    <span>logout</span>
-                    <LogOut className="w-4 h-4" />
                   </button>
                 </div>
               </div>
