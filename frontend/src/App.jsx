@@ -67,6 +67,7 @@ export default function HumApp() {
   const [nicknameInput, setNicknameInput] = useState('');
   const [userIcon, setUserIcon] = useState('');
   const [initialIcon, setInitialIcon] = useState('');
+  const [iconInput, setIconInput] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [isClosingProfile, setIsClosingProfile] = useState(false);
   const [anonymousSearchCount, setAnonymousSearchCount] = useState(0);
@@ -784,7 +785,7 @@ export default function HumApp() {
         } else if (showProfileModal) {
           // If updating from profile modal, close it after saving
           setNicknameInput(data.nickname || '');
-          setInitialIcon(userIcon || '');
+          // initialIcon will be updated in save button if icon was also changed
           setIsClosingProfile(true);
           setTimeout(() => {
             setShowProfileModal(false);
@@ -3460,6 +3461,7 @@ export default function HumApp() {
               onClick={() => {
                 setNicknameInput(nickname || '');
                 setInitialIcon(userIcon || '');
+                setIconInput(userIcon || null);
                 setShowProfileModal(true);
               }}
               className={`flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 backdrop-blur-sm border rounded-full text-sm text-white/70 hover:border-[#D8B5FE] transition-all ${showProfileModal ? 'border-[#D8B5FE]' : 'border-white/10'}`}
@@ -4379,11 +4381,11 @@ export default function HumApp() {
                   <label className="block text-sm font-semibold text-white/80 mb-3">choose your icon</label>
                   <div className="flex gap-2 flex-wrap">
                     <button
-                      onClick={async () => {
-                        await handleUpdateIcon(null);
+                      onClick={() => {
+                        setIconInput(null);
                       }}
                       className={`w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 transition-all border ${
-                        !userIcon ? 'bg-[#D8B5FE]/30 border-[#D8B5FE]' : 'border-white/20'
+                        iconInput === null ? 'bg-[#D8B5FE]/30 border-[#D8B5FE]' : 'border-white/20'
                       }`}
                       title="No icon"
                     >
@@ -4392,11 +4394,11 @@ export default function HumApp() {
                     {['😎', '🔥', '✨', '⭐', '🚀'].map((emoji, idx) => (
                       <button
                         key={idx}
-                        onClick={async () => {
-                          await handleUpdateIcon(emoji);
+                        onClick={() => {
+                          setIconInput(emoji);
                         }}
                         className={`w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 transition-all text-xl leading-none ${
-                          userIcon === emoji ? 'bg-[#D8B5FE]/30 border-2 border-[#D8B5FE]' : 'border border-transparent'
+                          iconInput === emoji ? 'bg-[#D8B5FE]/30 border-2 border-[#D8B5FE]' : 'border border-transparent'
                         }`}
                         style={{ aspectRatio: '1' }}
                       >
@@ -4429,20 +4431,33 @@ export default function HumApp() {
                   <button
                     onClick={async () => {
                       const hasNicknameChange = nicknameInput !== null && (nicknameInput.trim() !== (nickname || ''));
-                      const hasIconChange = userIcon !== initialIcon;
+                      const hasIconChange = iconInput !== initialIcon;
                       
+                      // Save icon if changed
+                      if (hasIconChange) {
+                        await handleUpdateIcon(iconInput);
+                        setInitialIcon(iconInput !== null ? iconInput : '');
+                      }
+                      
+                      // Save nickname if changed (this will close the modal if in profile modal)
                       if (hasNicknameChange) {
                         await handleSaveNickname();
-                      }
-                      if (hasIconChange && !hasNicknameChange) {
-                        // Icon is already saved via handleUpdateIcon, but we reset initialIcon to reflect the change
-                        // If nickname was also saved, initialIcon will be reset in handleSaveNickname
-                        setInitialIcon(userIcon);
+                        // Also update initialIcon if icon was changed (since handleSaveNickname doesn't know about icon)
+                        if (hasIconChange) {
+                          setInitialIcon(iconInput !== null ? iconInput : '');
+                        }
+                      } else if (hasIconChange) {
+                        // If only icon changed (no nickname change), close modal after saving icon
+                        setIsClosingProfile(true);
+                        setTimeout(() => {
+                          setShowProfileModal(false);
+                          setIsClosingProfile(false);
+                        }, 250);
                       }
                     }}
-                    disabled={nicknameInput === null || ((nicknameInput.trim() === (nickname || '')) && (userIcon === initialIcon))}
+                    disabled={nicknameInput === null || ((nicknameInput.trim() === (nickname || '')) && (iconInput === initialIcon))}
                     className={`px-4 py-2 bg-transparent hover:border-[#D8B5FE] rounded-full text-sm text-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                      (nicknameInput !== null && (nicknameInput.trim() !== (nickname || ''))) || (userIcon !== initialIcon)
+                      (nicknameInput !== null && (nicknameInput.trim() !== (nickname || ''))) || (iconInput !== initialIcon)
                         ? 'border border-[#D8B5FE]/60' 
                         : 'border border-white/20'
                     }`}
