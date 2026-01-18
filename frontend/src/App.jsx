@@ -2136,9 +2136,9 @@ export default function HumApp() {
       // Start animation on next frame for smooth fade-in
       requestAnimationFrame(() => {
         setIsHomepageAnimating(true);
-        setTimeout(() => setIsHomepageAnimating(false), 500);
+        setTimeout(() => setIsHomepageAnimating(false), 400);
       });
-    }, 500); // Match the fade-out duration
+    }, 300); // Faster fade-out
   };
 
   const handleCloseTips = () => {
@@ -4573,9 +4573,8 @@ export default function HumApp() {
                 className="flex flex-col items-center"
                 style={{
                   opacity: (!hasResult && !isClosingResults) ? 1 : 0,
-                  transform: (!hasResult && !isClosingResults) ? 'translateY(0) translateZ(0)' : 'translateY(10px) translateZ(0)',
-                  transition: isHomepageAnimating ? 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)' : 'opacity 0.3s ease-out, transform 0.3s ease-out',
-                  willChange: 'transform, opacity',
+                  transition: isHomepageAnimating ? 'opacity 0.4s ease-out' : 'opacity 0.3s ease-out',
+                  willChange: 'opacity',
                   backfaceVisibility: 'hidden',
                   pointerEvents: (!hasResult && !isClosingResults) ? 'auto' : 'none'
                 }}
@@ -5146,9 +5145,8 @@ export default function HumApp() {
                 className="pt-16 pb-8"
                 style={{
                   opacity: isClosingResults ? 0 : 1,
-                  transform: isClosingResults ? 'translateY(10px) translateZ(0)' : 'translateY(0) translateZ(0)',
-                  transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                  willChange: 'opacity, transform',
+                  transition: 'opacity 0.3s ease-out',
+                  willChange: 'opacity',
                   pointerEvents: isClosingResults ? 'none' : 'auto'
                 }}
               >
