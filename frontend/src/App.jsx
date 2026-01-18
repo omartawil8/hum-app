@@ -3484,12 +3484,12 @@ export default function HumApp() {
                 setIconInput(userIcon || null);
                 setShowProfileModal(true);
               }}
-              className={`flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 backdrop-blur-sm border rounded-full text-sm text-white/70 hover:border-[#D8B5FE] transition-all ${showProfileModal ? 'border-[#D8B5FE]' : 'border-white/10'}`}
+              className={`flex items-center gap-2 px-4 h-10 bg-white/5 hover:bg-white/10 backdrop-blur-sm border rounded-full text-sm text-white/70 hover:border-[#D8B5FE] transition-all ${showProfileModal ? 'border-[#D8B5FE]' : 'border-white/10'}`}
             >
               {userIcon && getIconImage(userIcon) ? (
-                <img src={getIconImage(userIcon)} alt={userIcon} className="w-6 h-6 object-contain" />
+                <img src={getIconImage(userIcon)} alt={userIcon} className="w-6 h-6 object-contain flex-shrink-0" />
               ) : userIcon ? (
-                <span className="text-lg">{userIcon}</span>
+                <span className="text-lg flex-shrink-0">{userIcon}</span>
               ) : null}
               <span className="truncate max-w-[150px]">{nickname || user.email}</span>
             </button>
@@ -4364,7 +4364,7 @@ export default function HumApp() {
                     <img 
                       src={getIconImage(userIcon)} 
                       alt={userIcon} 
-                      className="w-8 h-8 object-contain" 
+                      className="w-8 h-8 object-contain flex-shrink-0" 
                     />
                   )}
                 </div>
@@ -4443,7 +4443,7 @@ export default function HumApp() {
                         }`}
                         style={{ aspectRatio: '1' }}
                       >
-                        <img src={item.icon} alt={item.id} className="w-8 h-8 object-contain" />
+                        <img src={item.icon} alt={item.id} className="w-8 h-8 object-contain flex-shrink-0" />
                       </button>
                     ))}
                   </div>
