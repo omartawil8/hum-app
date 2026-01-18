@@ -66,6 +66,7 @@ export default function HumApp() {
   const [isClosingNickname, setIsClosingNickname] = useState(false);
   const [nicknameInput, setNicknameInput] = useState('');
   const [userIcon, setUserIcon] = useState('');
+  const [initialIcon, setInitialIcon] = useState('');
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [isClosingProfile, setIsClosingProfile] = useState(false);
   const [anonymousSearchCount, setAnonymousSearchCount] = useState(0);
@@ -783,6 +784,7 @@ export default function HumApp() {
         } else if (showProfileModal) {
           // If updating from profile modal, close it after saving
           setNicknameInput(data.nickname || '');
+          setInitialIcon(userIcon || '');
           setIsClosingProfile(true);
           setTimeout(() => {
             setShowProfileModal(false);
@@ -3457,6 +3459,7 @@ export default function HumApp() {
             <button
               onClick={() => {
                 setNicknameInput(nickname || '');
+                setInitialIcon(userIcon || '');
                 setShowProfileModal(true);
               }}
               className={`flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 backdrop-blur-sm border rounded-full text-sm text-white/70 hover:border-[#D8B5FE] transition-all ${showProfileModal ? 'border-[#D8B5FE]' : 'border-white/10'}`}
@@ -4425,13 +4428,21 @@ export default function HumApp() {
                   </button>
                   <button
                     onClick={async () => {
-                      if (nicknameInput !== null && (nicknameInput.trim() !== (nickname || ''))) {
+                      const hasNicknameChange = nicknameInput !== null && (nicknameInput.trim() !== (nickname || ''));
+                      const hasIconChange = userIcon !== initialIcon;
+                      
+                      if (hasNicknameChange) {
                         await handleSaveNickname();
                       }
+                      if (hasIconChange && !hasNicknameChange) {
+                        // Icon is already saved via handleUpdateIcon, but we reset initialIcon to reflect the change
+                        // If nickname was also saved, initialIcon will be reset in handleSaveNickname
+                        setInitialIcon(userIcon);
+                      }
                     }}
-                    disabled={nicknameInput === null || (nicknameInput.trim() === (nickname || ''))}
+                    disabled={nicknameInput === null || ((nicknameInput.trim() === (nickname || '')) && (userIcon === initialIcon))}
                     className={`px-4 py-2 bg-transparent hover:border-[#D8B5FE] rounded-full text-sm text-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                      nicknameInput !== null && (nicknameInput.trim() !== (nickname || '')) 
+                      (nicknameInput !== null && (nicknameInput.trim() !== (nickname || ''))) || (userIcon !== initialIcon)
                         ? 'border border-[#D8B5FE]/60' 
                         : 'border border-white/20'
                     }`}
