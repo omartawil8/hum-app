@@ -5143,7 +5143,7 @@ export default function HumApp() {
                 style={{
                   opacity: isClosingResults ? 0 : 1,
                   transform: isClosingResults ? 'translateY(20px) translateZ(0)' : 'translateY(0) translateZ(0)',
-                  transition: 'opacity 0.4s ease-out, transform 0.4s ease-out',
+                  transition: isClosingResults ? 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)' : 'opacity 0.3s ease-out, transform 0.3s ease-out',
                   willChange: 'opacity, transform',
                   pointerEvents: isClosingResults ? 'none' : 'auto'
                 }}
