@@ -3368,7 +3368,7 @@ export default function HumApp() {
             <div className="relative" ref={userDropdownRef}>
               <button
                 onClick={() => setShowUserDropdown(!showUserDropdown)}
-                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 backdrop-blur-sm border border-white/10 rounded-full text-sm text-white/70 transition-all"
+                className={`flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 backdrop-blur-sm border rounded-full text-sm text-white/70 hover:border-[#D8B5FE] transition-all ${showUserDropdown ? 'border-[#D8B5FE]' : 'border-white/10'}`}
               >
                 <span className="truncate max-w-[150px]">{nickname || user.email}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform ${showUserDropdown ? 'rotate-180' : ''}`} />
@@ -3376,7 +3376,7 @@ export default function HumApp() {
 
               {/* Dropdown Menu */}
               {showUserDropdown && (
-                <div className="absolute top-full right-0 mt-2 w-56 bg-white/[0.03] backdrop-blur-2xl rounded-xl border border-white/20 shadow-2xl z-50 overflow-hidden animate-slide-down">
+                <div className="absolute top-full right-0 mt-2 w-56 bg-white/[0.03] backdrop-blur-2xl rounded-xl border border-[#D8B5FE] shadow-2xl z-50 overflow-hidden animate-slide-down">
                   <button
                     onClick={() => {
                       setNicknameInput(nickname);
