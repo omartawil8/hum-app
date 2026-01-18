@@ -3424,7 +3424,7 @@ export default function HumApp() {
 
           {/* Help Dropdown */}
           {showTips && (
-              <div className={`absolute top-full right-0 mt-2 w-80 bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-2xl z-50 ${isClosingTips ? 'animate-slide-up' : 'animate-slide-down'}`}>
+              <div className={`absolute top-full right-0 mt-2 w-80 bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-6 border border-[#D8B5FE] shadow-2xl z-50 ${isClosingTips ? 'animate-slide-up' : 'animate-slide-down'}`}>
                 <h3 className="font-bold text-lg mb-2.5">welcome to hüm! 🎶</h3>
               <p className="text-sm text-white/70 mb-3.5 leading-relaxed">
                   you can hum, sing, or play a melody to search for the song name.
