@@ -1654,6 +1654,7 @@ export default function HumApp() {
         setHasResult(true);
         setIsProcessing(false); // Clear loading state immediately
         setError(null);
+        setIsHoveringBirdButton(false); // Reset bird button hover state
         
         // Save to recent searches
         const newSearch = {
@@ -1799,6 +1800,7 @@ export default function HumApp() {
         setIsSearchingLyrics(false); // Clear loading state immediately
         setLyricsInput('');
         setCaretPosition(0);
+        setIsHoveringBirdButton(false); // Reset bird button hover state
         
         // Show warning if results may not be accurate
         if (data.note) {
@@ -3482,6 +3484,8 @@ export default function HumApp() {
             {hasResult && matchData && (
               <button 
                 onClick={handleResetApp}
+                onMouseEnter={() => setIsHoveringBirdButton(false)}
+                onMouseLeave={() => setIsHoveringBirdButton(false)}
                 className="group flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 hover:border-[#D8B5FE]/40 transition-all duration-200 cursor-pointer relative"
               >
                 <img 
@@ -5142,8 +5146,9 @@ export default function HumApp() {
                 className="pt-16 pb-8"
                 style={{
                   opacity: isClosingResults ? 0 : 1,
-                  transition: 'opacity 0.4s ease-out',
-                  willChange: 'opacity',
+                  transform: isClosingResults ? 'translateY(20px) translateZ(0)' : 'translateY(0) translateZ(0)',
+                  transition: 'opacity 0.4s ease-out, transform 0.4s ease-out',
+                  willChange: 'opacity, transform',
                   pointerEvents: isClosingResults ? 'none' : 'auto'
                 }}
               >
