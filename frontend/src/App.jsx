@@ -3494,7 +3494,11 @@ export default function HumApp() {
                     setShowBookmarks(true);
                   }
                 }}
-                className="flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 hover:border-[#D8B5FE] transition-all group"
+                className={`flex items-center gap-2 px-4 py-3 backdrop-blur-sm border rounded-full transition-all group ${
+                  showBookmarks
+                    ? 'bg-gradient-to-br from-purple-500/20 to-blue-500/20 border-white/10'
+                    : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-[#D8B5FE]'
+                }`}
               >
                 <Bookmark 
                   className={`w-5 h-5 transition-all duration-200 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse fill-purple-400/90 text-purple-400' : ''}`} 
