@@ -4368,7 +4368,7 @@ export default function HumApp() {
                     <img 
                       src={getIconImage(userIcon)} 
                       alt={userIcon} 
-                      className="w-8 h-8 object-contain flex-shrink-0" 
+                      className={`object-contain flex-shrink-0 ${userIcon === 'shiba' || userIcon === 'ghost' ? 'w-9 h-9' : 'w-8 h-8'}`}
                     />
                   )}
                 </div>
