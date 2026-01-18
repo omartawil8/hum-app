@@ -5150,12 +5150,14 @@ export default function HumApp() {
             top: 0,
             width: isHoveringBirdButton ? 'auto' : (isHoveringBookmark ? '32px' : '16px'),
             height: isHoveringBirdButton ? 'auto' : (isHoveringBookmark ? '32px' : '16px'),
+            minWidth: isHoveringBirdButton ? 'auto' : '0',
+            minHeight: isHoveringBirdButton ? 'auto' : '0',
             borderRadius: isHoveringBirdButton ? '100px' : '50%',
             backgroundColor: isHoveringBirdButton ? '#D8B5FE' : (isHoveringBookmark ? '#1DB954' : (isHoveringInteractive ? '#D8B5FE' : '#FFFFFF')),
             pointerEvents: 'none',
             transform: 'translate(-50%, -50%)',
             zIndex: 10001,
-            transition: 'background-color 0.3s ease, width 0.3s ease, height 0.3s ease, border-radius 0.3s ease',
+            transition: 'background-color 0.3s ease, width 0.3s ease, height 0.3s ease, border-radius 0.3s ease, padding 0.3s ease, fontSize 0.3s ease',
             mixBlendMode: isHoveringBirdButton || isHoveringBookmark ? 'normal' : 'difference',
             willChange: 'left, top',
             display: 'flex',
@@ -5167,10 +5169,20 @@ export default function HumApp() {
             color: isHoveringBirdButton ? '#FFFFFF' : 'transparent',
             whiteSpace: 'nowrap',
             lineHeight: '1',
-            textAlign: 'center'
+            textAlign: 'center',
+            margin: 0
           }}
         >
-          {isHoveringBirdButton ? 'tap' : null}
+          <span style={{ 
+            display: 'block',
+            lineHeight: '1',
+            margin: 0,
+            padding: 0,
+            textAlign: 'center',
+            width: '100%'
+          }}>
+            {isHoveringBirdButton ? 'tap' : ''}
+          </span>
           <svg
             width="18"
             height="18"
