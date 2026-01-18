@@ -2150,15 +2150,12 @@ export default function HumApp() {
       setIsClosingResults(false);
       // Force a reflow to ensure DOM is ready
       void document.body.offsetHeight;
-      // Small delay to ensure results page is fully unmounted before homepage appears
-      setTimeout(() => {
-        // Start animation on next frame
-        requestAnimationFrame(() => {
-          setIsHomepageAnimating(true);
-          setTimeout(() => setIsHomepageAnimating(false), 450);
-        });
-      }, 50);
-    }, 400); // Match the fade-out duration exactly
+      // Start animation on next frame
+      requestAnimationFrame(() => {
+        setIsHomepageAnimating(true);
+        setTimeout(() => setIsHomepageAnimating(false), 450);
+      });
+    }, 450);
   };
 
   const handleCloseTips = () => {
@@ -4592,12 +4589,12 @@ export default function HumApp() {
               <div 
                 className="flex flex-col items-center"
                 style={{
-                  opacity: (!hasResult && !isClosingResults) ? (isHomepageAnimating ? 1 : 0) : 0,
-                  transform: (!hasResult && !isClosingResults) ? (isHomepageAnimating ? 'translateY(0) translateZ(0)' : 'translateY(10px) translateZ(0)') : 'translateY(10px) translateZ(0)',
+                  opacity: (!hasResult && !isClosingResults) ? 1 : 0,
+                  transform: (!hasResult && !isClosingResults) ? 'translateY(0) translateZ(0)' : 'translateY(10px) translateZ(0)',
                   transition: isHomepageAnimating ? 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)' : 'opacity 0.3s ease-out, transform 0.3s ease-out',
                   willChange: 'transform, opacity',
                   backfaceVisibility: 'hidden',
-                  pointerEvents: (!hasResult && !isClosingResults) ? (isHomepageAnimating ? 'auto' : 'none') : 'none'
+                  pointerEvents: (!hasResult && !isClosingResults) ? 'auto' : 'none'
                 }}
               >
                 <h1 className="text-5xl font-bold text-white text-center mb-12 mt-20">
