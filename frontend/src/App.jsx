@@ -756,8 +756,8 @@ export default function HumApp() {
   };
 
   const handleSaveNickname = async () => {
-    const trimmedNickname = nicknameInput.trim();
-    if (!trimmedNickname || !user) return;
+    const trimmedNickname = nicknameInput?.trim() || '';
+    if (!user) return;
     
     try {
       const token = localStorage.getItem('hum-auth-token');
@@ -767,12 +767,12 @@ export default function HumApp() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ nickname: trimmedNickname })
+        body: JSON.stringify({ nickname: trimmedNickname || null })
       });
 
       const data = await response.json();
       if (data.success) {
-        setNickname(data.nickname);
+        setNickname(data.nickname || '');
         if (showNicknameModal) {
           setIsClosingNickname(true);
           setTimeout(() => {
@@ -780,9 +780,17 @@ export default function HumApp() {
             setNicknameInput('');
             setIsClosingNickname(false);
           }, 250);
+        } else if (showProfileModal) {
+          // If updating from profile modal, close it after saving
+          setNicknameInput(data.nickname || '');
+          setIsClosingProfile(true);
+          setTimeout(() => {
+            setShowProfileModal(false);
+            setIsClosingProfile(false);
+          }, 250);
         } else {
-          // If updating from profile modal, just update the input
-          setNicknameInput(data.nickname);
+          // If updating from elsewhere, just update the input
+          setNicknameInput(data.nickname || '');
         }
       } else {
         alert('Failed to save nickname. Please try again.');
@@ -3448,7 +3456,7 @@ export default function HumApp() {
           {user && (
             <button
               onClick={() => {
-                setNicknameInput(nickname);
+                setNicknameInput(nickname || '');
                 setShowProfileModal(true);
               }}
               className={`flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 backdrop-blur-sm border rounded-full text-sm text-white/70 hover:border-[#D8B5FE] transition-all ${showProfileModal ? 'border-[#D8B5FE]' : 'border-white/10'}`}
@@ -4327,7 +4335,7 @@ export default function HumApp() {
                   <div className="flex items-center gap-2">
                     <input
                       type="text"
-                      value={nicknameInput || nickname || ''}
+                      value={nicknameInput !== null ? nicknameInput : (nickname || '')}
                       onChange={(e) => setNicknameInput(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
@@ -4396,11 +4404,11 @@ export default function HumApp() {
                 <div className="flex justify-center gap-3">
                   <button
                     onClick={async () => {
-                      if (nicknameInput !== null && nicknameInput !== nickname) {
+                      if (nicknameInput !== null && (nicknameInput.trim() !== (nickname || ''))) {
                         await handleSaveNickname();
                       }
                     }}
-                    disabled={!nicknameInput || nicknameInput === nickname || nicknameInput === null}
+                    disabled={nicknameInput === null || (nicknameInput.trim() === (nickname || ''))}
                     className="px-4 py-2 bg-transparent hover:border-[#D8B5FE] border border-white/20 rounded-full text-sm text-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     save
