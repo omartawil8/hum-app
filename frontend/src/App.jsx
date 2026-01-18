@@ -3487,7 +3487,13 @@ export default function HumApp() {
             {/* Bookmarks Button - Hide during listening */}
             {!(isListening && !isProcessing) && (
               <button
-                onClick={() => setShowBookmarks(!showBookmarks)}
+                onClick={() => {
+                  if (showBookmarks) {
+                    handleCloseBookmarks();
+                  } else {
+                    setShowBookmarks(true);
+                  }
+                }}
                 className="flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 hover:border-[#D8B5FE] transition-all group"
               >
                 <Bookmark 
