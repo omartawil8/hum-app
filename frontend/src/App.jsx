@@ -5158,7 +5158,7 @@ export default function HumApp() {
             )}
 
             {/* Results State */}
-            {hasResult && matchData && (
+            {(hasResult || isClosingResults) && matchData && (
               <div 
                 className="pt-16 pb-8"
                 style={{
