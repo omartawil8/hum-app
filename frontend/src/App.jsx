@@ -3494,6 +3494,10 @@ export default function HumApp() {
                     : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-[#D8B5FE]'
                 }`}
               >
+                <Bookmark 
+                  className={`w-5 h-5 transition-all duration-200 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse fill-purple-400/90 text-purple-400' : ''}`} 
+                  strokeWidth={1.5}
+                />
         </button>
             )}
             
@@ -4090,7 +4094,7 @@ export default function HumApp() {
               <div className="p-6 border-b border-white/[0.06]">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center border border-white/10">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center">
                       <Bookmark className="w-5 h-5 text-purple-300" strokeWidth={1.5} fill="currentColor" />
                     </div>
                     <div>
