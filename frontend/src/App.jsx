@@ -4549,7 +4549,10 @@ export default function HumApp() {
                 </h1>
 
                 <button
-                  onClick={startRecording}
+                  onClick={() => {
+                    setIsHoveringBirdButton(false);
+                    startRecording();
+                  }}
                   className={`relative group mb-8 ${
                     searchCount >= FREE_SEARCH_LIMIT && userTier === 'free'
                       ? 'opacity-50 cursor-not-allowed' 
@@ -5147,7 +5150,7 @@ export default function HumApp() {
             top: 0,
             width: isHoveringBirdButton ? 'auto' : (isHoveringBookmark ? '32px' : '16px'),
             height: isHoveringBirdButton ? 'auto' : (isHoveringBookmark ? '32px' : '16px'),
-            borderRadius: '50%',
+            borderRadius: isHoveringBirdButton ? '100px' : '50%',
             backgroundColor: isHoveringBirdButton ? '#D8B5FE' : (isHoveringBookmark ? '#1DB954' : (isHoveringInteractive ? '#D8B5FE' : '#FFFFFF')),
             pointerEvents: 'none',
             transform: 'translate(-50%, -50%)',
@@ -5158,12 +5161,13 @@ export default function HumApp() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: isHoveringBirdButton ? '8px 6px' : '0',
+            padding: isHoveringBirdButton ? '8px 10px' : '0',
             fontSize: isHoveringBirdButton ? '14px' : '0',
             fontWeight: isHoveringBirdButton ? '600' : 'normal',
             color: isHoveringBirdButton ? '#FFFFFF' : 'transparent',
             whiteSpace: 'nowrap',
-            lineHeight: isHoveringBirdButton ? '1' : 'normal'
+            lineHeight: '1',
+            textAlign: 'center'
           }}
         >
           {isHoveringBirdButton ? 'tap' : null}
