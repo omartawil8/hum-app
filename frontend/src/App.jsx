@@ -2066,6 +2066,7 @@ export default function HumApp() {
     setAudioBlob(null);
     setLyricsInput('');
     setCaretPosition(0);
+    setIsLyricsInputFocused(false);
   };
 
   const cancelListening = () => {
