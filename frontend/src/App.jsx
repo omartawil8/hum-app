@@ -2138,7 +2138,7 @@ export default function HumApp() {
         setIsHomepageAnimating(true);
         setTimeout(() => setIsHomepageAnimating(false), 500);
       });
-    }, 400);
+    }, 500); // Match the fade-out duration
   };
 
   const handleCloseTips = () => {
