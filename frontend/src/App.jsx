@@ -4430,7 +4430,11 @@ export default function HumApp() {
                       }
                     }}
                     disabled={nicknameInput === null || (nicknameInput.trim() === (nickname || ''))}
-                    className="px-4 py-2 bg-transparent hover:border-[#D8B5FE] border border-white/20 rounded-full text-sm text-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className={`px-4 py-2 bg-transparent hover:border-[#D8B5FE] rounded-full text-sm text-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                      nicknameInput !== null && (nicknameInput.trim() !== (nickname || '')) 
+                        ? 'border border-[#D8B5FE]/60' 
+                        : 'border border-white/20'
+                    }`}
                   >
                     save
                   </button>
