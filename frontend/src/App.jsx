@@ -99,6 +99,7 @@ export default function HumApp() {
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [isHoveringInteractive, setIsHoveringInteractive] = useState(false);
   const [isHoveringBookmark, setIsHoveringBookmark] = useState(false);
+  const [isHoveringBirdButton, setIsHoveringBirdButton] = useState(false);
   const [removingBookmarks, setRemovingBookmarks] = useState(new Set());
   const [showTopBar, setShowTopBar] = useState(true);
   const lastScrollYRef = useRef(0);
@@ -4574,8 +4575,12 @@ export default function HumApp() {
                       setBirdButtonProximity(0);
                     }
                   }}
+                  onMouseEnter={() => {
+                    setIsHoveringBirdButton(true);
+                  }}
                   onMouseLeave={() => {
                     setBirdButtonProximity(0);
+                    setIsHoveringBirdButton(false);
                   }}
                 >
                   {birdButtonProximity > 0 && (
@@ -5140,21 +5145,27 @@ export default function HumApp() {
             position: 'fixed',
             left: 0,
             top: 0,
-            width: isHoveringBookmark ? '32px' : '16px',
-            height: isHoveringBookmark ? '32px' : '16px',
-            borderRadius: '50%',
-            backgroundColor: isHoveringBookmark ? '#1DB954' : (isHoveringInteractive ? '#D8B5FE' : '#FFFFFF'),
+            width: isHoveringBirdButton ? 'auto' : (isHoveringBookmark ? '32px' : '16px'),
+            height: isHoveringBirdButton ? 'auto' : (isHoveringBookmark ? '32px' : '16px'),
+            borderRadius: isHoveringBirdButton ? '8px' : '50%',
+            backgroundColor: isHoveringBirdButton ? '#D8B5FE' : (isHoveringBookmark ? '#1DB954' : (isHoveringInteractive ? '#D8B5FE' : '#FFFFFF')),
             pointerEvents: 'none',
             transform: 'translate(-50%, -50%)',
             zIndex: 10001,
-            transition: 'background-color 0.3s ease, width 0.3s ease, height 0.3s ease',
-            mixBlendMode: isHoveringBookmark ? 'normal' : 'difference',
+            transition: 'background-color 0.3s ease, width 0.3s ease, height 0.3s ease, border-radius 0.3s ease',
+            mixBlendMode: isHoveringBirdButton || isHoveringBookmark ? 'normal' : 'difference',
             willChange: 'left, top',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            padding: isHoveringBirdButton ? '4px 8px' : '0',
+            fontSize: isHoveringBirdButton ? '12px' : '0',
+            fontWeight: isHoveringBirdButton ? '600' : 'normal',
+            color: isHoveringBirdButton ? '#FFFFFF' : 'transparent',
+            whiteSpace: 'nowrap'
           }}
         >
+          {isHoveringBirdButton ? 'tap' : null}
           <svg
             width="18"
             height="18"
@@ -5162,7 +5173,7 @@ export default function HumApp() {
             fill="white"
             style={{ 
               pointerEvents: 'none',
-              opacity: isHoveringBookmark ? 1 : 0,
+              opacity: isHoveringBookmark && !isHoveringBirdButton ? 1 : 0,
               transition: 'opacity 0.3s ease'
             }}
           >
