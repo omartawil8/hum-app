@@ -3496,7 +3496,7 @@ export default function HumApp() {
                 }}
                 className={`flex items-center gap-2 px-4 py-3 backdrop-blur-sm border rounded-full transition-all group ${
                   showBookmarks
-                    ? 'bg-gradient-to-br from-purple-500/20 to-blue-500/20 border-white/10'
+                    ? 'bg-gradient-to-br from-purple-500/20 to-blue-500/20 border-white/10 hover:border-[#D8B5FE]'
                     : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-[#D8B5FE]'
                 }`}
               >
