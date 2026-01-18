@@ -5142,9 +5142,8 @@ export default function HumApp() {
                 className="pt-16 pb-8"
                 style={{
                   opacity: isClosingResults ? 0 : 1,
-                  transform: isClosingResults ? 'translateY(20px) translateZ(0)' : 'translateY(0) translateZ(0)',
-                  transition: isClosingResults ? 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)' : 'opacity 0.3s ease-out, transform 0.3s ease-out',
-                  willChange: 'opacity, transform',
+                  transition: 'opacity 0.4s ease-out',
+                  willChange: 'opacity',
                   pointerEvents: isClosingResults ? 'none' : 'auto'
                 }}
               >
