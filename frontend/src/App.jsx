@@ -2150,12 +2150,15 @@ export default function HumApp() {
       setIsClosingResults(false);
       // Force a reflow to ensure DOM is ready
       void document.body.offsetHeight;
-      // Start animation on next frame
-      requestAnimationFrame(() => {
-        setIsHomepageAnimating(true);
-        setTimeout(() => setIsHomepageAnimating(false), 450);
-      });
-    }, 450);
+      // Small delay to ensure results page is fully unmounted before homepage appears
+      setTimeout(() => {
+        // Start animation on next frame
+        requestAnimationFrame(() => {
+          setIsHomepageAnimating(true);
+          setTimeout(() => setIsHomepageAnimating(false), 450);
+        });
+      }, 50);
+    }, 400); // Match the fade-out duration exactly
   };
 
   const handleCloseTips = () => {
