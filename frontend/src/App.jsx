@@ -5,6 +5,7 @@ import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
 import wizardGuyIcon from './assets/Wizard_guy.png';
 import avidListenerIcon from './assets/Avid_Listener.png';
+// Import pixel art icons - make sure these files exist in frontend/src/assets/
 import crownIcon from './assets/crown.png';
 import potionIcon from './assets/potion.png';
 import treeIcon from './assets/tree.png';
