@@ -3416,7 +3416,7 @@ export default function HumApp() {
           onMouseLeave={handleCloseTips}
         >
           <button
-            className={`flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm border rounded-full hover:bg-white/10 transition-all ${showTips ? 'border-[#D8B5FE]' : 'border-white/10'}`}
+            className={`flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm border rounded-full hover:bg-white/10 hover:border-[#D8B5FE] transition-all ${showTips ? 'border-[#D8B5FE]' : 'border-white/10'}`}
           >
               <span className="text-sm font-bold">help!</span>
             <span className="text-base">💡</span>
