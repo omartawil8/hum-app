@@ -4356,7 +4356,18 @@ export default function HumApp() {
               
               {/* Modal */}
               <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-6 max-w-sm w-full border border-[#D8B5FE] shadow-2xl">
-                <h2 className="text-2xl font-bold text-center mb-6">your profile</h2>
+                <div className="flex items-center justify-center gap-2 mb-6">
+                  <h2 className="text-2xl font-bold text-center">
+                    hi, {nickname || 'there'}
+                  </h2>
+                  {userIcon && getIconImage(userIcon) && (
+                    <img 
+                      src={getIconImage(userIcon)} 
+                      alt={userIcon} 
+                      className="w-6 h-6 object-contain" 
+                    />
+                  )}
+                </div>
 
                 {/* Nickname Section - Moved to top */}
                 <div className="mb-6">
