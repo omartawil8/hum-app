@@ -46,6 +46,11 @@ const userSchema = new mongoose.Schema({
     trim: true,
     maxlength: 16
   },
+  icon: {
+    type: String,
+    default: null,
+    trim: true
+  },
   bookmarks: [{
     title: String,
     artist: String,

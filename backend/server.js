@@ -596,6 +596,7 @@ app.get('/api/auth/google/callback', async (req, res) => {
     );
 
     // Redirect to frontend with token
+    console.log('🔐 Google OAuth success - redirecting to:', `${FRONTEND_URL}?google_auth_success=true&token=${token.substring(0, 20)}...`);
     res.redirect(`${FRONTEND_URL}?google_auth_success=true&token=${token}`);
   } catch (error) {
     console.error('Google OAuth error:', error);
@@ -664,6 +665,30 @@ app.put('/api/user/nickname', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error updating nickname:', error);
     res.status(500).json({ error: 'Failed to update nickname' });
+  }
+});
+
+// Update user icon endpoint
+app.put('/api/user/icon', authenticateToken, async (req, res) => {
+  try {
+    if (!isMongoConnected()) {
+      return res.status(503).json({ error: 'Database not available' });
+    }
+
+    const { icon } = req.body;
+    const user = await User.findById(req.user.userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    user.icon = icon && icon.trim() ? icon.trim() : null;
+    await user.save();
+
+    res.json({ success: true, icon: user.icon });
+  } catch (error) {
+    console.error('Error updating icon:', error);
+    res.status(500).json({ error: 'Failed to update icon' });
   }
 });
 

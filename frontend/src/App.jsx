@@ -65,6 +65,9 @@ export default function HumApp() {
   const [showNicknameModal, setShowNicknameModal] = useState(false);
   const [isClosingNickname, setIsClosingNickname] = useState(false);
   const [nicknameInput, setNicknameInput] = useState('');
+  const [userIcon, setUserIcon] = useState('');
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [isClosingProfile, setIsClosingProfile] = useState(false);
   const [anonymousSearchCount, setAnonymousSearchCount] = useState(0);
   const [isClosingAuth, setIsClosingAuth] = useState(false);
   const [welcomeMessage, setWelcomeMessage] = useState(null);
@@ -263,6 +266,9 @@ export default function HumApp() {
         // Load user data from API
         if (data.user.nickname) {
           setNickname(data.user.nickname);
+        }
+        if (data.user.icon) {
+          setUserIcon(data.user.icon);
         }
         if (data.user.bookmarks && data.user.bookmarks.length > 0) {
           setSavedSongs(data.user.bookmarks);
@@ -485,6 +491,9 @@ export default function HumApp() {
         if (data.user.nickname) {
           setNickname(data.user.nickname);
         }
+        if (data.user.icon) {
+          setUserIcon(data.user.icon);
+        }
         if (data.user.bookmarks && data.user.bookmarks.length > 0) {
           setSavedSongs(data.user.bookmarks);
         }
@@ -598,6 +607,9 @@ export default function HumApp() {
         if (data.user.nickname) {
           setNickname(data.user.nickname);
         }
+        if (data.user.icon) {
+          setUserIcon(data.user.icon);
+        }
         if (data.user.bookmarks && data.user.bookmarks.length > 0) {
           setSavedSongs(data.user.bookmarks);
         }
@@ -665,9 +677,10 @@ export default function HumApp() {
     setUser(null);
     setSearchCount(0);
     setNickname('');
+    setUserIcon('');
     setSavedSongs([]);
     setRecentSearches([]);
-    setShowUserDropdown(false); // Close dropdown on logout
+    setShowProfileModal(false);
     // Don't reset anonymousSearchCount - if they used it, it stays used
     // localStorage.removeItem('hum-anonymous-search-count'); // Keep this so they can't get another free search
     localStorage.removeItem('hum-search-count');
@@ -759,13 +772,17 @@ export default function HumApp() {
       const data = await response.json();
       if (data.success) {
         setNickname(data.nickname);
-        setIsClosingNickname(true);
-        setTimeout(() => {
-          setShowNicknameModal(false);
-          setNicknameInput('');
-          setShowUserDropdown(false);
-          setIsClosingNickname(false);
-        }, 250);
+        if (showNicknameModal) {
+          setIsClosingNickname(true);
+          setTimeout(() => {
+            setShowNicknameModal(false);
+            setNicknameInput('');
+            setIsClosingNickname(false);
+          }, 250);
+        } else {
+          // If updating from profile modal, just update the input
+          setNicknameInput(data.nickname);
+        }
       } else {
         alert('Failed to save nickname. Please try again.');
       }
@@ -792,7 +809,7 @@ export default function HumApp() {
       const data = await response.json();
       if (data.success) {
         setNickname('');
-        setShowUserDropdown(false);
+        setNicknameInput('');
       } else {
         alert('Failed to remove nickname. Please try again.');
       }
@@ -800,6 +817,40 @@ export default function HumApp() {
       console.error('Error removing nickname:', error);
       alert('Failed to remove nickname. Please try again.');
     }
+  };
+
+  const handleUpdateIcon = async (icon) => {
+    if (!user) return;
+    
+    try {
+      const token = localStorage.getItem('hum-auth-token');
+      const response = await fetch(`${API_BASE_URL}/api/user/icon`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ icon })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setUserIcon(data.icon);
+      } else {
+        alert('Failed to update icon. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error updating icon:', error);
+      alert('Failed to update icon. Please try again.');
+    }
+  };
+
+  const handleCloseProfile = () => {
+    setIsClosingProfile(true);
+    setTimeout(() => {
+      setShowProfileModal(false);
+      setIsClosingProfile(false);
+    }, 250);
   };
 
   const handleCloseAuth = () => {
@@ -3363,50 +3414,18 @@ export default function HumApp() {
               pointerEvents: showTopBar ? 'auto' : 'none'
             }}
           >
-          {/* User Account Dropdown (if logged in) */}
+          {/* User Account Button (if logged in) */}
           {user && (
-            <div className="relative" ref={userDropdownRef}>
-              <button
-                onClick={() => setShowUserDropdown(!showUserDropdown)}
-                className={`flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 backdrop-blur-sm border rounded-full text-sm text-white/70 hover:border-[#D8B5FE] transition-all ${showUserDropdown ? 'border-[#D8B5FE]' : 'border-white/10'}`}
-              >
-                <span className="truncate max-w-[150px]">{nickname || user.email}</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${showUserDropdown ? 'rotate-180' : ''}`} />
-        </button>
-
-              {/* Dropdown Menu */}
-              {showUserDropdown && (
-                <div className="absolute top-full right-0 mt-2 w-56 bg-white/[0.03] backdrop-blur-2xl rounded-xl border border-[#D8B5FE] shadow-2xl z-50 overflow-hidden animate-slide-down">
-                  <button
-                    onClick={() => {
-                      setNicknameInput(nickname);
-                      setShowNicknameModal(true);
-                      setShowUserDropdown(false);
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-white/80 hover:bg-white/10 transition-colors border-b border-white/10"
-                  >
-                    <User className="w-4 h-4" />
-                    <span>{nickname ? 'change nickname' : 'set nickname'}</span>
-                  </button>
-                  {nickname && (
-                    <button
-                      onClick={handleRemoveNickname}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-white/60 hover:bg-white/10 transition-colors border-b border-white/10"
-                    >
-                      <X className="w-4 h-4" />
-                      <span>remove nickname</span>
-                    </button>
-                  )}
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-white/80 hover:bg-white/10 transition-colors"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>logout</span>
-        </button>
-                </div>
-              )}
-            </div>
+            <button
+              onClick={() => {
+                setNicknameInput(nickname);
+                setShowProfileModal(true);
+              }}
+              className={`flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 backdrop-blur-sm border rounded-full text-sm text-white/70 hover:border-[#D8B5FE] transition-all ${showProfileModal ? 'border-[#D8B5FE]' : 'border-white/10'}`}
+            >
+              {userIcon && <span className="text-lg">{userIcon}</span>}
+              <span className="truncate max-w-[150px]">{nickname || user.email}</span>
+            </button>
           )}
 
           {/* Help Button */}
@@ -4242,6 +4261,120 @@ export default function HumApp() {
                     save
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+        {/* Profile Modal */}
+        {showProfileModal && createPortal(
+          <div 
+            className={`fixed inset-0 bg-black/70 backdrop-blur-lg flex items-center justify-center z-[9999] p-4 ${isClosingProfile ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'}`}
+            onClick={handleCloseProfile}
+          >
+            <div 
+              className={`relative z-[10000] ${isClosingProfile ? 'animate-modal-content-out' : 'animate-modal-content'}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close button */}
+              <button 
+                onClick={handleCloseProfile}
+                className="absolute -top-4 -right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              
+              {/* Modal */}
+              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-8 max-w-md w-full border border-white/20 shadow-2xl">
+                <h2 className="text-3xl font-bold text-center mb-8">your profile</h2>
+
+                {/* Icon Selection */}
+                <div className="mb-8">
+                  <label className="block text-sm font-semibold text-white/80 mb-3">choose your icon</label>
+                  <div className="flex items-center gap-4">
+                    <div className="w-20 h-20 rounded-full bg-white/[0.05] border-2 border-white/20 flex items-center justify-center text-4xl">
+                      {userIcon || '👤'}
+                    </div>
+                    <div className="flex-1">
+                      <div className="grid grid-cols-6 gap-2 bg-white/[0.05] rounded-xl p-3 border border-white/10">
+                        {popularEmojis.map((emoji, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => handleUpdateIcon(emoji)}
+                            className={`w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 transition-all text-xl ${
+                              userIcon === emoji ? 'bg-[#D8B5FE]/30 border-2 border-[#D8B5FE]' : ''
+                            }`}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Nickname Section */}
+                <div className="mb-8">
+                  <label className="block text-sm font-semibold text-white/80 mb-3">nickname</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={nicknameInput || nickname || ''}
+                      onChange={(e) => setNicknameInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleSaveNickname();
+                        }
+                      }}
+                      placeholder="set a nickname"
+                      maxLength={16}
+                      className="flex-1 px-4 py-2.5 bg-white/[0.05] border border-white/15 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#D8B5FE]/40 focus:bg-white/[0.08] transition-all text-sm"
+                    />
+                    <button
+                      onClick={async () => {
+                        if (nicknameInput !== nickname) {
+                          await handleSaveNickname();
+                        }
+                      }}
+                      disabled={!nicknameInput || nicknameInput === nickname}
+                      className="px-4 py-2.5 bg-[#D8B5FE]/20 hover:bg-[#D8B5FE]/30 border border-[#D8B5FE]/40 rounded-xl text-sm text-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      save
+                    </button>
+                  </div>
+                  {nickname && (
+                    <button
+                      onClick={async () => {
+                        await handleRemoveNickname();
+                        setNicknameInput('');
+                      }}
+                      className="mt-2 text-xs text-white/50 hover:text-white/70 transition-colors"
+                    >
+                      remove nickname
+                    </button>
+                  )}
+                </div>
+
+                {/* Email Display */}
+                <div className="mb-8">
+                  <label className="block text-sm font-semibold text-white/80 mb-2">email</label>
+                  <div className="px-4 py-2.5 bg-white/[0.05] border border-white/15 rounded-xl text-white/70 text-sm">
+                    {user?.email}
+                  </div>
+                </div>
+
+                {/* Logout Button */}
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    handleCloseProfile();
+                  }}
+                  className="w-full px-4 py-3 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 rounded-xl text-sm text-red-300 font-semibold transition-all"
+                >
+                  <LogOut className="w-4 h-4 inline-block mr-2" />
+                  logout
+                </button>
               </div>
             </div>
           </div>,
