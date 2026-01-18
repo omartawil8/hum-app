@@ -2548,6 +2548,17 @@ export default function HumApp() {
           will-change: transform;
         }
 
+        /* Smooth typing animation for lyrics input */
+        input[type="text"].lyrics-input-smooth {
+          caret-color: #D8B5FE;
+          text-rendering: optimizeLegibility;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+          will-change: contents;
+          transform: translateZ(0);
+          backface-visibility: hidden;
+        }
+
         /* Song hover lavender border */
         .song-item:hover {
           border-color: #D8B5FE !important;
@@ -4701,7 +4712,14 @@ export default function HumApp() {
                         }
                       }}
                       disabled={isSearchingLyrics}
-                      className="w-full bg-white/10 backdrop-blur-sm border border-white/20 focus:border-purple-400/30 rounded-full py-4 pl-14 pr-14 text-white placeholder-white/50 focus:outline-none transition-all disabled:opacity-50"
+                      className="w-full bg-white/10 backdrop-blur-sm border border-white/20 focus:border-purple-400/30 rounded-full py-4 pl-14 pr-14 text-white placeholder-white/50 focus:outline-none transition-all disabled:opacity-50 lyrics-input-smooth"
+                      style={{
+                        transition: 'opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease, background-color 0.2s ease',
+                        willChange: 'contents',
+                        transform: 'translateZ(0)',
+                        backfaceVisibility: 'hidden',
+                        WebkitFontSmoothing: 'antialiased'
+                      }}
                     />
                     
                     {/* Loading spinner OR Submit arrow */}
