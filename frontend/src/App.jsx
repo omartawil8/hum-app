@@ -3503,6 +3503,7 @@ export default function HumApp() {
                 <Bookmark 
                   className={`w-5 h-5 transition-all duration-200 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse fill-purple-400/90 text-purple-400' : ''}`} 
                   strokeWidth={1.5}
+                  style={showBookmarks ? { color: '#D8B5FE', fill: '#D8B5FE' } : {}}
                 />
         </button>
             )}
