@@ -4705,11 +4705,11 @@ export default function HumApp() {
                       </svg>
                     </div>
                     <div className="relative">
-                      <input
+                    <input
                         ref={lyricsInputRef}
-                        type="text"
-                        placeholder="smart search with lyrics..."
-                        value={lyricsInput}
+                      type="text"
+                      placeholder="smart search with lyrics..."
+                      value={lyricsInput}
                         onChange={(e) => {
                           const newValue = e.target.value;
                           setLyricsInput(newValue);
@@ -4736,16 +4736,27 @@ export default function HumApp() {
                         onKeyUp={(e) => {
                           if (lyricsInputRef.current) {
                             const input = e.target;
-                            const selectionStart = input.selectionStart || lyricsInput.length;
-                            const textBeforeCaret = lyricsInput.substring(0, selectionStart);
-                            
-                            const canvas = document.createElement('canvas');
-                            const context = canvas.getContext('2d');
-                            const computedStyle = window.getComputedStyle(input);
-                            context.font = `${computedStyle.fontSize} ${computedStyle.fontFamily}`;
-                            const textWidth = context.measureText(textBeforeCaret).width;
-                            
-                            setCaretPosition(textWidth);
+                            setTimeout(() => {
+                              const selectionStart = input.selectionStart || lyricsInput.length;
+                              const textBeforeCaret = lyricsInput.substring(0, selectionStart);
+                              
+                              const span = document.createElement('span');
+                              const computedStyle = window.getComputedStyle(input);
+                              span.style.position = 'absolute';
+                              span.style.visibility = 'hidden';
+                              span.style.whiteSpace = 'pre';
+                              span.style.font = computedStyle.font;
+                              span.style.fontSize = computedStyle.fontSize;
+                              span.style.fontFamily = computedStyle.fontFamily;
+                              span.style.fontWeight = computedStyle.fontWeight;
+                              span.style.letterSpacing = computedStyle.letterSpacing;
+                              span.textContent = textBeforeCaret;
+                              document.body.appendChild(span);
+                              const textWidth = span.offsetWidth;
+                              document.body.removeChild(span);
+                              
+                              setCaretPosition(textWidth);
+                            }, 0);
                           }
                         }}
                         onFocus={() => {
@@ -4756,18 +4767,27 @@ export default function HumApp() {
                               const selectionStart = input.selectionStart || lyricsInput.length;
                               const textBeforeCaret = lyricsInput.substring(0, selectionStart);
                               
-                              const canvas = document.createElement('canvas');
-                              const context = canvas.getContext('2d');
+                              const span = document.createElement('span');
                               const computedStyle = window.getComputedStyle(input);
-                              context.font = `${computedStyle.fontSize} ${computedStyle.fontFamily}`;
-                              const textWidth = context.measureText(textBeforeCaret).width;
+                              span.style.position = 'absolute';
+                              span.style.visibility = 'hidden';
+                              span.style.whiteSpace = 'pre';
+                              span.style.font = computedStyle.font;
+                              span.style.fontSize = computedStyle.fontSize;
+                              span.style.fontFamily = computedStyle.fontFamily;
+                              span.style.fontWeight = computedStyle.fontWeight;
+                              span.style.letterSpacing = computedStyle.letterSpacing;
+                              span.textContent = textBeforeCaret;
+                              document.body.appendChild(span);
+                              const textWidth = span.offsetWidth;
+                              document.body.removeChild(span);
                               
                               setCaretPosition(textWidth);
                             }, 0);
                           }
                         }}
                         onBlur={() => setIsLyricsInputFocused(false)}
-                        onKeyPress={handleLyricsKeyPress}
+                      onKeyPress={handleLyricsKeyPress}
                         onClick={(e) => {
                           if (lyricsInputRef.current) {
                             const input = e.target;
@@ -4775,11 +4795,20 @@ export default function HumApp() {
                               const selectionStart = input.selectionStart || lyricsInput.length;
                               const textBeforeCaret = lyricsInput.substring(0, selectionStart);
                               
-                              const canvas = document.createElement('canvas');
-                              const context = canvas.getContext('2d');
+                              const span = document.createElement('span');
                               const computedStyle = window.getComputedStyle(input);
-                              context.font = `${computedStyle.fontSize} ${computedStyle.fontFamily}`;
-                              const textWidth = context.measureText(textBeforeCaret).width;
+                              span.style.position = 'absolute';
+                              span.style.visibility = 'hidden';
+                              span.style.whiteSpace = 'pre';
+                              span.style.font = computedStyle.font;
+                              span.style.fontSize = computedStyle.fontSize;
+                              span.style.fontFamily = computedStyle.fontFamily;
+                              span.style.fontWeight = computedStyle.fontWeight;
+                              span.style.letterSpacing = computedStyle.letterSpacing;
+                              span.textContent = textBeforeCaret;
+                              document.body.appendChild(span);
+                              const textWidth = span.offsetWidth;
+                              document.body.removeChild(span);
                               
                               setCaretPosition(textWidth);
                             }, 0);
@@ -4789,10 +4818,10 @@ export default function HumApp() {
                           if (!user && anonymousSearchCount >= ANONYMOUS_SEARCH_LIMIT) {
                             setShowAuthModal(true);
                           } else if (user && userTier === 'free' && searchCount >= FREE_SEARCH_LIMIT) {
-                            setShowUpgradeModal(true);
-                          }
-                        }}
-                        disabled={isSearchingLyrics}
+                          setShowUpgradeModal(true);
+                        }
+                      }}
+                      disabled={isSearchingLyrics}
                         className="w-full bg-white/10 backdrop-blur-sm border border-white/20 focus:border-purple-400/30 rounded-full py-4 pl-14 pr-14 text-white placeholder-white/50 focus:outline-none transition-all disabled:opacity-50 lyrics-input-smooth"
                         style={{
                           transition: 'border-color 0.2s ease, background-color 0.2s ease',
@@ -4804,7 +4833,7 @@ export default function HumApp() {
                         <div
                           className="absolute top-1/2 -translate-y-1/2 pointer-events-none z-20"
                           style={{
-                            left: `${56 + 20 + caretPosition}px`, // pl-14 (56px) + icon width (20px) + text width
+                            left: `${56 + 20 + 8 + caretPosition}px`, // pl-14 (56px) + icon width (20px) + gap (8px) + text width
                             width: '2px',
                             height: '1.2em',
                             background: '#D8B5FE',
