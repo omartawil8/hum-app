@@ -5157,7 +5157,7 @@ export default function HumApp() {
             pointerEvents: 'none',
             transform: 'translate(-50%, -50%)',
             zIndex: 10001,
-            transition: 'background-color 0.3s ease, width 0.3s ease, height 0.3s ease, border-radius 0.3s ease, padding 0.3s ease, fontSize 0.3s ease',
+            transition: 'background-color 0.3s ease, width 0.3s ease, height 0.3s ease, border-radius 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1), fontSize 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease',
             mixBlendMode: isHoveringBirdButton || isHoveringBookmark ? 'normal' : 'difference',
             willChange: 'left, top',
             display: 'flex',
@@ -5173,16 +5173,24 @@ export default function HumApp() {
             margin: 0
           }}
         >
-          <span style={{ 
-            display: 'block',
-            lineHeight: '1',
-            margin: 0,
-            padding: 0,
-            textAlign: 'center',
-            width: '100%'
-          }}>
-            {isHoveringBirdButton ? 'tap' : ''}
-          </span>
+          {isHoveringBirdButton && (
+            <span style={{ 
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              lineHeight: '1',
+              margin: 0,
+              padding: 0,
+              width: '100%',
+              height: '100%',
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)'
+            }}>
+              tap
+            </span>
+          )}
           <svg
             width="18"
             height="18"
