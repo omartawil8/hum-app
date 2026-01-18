@@ -4014,7 +4014,7 @@ export default function HumApp() {
                                 e.stopPropagation();
                                 removeBookmark(song);
                               }}
-                              className="p-1.5 hover:bg-red-500/20 rounded-lg transition-all hover:scale-110"
+                              className="p-1.5 hover:bg-red-500/20 rounded-full transition-all hover:scale-110"
                               title="Remove bookmark"
                             >
                               <X className="w-4 h-4 text-red-400/70" strokeWidth={1.5} />
