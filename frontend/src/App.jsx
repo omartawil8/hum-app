@@ -883,8 +883,10 @@ export default function HumApp() {
         target.closest('.cursor-pointer') ||
         window.getComputedStyle(target).cursor === 'pointer';
       
-      // Check if hovering over bookmark item
-      const isBookmark = target.closest('.bookmark-item') !== null;
+      // Check if hovering over bookmark item (but not the X button)
+      const bookmarkItem = target.closest('.bookmark-item');
+      const removeButton = target.closest('button[title="Remove bookmark"]');
+      const isBookmark = bookmarkItem !== null && removeButton === null;
       
       if (isInteractive !== currentIsInteractive) {
         currentIsInteractive = isInteractive;
