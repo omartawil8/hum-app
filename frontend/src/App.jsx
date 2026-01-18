@@ -4398,7 +4398,7 @@ export default function HumApp() {
                 {/* Email Display */}
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-white/80 mb-2">email</label>
-                  <div className="px-3 py-2 bg-white/[0.05] border border-white/15 rounded-xl text-white/70 text-sm">
+                  <div className="px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-white/40 text-sm">
                     {user?.email}
                   </div>
                 </div>
