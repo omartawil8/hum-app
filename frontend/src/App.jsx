@@ -5147,7 +5147,7 @@ export default function HumApp() {
             top: 0,
             width: isHoveringBirdButton ? 'auto' : (isHoveringBookmark ? '32px' : '16px'),
             height: isHoveringBirdButton ? 'auto' : (isHoveringBookmark ? '32px' : '16px'),
-            borderRadius: isHoveringBirdButton ? '8px' : '50%',
+            borderRadius: '50%',
             backgroundColor: isHoveringBirdButton ? '#D8B5FE' : (isHoveringBookmark ? '#1DB954' : (isHoveringInteractive ? '#D8B5FE' : '#FFFFFF')),
             pointerEvents: 'none',
             transform: 'translate(-50%, -50%)',
@@ -5158,11 +5158,12 @@ export default function HumApp() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: isHoveringBirdButton ? '4px 8px' : '0',
-            fontSize: isHoveringBirdButton ? '12px' : '0',
+            padding: isHoveringBirdButton ? '8px 6px' : '0',
+            fontSize: isHoveringBirdButton ? '14px' : '0',
             fontWeight: isHoveringBirdButton ? '600' : 'normal',
             color: isHoveringBirdButton ? '#FFFFFF' : 'transparent',
-            whiteSpace: 'nowrap'
+            whiteSpace: 'nowrap',
+            lineHeight: isHoveringBirdButton ? '1' : 'normal'
           }}
         >
           {isHoveringBirdButton ? 'tap' : null}
