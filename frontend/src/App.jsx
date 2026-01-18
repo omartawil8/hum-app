@@ -1632,6 +1632,21 @@ export default function HumApp() {
         throw new Error(data.error || data.message || `Server error: ${response.status}`);
       }
       
+      // Update search counts - API was called successfully, so count the search regardless of results
+      if (user) {
+        setSearchCount(prev => {
+          const newCount = prev + 1;
+          localStorage.setItem('hum-search-count', newCount.toString());
+          return newCount;
+        });
+      } else {
+        // Anonymous search was used - sync with backend
+        setAnonymousSearchCount(ANONYMOUS_SEARCH_LIMIT);
+        localStorage.setItem('hum-anonymous-search-count', ANONYMOUS_SEARCH_LIMIT.toString());
+        // Also check backend status to ensure sync
+        checkAnonymousStatus();
+      }
+      
       if (data.success && data.songs && data.songs.length > 0) {
         // Process results to replace covers/remixes with originals
         const processedSongs = await processResultsForOriginals(data.songs);
@@ -1639,21 +1654,6 @@ export default function HumApp() {
         setHasResult(true);
         setIsProcessing(false); // Clear loading state immediately
         setError(null);
-        
-        // Update search counts
-        if (user) {
-          setSearchCount(prev => {
-            const newCount = prev + 1;
-            localStorage.setItem('hum-search-count', newCount.toString());
-            return newCount;
-          });
-        } else {
-          // Anonymous search was used - sync with backend
-          setAnonymousSearchCount(ANONYMOUS_SEARCH_LIMIT);
-          localStorage.setItem('hum-anonymous-search-count', ANONYMOUS_SEARCH_LIMIT.toString());
-          // Also check backend status to ensure sync
-          checkAnonymousStatus();
-        }
         
         // Save to recent searches
         const newSearch = {
