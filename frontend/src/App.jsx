@@ -4090,9 +4090,6 @@ export default function HumApp() {
               <div className="p-6 border-b border-white/[0.06]">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center border border-white/10">
-                      <Bookmark className="w-5 h-5 text-purple-300" strokeWidth={1.5} fill="currentColor" />
-                    </div>
                     <div>
                       <h2 className="text-2xl font-semibold tracking-tight">bookmarks</h2>
                       <p className="text-sm text-white/40 font-light mt-0.5">
