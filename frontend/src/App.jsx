@@ -4364,11 +4364,11 @@ export default function HumApp() {
                   <h2 className="text-2xl font-bold text-center">
                     hi, {nickname || 'there'}
                   </h2>
-                  {userIcon && getIconImage(userIcon) && (
+                  {(iconInput !== null ? iconInput : userIcon) && getIconImage(iconInput !== null ? iconInput : userIcon) && (
                     <img 
-                      src={getIconImage(userIcon)} 
-                      alt={userIcon} 
-                      className={`object-contain flex-shrink-0 ${userIcon === 'shiba' || userIcon === 'ghost' ? 'w-9 h-9' : 'w-8 h-8'}`}
+                      src={getIconImage(iconInput !== null ? iconInput : userIcon)} 
+                      alt={iconInput !== null ? iconInput : userIcon} 
+                      className={`object-contain flex-shrink-0 ${(iconInput !== null ? iconInput : userIcon) === 'shiba' || (iconInput !== null ? iconInput : userIcon) === 'ghost' ? 'w-9 h-9' : 'w-8 h-8'}`}
                     />
                   )}
                 </div>
