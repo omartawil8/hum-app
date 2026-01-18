@@ -4715,19 +4715,33 @@ export default function HumApp() {
                           setLyricsInput(newValue);
                           setLyricsInputLength(newValue.length);
                           
-                          // Calculate caret position
+                          // Calculate caret position using Range API for pixel-perfect alignment
                           if (lyricsInputRef.current) {
                             const input = lyricsInputRef.current;
                             setTimeout(() => {
                               const selectionStart = input.selectionStart || newValue.length;
-                              const textBeforeCaret = newValue.substring(0, selectionStart);
                               
-                              // Create a temporary span to measure text width
-                              const canvas = document.createElement('canvas');
-                              const context = canvas.getContext('2d');
+                              // Use Range API to get exact caret position
+                              const range = document.createRange();
+                              const selection = window.getSelection();
+                              selection.removeAllRanges();
+                              
+                              // Create a mirror element to measure text
+                              const mirror = document.createElement('span');
                               const computedStyle = window.getComputedStyle(input);
-                              context.font = `${computedStyle.fontSize} ${computedStyle.fontFamily}`;
-                              const textWidth = context.measureText(textBeforeCaret).width;
+                              mirror.style.position = 'absolute';
+                              mirror.style.visibility = 'hidden';
+                              mirror.style.whiteSpace = 'pre';
+                              mirror.style.font = computedStyle.font;
+                              mirror.style.fontSize = computedStyle.fontSize;
+                              mirror.style.fontFamily = computedStyle.fontFamily;
+                              mirror.style.fontWeight = computedStyle.fontWeight;
+                              mirror.style.letterSpacing = computedStyle.letterSpacing;
+                              mirror.textContent = newValue.substring(0, selectionStart) || '\u200b';
+                              document.body.appendChild(mirror);
+                              
+                              const textWidth = mirror.offsetWidth;
+                              document.body.removeChild(mirror);
                               
                               setCaretPosition(textWidth);
                             }, 0);
@@ -4738,22 +4752,22 @@ export default function HumApp() {
                             const input = e.target;
                             setTimeout(() => {
                               const selectionStart = input.selectionStart || lyricsInput.length;
-                              const textBeforeCaret = lyricsInput.substring(0, selectionStart);
                               
-                              const span = document.createElement('span');
+                              const mirror = document.createElement('span');
                               const computedStyle = window.getComputedStyle(input);
-                              span.style.position = 'absolute';
-                              span.style.visibility = 'hidden';
-                              span.style.whiteSpace = 'pre';
-                              span.style.font = computedStyle.font;
-                              span.style.fontSize = computedStyle.fontSize;
-                              span.style.fontFamily = computedStyle.fontFamily;
-                              span.style.fontWeight = computedStyle.fontWeight;
-                              span.style.letterSpacing = computedStyle.letterSpacing;
-                              span.textContent = textBeforeCaret;
-                              document.body.appendChild(span);
-                              const textWidth = span.offsetWidth;
-                              document.body.removeChild(span);
+                              mirror.style.position = 'absolute';
+                              mirror.style.visibility = 'hidden';
+                              mirror.style.whiteSpace = 'pre';
+                              mirror.style.font = computedStyle.font;
+                              mirror.style.fontSize = computedStyle.fontSize;
+                              mirror.style.fontFamily = computedStyle.fontFamily;
+                              mirror.style.fontWeight = computedStyle.fontWeight;
+                              mirror.style.letterSpacing = computedStyle.letterSpacing;
+                              mirror.textContent = lyricsInput.substring(0, selectionStart) || '\u200b';
+                              document.body.appendChild(mirror);
+                              
+                              const textWidth = mirror.offsetWidth;
+                              document.body.removeChild(mirror);
                               
                               setCaretPosition(textWidth);
                             }, 0);
@@ -4765,22 +4779,22 @@ export default function HumApp() {
                             const input = lyricsInputRef.current;
                             setTimeout(() => {
                               const selectionStart = input.selectionStart || lyricsInput.length;
-                              const textBeforeCaret = lyricsInput.substring(0, selectionStart);
                               
-                              const span = document.createElement('span');
+                              const mirror = document.createElement('span');
                               const computedStyle = window.getComputedStyle(input);
-                              span.style.position = 'absolute';
-                              span.style.visibility = 'hidden';
-                              span.style.whiteSpace = 'pre';
-                              span.style.font = computedStyle.font;
-                              span.style.fontSize = computedStyle.fontSize;
-                              span.style.fontFamily = computedStyle.fontFamily;
-                              span.style.fontWeight = computedStyle.fontWeight;
-                              span.style.letterSpacing = computedStyle.letterSpacing;
-                              span.textContent = textBeforeCaret;
-                              document.body.appendChild(span);
-                              const textWidth = span.offsetWidth;
-                              document.body.removeChild(span);
+                              mirror.style.position = 'absolute';
+                              mirror.style.visibility = 'hidden';
+                              mirror.style.whiteSpace = 'pre';
+                              mirror.style.font = computedStyle.font;
+                              mirror.style.fontSize = computedStyle.fontSize;
+                              mirror.style.fontFamily = computedStyle.fontFamily;
+                              mirror.style.fontWeight = computedStyle.fontWeight;
+                              mirror.style.letterSpacing = computedStyle.letterSpacing;
+                              mirror.textContent = lyricsInput.substring(0, selectionStart) || '\u200b';
+                              document.body.appendChild(mirror);
+                              
+                              const textWidth = mirror.offsetWidth;
+                              document.body.removeChild(mirror);
                               
                               setCaretPosition(textWidth);
                             }, 0);
@@ -4793,22 +4807,22 @@ export default function HumApp() {
                             const input = e.target;
                             setTimeout(() => {
                               const selectionStart = input.selectionStart || lyricsInput.length;
-                              const textBeforeCaret = lyricsInput.substring(0, selectionStart);
                               
-                              const span = document.createElement('span');
+                              const mirror = document.createElement('span');
                               const computedStyle = window.getComputedStyle(input);
-                              span.style.position = 'absolute';
-                              span.style.visibility = 'hidden';
-                              span.style.whiteSpace = 'pre';
-                              span.style.font = computedStyle.font;
-                              span.style.fontSize = computedStyle.fontSize;
-                              span.style.fontFamily = computedStyle.fontFamily;
-                              span.style.fontWeight = computedStyle.fontWeight;
-                              span.style.letterSpacing = computedStyle.letterSpacing;
-                              span.textContent = textBeforeCaret;
-                              document.body.appendChild(span);
-                              const textWidth = span.offsetWidth;
-                              document.body.removeChild(span);
+                              mirror.style.position = 'absolute';
+                              mirror.style.visibility = 'hidden';
+                              mirror.style.whiteSpace = 'pre';
+                              mirror.style.font = computedStyle.font;
+                              mirror.style.fontSize = computedStyle.fontSize;
+                              mirror.style.fontFamily = computedStyle.fontFamily;
+                              mirror.style.fontWeight = computedStyle.fontWeight;
+                              mirror.style.letterSpacing = computedStyle.letterSpacing;
+                              mirror.textContent = lyricsInput.substring(0, selectionStart) || '\u200b';
+                              document.body.appendChild(mirror);
+                              
+                              const textWidth = mirror.offsetWidth;
+                              document.body.removeChild(mirror);
                               
                               setCaretPosition(textWidth);
                             }, 0);
@@ -4818,9 +4832,9 @@ export default function HumApp() {
                           if (!user && anonymousSearchCount >= ANONYMOUS_SEARCH_LIMIT) {
                             setShowAuthModal(true);
                           } else if (user && userTier === 'free' && searchCount >= FREE_SEARCH_LIMIT) {
-                          setShowUpgradeModal(true);
-                        }
-                      }}
+                            setShowUpgradeModal(true);
+                          }
+                        }}
                       disabled={isSearchingLyrics}
                         className="w-full bg-white/10 backdrop-blur-sm border border-white/20 focus:border-purple-400/30 rounded-full py-4 pl-14 pr-14 text-white placeholder-white/50 focus:outline-none transition-all disabled:opacity-50 lyrics-input-smooth"
                         style={{
@@ -4833,7 +4847,7 @@ export default function HumApp() {
                         <div
                           className="absolute top-1/2 -translate-y-1/2 pointer-events-none z-20"
                           style={{
-                            left: `${56 + 20 + 8 + caretPosition}px`, // pl-14 (56px) + icon width (20px) + gap (8px) + text width
+                            left: `${56 + 20 + caretPosition}px`, // pl-14 (56px) + icon width (20px) + text width (measured)
                             width: '2px',
                             height: '1.2em',
                             background: '#D8B5FE',
