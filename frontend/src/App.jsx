@@ -1430,6 +1430,7 @@ export default function HumApp() {
         setRecordingStartTime(null);
         setIsProcessing(false);
         setIsHoveringBirdButton(false);
+        setIsButtonClickable(false);
         stream.getTracks().forEach(track => track.stop());
       };
       
@@ -1451,6 +1452,7 @@ export default function HumApp() {
           setRecordingStartTime(null);
           setAudioLevel(0);
           setIsHoveringBirdButton(false);
+          setIsButtonClickable(false);
           return;
         }
         
