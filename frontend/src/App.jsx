@@ -4339,18 +4339,30 @@ export default function HumApp() {
                       {userIcon || '👤'}
                     </div>
                     <div className="flex-1">
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
+                        <button
+                          onClick={async () => {
+                            await handleUpdateIcon(null);
+                          }}
+                          className={`w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 transition-all text-sm border ${
+                            !userIcon ? 'bg-[#D8B5FE]/30 border-[#D8B5FE]' : 'border-white/20'
+                          }`}
+                          title="No icon"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
                         {['😎', '🔥', '✨', '⭐', '🚀'].map((emoji, idx) => (
                           <button
                             key={idx}
                             onClick={async () => {
                               await handleUpdateIcon(emoji);
                             }}
-                            className={`w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 transition-all text-xl ${
+                            className={`w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 transition-all text-xl leading-none ${
                               userIcon === emoji ? 'bg-[#D8B5FE]/30 border-2 border-[#D8B5FE]' : 'border border-transparent'
                             }`}
+                            style={{ aspectRatio: '1' }}
                           >
-                            {emoji}
+                            <span className="block" style={{ lineHeight: '1' }}>{emoji}</span>
                           </button>
                         ))}
                       </div>
@@ -4373,9 +4385,10 @@ export default function HumApp() {
                       handleLogout();
                       handleCloseProfile();
                     }}
-                    className="w-12 h-12 rounded-full border-2 border-red-500/40 hover:bg-red-500/30 hover:border-red-500/60 flex items-center justify-center transition-all"
+                    className="px-4 py-2 rounded-full border-2 border-red-500/40 hover:bg-red-500/30 hover:border-red-500/60 flex items-center gap-2 transition-all text-sm text-red-300 font-semibold"
                   >
-                    <LogOut className="w-5 h-5 text-red-300" />
+                    <span>logout</span>
+                    <LogOut className="w-4 h-4" />
                   </button>
                 </div>
               </div>
