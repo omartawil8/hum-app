@@ -4338,17 +4338,6 @@ export default function HumApp() {
                       maxLength={16}
                       className="flex-1 px-3 py-2 bg-white/[0.05] border border-white/15 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#D8B5FE]/40 focus:bg-white/[0.08] transition-all text-sm"
                     />
-                    <button
-                      onClick={async () => {
-                        if (nicknameInput !== nickname) {
-                          await handleSaveNickname();
-                        }
-                      }}
-                      disabled={!nicknameInput || nicknameInput === nickname}
-                      className="px-3 py-2 bg-transparent hover:border-[#D8B5FE] border border-white/20 rounded-xl text-sm text-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      save
-                    </button>
                   </div>
                   {nickname && (
                     <button
@@ -4403,8 +4392,19 @@ export default function HumApp() {
                   </div>
                 </div>
 
-                {/* Logout Button - Circular, only filled on hover */}
-                <div className="flex justify-center">
+                {/* Save and Logout Buttons */}
+                <div className="flex justify-center gap-3">
+                  <button
+                    onClick={async () => {
+                      if (nicknameInput !== null && nicknameInput !== nickname) {
+                        await handleSaveNickname();
+                      }
+                    }}
+                    disabled={!nicknameInput || nicknameInput === nickname || nicknameInput === null}
+                    className="px-4 py-2 bg-transparent hover:border-[#D8B5FE] border border-white/20 rounded-full text-sm text-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    save
+                  </button>
                   <button
                     onClick={() => {
                       handleLogout();
