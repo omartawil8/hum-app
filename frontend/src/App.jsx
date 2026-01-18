@@ -5155,7 +5155,7 @@ export default function HumApp() {
             position: 'fixed',
             left: 0,
             top: 0,
-            width: isHoveringBirdButton ? (isListening ? '60px' : '50px') : (isHoveringBookmark ? '32px' : '16px'),
+            width: isHoveringBirdButton ? ((isListening && recordingStartTime && Date.now() - recordingStartTime >= 6000) ? '60px' : '50px') : (isHoveringBookmark ? '32px' : '16px'),
             height: isHoveringBirdButton ? '28px' : (isHoveringBookmark ? '32px' : '16px'),
             borderRadius: isHoveringBirdButton ? '100px' : '50%',
             backgroundColor: isHoveringBirdButton ? '#D8B5FE' : (isHoveringBookmark ? '#1DB954' : (isHoveringInteractive ? '#D8B5FE' : '#FFFFFF')),
@@ -5195,7 +5195,7 @@ export default function HumApp() {
             transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             pointerEvents: 'none'
           }}>
-            {isListening ? 'finish' : 'tap'}
+            {(isListening && recordingStartTime && Date.now() - recordingStartTime >= 6000) ? 'finish' : 'tap'}
           </span>
           <svg
             width="18"
