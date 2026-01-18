@@ -4447,7 +4447,11 @@ export default function HumApp() {
                         }`}
                         style={{ aspectRatio: '1' }}
                       >
-                        <img src={item.icon} alt={item.id} className="w-8 h-8 object-contain flex-shrink-0" />
+                        <img 
+                          src={item.icon} 
+                          alt={item.id} 
+                          className={`object-contain flex-shrink-0 ${item.id === 'shiba' || item.id === 'ghost' ? 'w-9 h-9' : 'w-8 h-8'}`}
+                        />
                       </button>
                     ))}
                   </div>
