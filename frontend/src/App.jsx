@@ -3487,7 +3487,11 @@ export default function HumApp() {
               className={`flex items-center gap-2 px-4 h-10 bg-white/5 hover:bg-white/10 backdrop-blur-sm border rounded-full text-sm text-white/70 hover:border-[#D8B5FE] transition-all ${showProfileModal ? 'border-[#D8B5FE]' : 'border-white/10'}`}
             >
               {userIcon && getIconImage(userIcon) ? (
-                <img src={getIconImage(userIcon)} alt={userIcon} className="w-6 h-6 object-contain flex-shrink-0" />
+                <img 
+                  src={getIconImage(userIcon)} 
+                  alt={userIcon} 
+                  className={`object-contain flex-shrink-0 ${userIcon === 'shiba' || userIcon === 'ghost' ? 'w-7 h-7' : 'w-6 h-6'}`}
+                />
               ) : userIcon ? (
                 <span className="text-lg flex-shrink-0">{userIcon}</span>
               ) : null}
