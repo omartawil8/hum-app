@@ -4286,37 +4286,12 @@ export default function HumApp() {
               </button>
               
               {/* Modal */}
-              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-8 max-w-md w-full border border-white/20 shadow-2xl">
-                <h2 className="text-3xl font-bold text-center mb-8">your profile</h2>
+              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-6 max-w-sm w-full border border-[#D8B5FE]/40 shadow-2xl">
+                <h2 className="text-2xl font-bold text-center mb-6">your profile</h2>
 
-                {/* Icon Selection */}
-                <div className="mb-8">
-                  <label className="block text-sm font-semibold text-white/80 mb-3">choose your icon</label>
-                  <div className="flex items-center gap-4">
-                    <div className="w-20 h-20 rounded-full bg-white/[0.05] border-2 border-white/20 flex items-center justify-center text-4xl">
-                      {userIcon || '👤'}
-                    </div>
-                    <div className="flex-1">
-                      <div className="grid grid-cols-6 gap-2 bg-white/[0.05] rounded-xl p-3 border border-white/10">
-                        {popularEmojis.map((emoji, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => handleUpdateIcon(emoji)}
-                            className={`w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 transition-all text-xl ${
-                              userIcon === emoji ? 'bg-[#D8B5FE]/30 border-2 border-[#D8B5FE]' : ''
-                            }`}
-                          >
-                            {emoji}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Nickname Section */}
-                <div className="mb-8">
-                  <label className="block text-sm font-semibold text-white/80 mb-3">nickname</label>
+                {/* Nickname Section - Moved to top */}
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold text-white/80 mb-2">nickname</label>
                   <div className="flex items-center gap-2">
                     <input
                       type="text"
@@ -4329,7 +4304,7 @@ export default function HumApp() {
                       }}
                       placeholder="set a nickname"
                       maxLength={16}
-                      className="flex-1 px-4 py-2.5 bg-white/[0.05] border border-white/15 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#D8B5FE]/40 focus:bg-white/[0.08] transition-all text-sm"
+                      className="flex-1 px-3 py-2 bg-white/[0.05] border border-white/15 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#D8B5FE]/40 focus:bg-white/[0.08] transition-all text-sm"
                     />
                     <button
                       onClick={async () => {
@@ -4338,7 +4313,7 @@ export default function HumApp() {
                         }
                       }}
                       disabled={!nicknameInput || nicknameInput === nickname}
-                      className="px-4 py-2.5 bg-[#D8B5FE]/20 hover:bg-[#D8B5FE]/30 border border-[#D8B5FE]/40 rounded-xl text-sm text-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-2 bg-[#D8B5FE]/20 hover:bg-[#D8B5FE]/30 border border-[#D8B5FE]/40 rounded-xl text-sm text-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       save
                     </button>
@@ -4356,25 +4331,53 @@ export default function HumApp() {
                   )}
                 </div>
 
+                {/* Icon Selection */}
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold text-white/80 mb-3">choose your icon</label>
+                  <div className="flex items-center gap-3">
+                    <div className="w-16 h-16 rounded-full bg-white/[0.05] border-2 border-white/20 flex items-center justify-center text-3xl">
+                      {userIcon || '👤'}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex gap-2">
+                        {['😎', '🔥', '✨', '⭐', '🚀'].map((emoji, idx) => (
+                          <button
+                            key={idx}
+                            onClick={async () => {
+                              await handleUpdateIcon(emoji);
+                            }}
+                            className={`w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 transition-all text-xl ${
+                              userIcon === emoji ? 'bg-[#D8B5FE]/30 border-2 border-[#D8B5FE]' : 'border border-transparent'
+                            }`}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Email Display */}
-                <div className="mb-8">
+                <div className="mb-6">
                   <label className="block text-sm font-semibold text-white/80 mb-2">email</label>
-                  <div className="px-4 py-2.5 bg-white/[0.05] border border-white/15 rounded-xl text-white/70 text-sm">
+                  <div className="px-3 py-2 bg-white/[0.05] border border-white/15 rounded-xl text-white/70 text-sm">
                     {user?.email}
                   </div>
                 </div>
 
-                {/* Logout Button */}
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    handleCloseProfile();
-                  }}
-                  className="w-full px-4 py-3 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 rounded-xl text-sm text-red-300 font-semibold transition-all"
-                >
-                  <LogOut className="w-4 h-4 inline-block mr-2" />
-                  logout
-                </button>
+                {/* Logout Button - Circular, only filled on hover */}
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      handleCloseProfile();
+                    }}
+                    className="w-12 h-12 rounded-full border-2 border-red-500/40 hover:bg-red-500/30 hover:border-red-500/60 flex items-center justify-center transition-all"
+                  >
+                    <LogOut className="w-5 h-5 text-red-300" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>,

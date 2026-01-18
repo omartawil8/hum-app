@@ -629,6 +629,7 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
         searchCount: user.searchCount || 0,
         tier: user.tier || 'free', // Default to free if not set
         nickname: user.nickname || null,
+        icon: user.icon || null,
         bookmarks: user.bookmarks || [],
         recentSearches: user.recentSearches || []
       }
