@@ -73,6 +73,7 @@ export default function HumApp() {
   const [lyricsInput, setLyricsInput] = useState('');
   const [isLyricsInputFocused, setIsLyricsInputFocused] = useState(false);
   const [isSearchingLyrics, setIsSearchingLyrics] = useState(false);
+  const [lyricsInputLength, setLyricsInputLength] = useState(0);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [authEmail, setAuthEmail] = useState('');
@@ -2548,15 +2549,31 @@ export default function HumApp() {
           will-change: transform;
         }
 
-        /* Smooth typing animation for lyrics input */
+        /* Smooth typing animation for lyrics input - glide effect */
+        @keyframes textGlide {
+          0% {
+            opacity: 0.7;
+            transform: translateX(-3px) translateZ(0);
+          }
+          100% {
+            opacity: 1;
+            transform: translateX(0) translateZ(0);
+          }
+        }
+
         input[type="text"].lyrics-input-smooth {
           caret-color: #D8B5FE;
           text-rendering: optimizeLegibility;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
-          will-change: contents;
+          will-change: contents, transform, opacity;
           transform: translateZ(0);
           backface-visibility: hidden;
+        }
+
+        /* Trigger animation on value change */
+        input[type="text"].lyrics-input-smooth.typing {
+          animation: textGlide 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
 
         /* Song hover lavender border */
@@ -4699,7 +4716,16 @@ export default function HumApp() {
                       type="text"
                       placeholder="smart search with lyrics..."
                       value={lyricsInput}
-                      onChange={(e) => setLyricsInput(e.target.value)}
+                      onChange={(e) => {
+                        const newValue = e.target.value;
+                        setLyricsInput(newValue);
+                        setLyricsInputLength(newValue.length);
+                        // Trigger animation
+                        const input = e.target;
+                        input.classList.remove('typing');
+                        void input.offsetWidth; // Force reflow
+                        input.classList.add('typing');
+                      }}
                       onFocus={() => setIsLyricsInputFocused(true)}
                       onBlur={() => setIsLyricsInputFocused(false)}
                       onKeyPress={handleLyricsKeyPress}
@@ -4712,10 +4738,10 @@ export default function HumApp() {
                         }
                       }}
                       disabled={isSearchingLyrics}
-                      className="w-full bg-white/10 backdrop-blur-sm border border-white/20 focus:border-purple-400/30 rounded-full py-4 pl-14 pr-14 text-white placeholder-white/50 focus:outline-none transition-all disabled:opacity-50 lyrics-input-smooth"
+                      className={`w-full bg-white/10 backdrop-blur-sm border border-white/20 focus:border-purple-400/30 rounded-full py-4 pl-14 pr-14 text-white placeholder-white/50 focus:outline-none transition-all disabled:opacity-50 lyrics-input-smooth ${lyricsInputLength > 0 ? 'typing' : ''}`}
                       style={{
                         transition: 'opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease, background-color 0.2s ease',
-                        willChange: 'contents',
+                        willChange: 'contents, transform, opacity',
                         transform: 'translateZ(0)',
                         backfaceVisibility: 'hidden',
                         WebkitFontSmoothing: 'antialiased'
