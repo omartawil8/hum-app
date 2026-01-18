@@ -4710,6 +4710,7 @@ export default function HumApp() {
                       type="text"
                       placeholder="smart search with lyrics..."
                       value={lyricsInput}
+                      maxLength={100}
                         onChange={(e) => {
                           const newValue = e.target.value;
                           setLyricsInput(newValue);
