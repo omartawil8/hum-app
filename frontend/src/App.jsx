@@ -2122,8 +2122,8 @@ export default function HumApp() {
   const handleResetApp = () => {
     setIsClosingResults(true);
     setIsHomepageAnimating(false);
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to top instantly
+    window.scrollTo(0, 0);
     // Wait for fade-out transition to complete before changing state
     setTimeout(() => {
       // Reset state after fade-out completes
