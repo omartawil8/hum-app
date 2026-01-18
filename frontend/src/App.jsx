@@ -834,7 +834,12 @@ export default function HumApp() {
 
   // Trigger fade-in animation on page load
   useEffect(() => {
-    setIsPageLoaded(true);
+    // Small delay ensures initial opacity-0 is applied before animation starts
+    // This fixes the issue where cached/autofill navigation skips the animation
+    const timer = setTimeout(() => {
+      setIsPageLoaded(true);
+    }, 10);
+    return () => clearTimeout(timer);
   }, []);
 
   // Custom cursor tracking and interactive element detection
@@ -2409,6 +2414,12 @@ export default function HumApp() {
 
         .page-fade-in {
           animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          animation-fill-mode: both;
+        }
+        
+        /* Ensure initial state is always applied */
+        .main-background:not(.page-fade-in) {
+          opacity: 0 !important;
         }
 
         /* Hide default cursor */
