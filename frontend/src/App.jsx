@@ -1749,6 +1749,21 @@ export default function HumApp() {
         throw new Error(data.error || data.message || `Server error: ${response.status}`);
       }
       
+      // Update search counts - API was called successfully, so count the search regardless of results
+      if (user) {
+        setSearchCount(prev => {
+          const newCount = prev + 1;
+          localStorage.setItem('hum-search-count', newCount.toString());
+          return newCount;
+        });
+      } else {
+        // Anonymous search was used - sync with backend
+        setAnonymousSearchCount(ANONYMOUS_SEARCH_LIMIT);
+        localStorage.setItem('hum-anonymous-search-count', ANONYMOUS_SEARCH_LIMIT.toString());
+        // Also check backend status to ensure sync
+        checkAnonymousStatus();
+      }
+      
       if (data.success && data.songs && data.songs.length > 0) {
         // Check if we have multiple interpretations
         if (data.hasMultipleInterpretations && data.alternativeResults) {
@@ -1784,21 +1799,6 @@ export default function HumApp() {
         setIsSearchingLyrics(false); // Clear loading state immediately
         setLyricsInput('');
         setCaretPosition(0);
-        
-        // Update search counts
-        if (user) {
-          setSearchCount(prev => {
-            const newCount = prev + 1;
-            localStorage.setItem('hum-search-count', newCount.toString());
-            return newCount;
-          });
-        } else {
-          // Anonymous search was used - sync with backend
-          setAnonymousSearchCount(ANONYMOUS_SEARCH_LIMIT);
-          localStorage.setItem('hum-anonymous-search-count', ANONYMOUS_SEARCH_LIMIT.toString());
-          // Also check backend status to ensure sync
-          checkAnonymousStatus();
-        }
         
         // Show warning if results may not be accurate
         if (data.note) {
