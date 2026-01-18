@@ -3486,15 +3486,25 @@ export default function HumApp() {
             
             {/* Bookmarks Button - Hide during listening */}
             {!(isListening && !isProcessing) && (
-              <button
-                onClick={() => setShowBookmarks(!showBookmarks)}
-                className="flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 hover:border-[#D8B5FE] transition-all group"
-              >
-                <Bookmark 
-                  className={`w-5 h-5 transition-all duration-200 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse fill-purple-400/90 text-purple-400' : ''}`} 
-                  strokeWidth={1.5}
-                />
-        </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowBookmarks(!showBookmarks)}
+                  className="flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 hover:border-[#D8B5FE] transition-all group"
+                >
+                  <Bookmark 
+                    className={`w-5 h-5 transition-all duration-200 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse fill-purple-400/90 text-purple-400' : ''}`} 
+                    strokeWidth={1.5}
+                  />
+                </button>
+                {showBookmarks && (
+                  <div>
+                    <h2 className="text-2xl font-semibold tracking-tight">bookmarks</h2>
+                    <p className="text-sm text-white/40 font-light mt-0.5">
+                      {savedSongs.length} {savedSongs.length === 1 ? 'song' : 'songs'}
+                    </p>
+                  </div>
+                )}
+              </div>
             )}
             
             {/* Return Home Bird Button - Only show when results are displayed */}
@@ -4088,15 +4098,7 @@ export default function HumApp() {
             }}>
               {/* Header */}
               <div className="p-6 border-b border-white/[0.06]">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3 flex-1 justify-end">
-                    <div>
-                      <h2 className="text-2xl font-semibold tracking-tight">bookmarks</h2>
-                      <p className="text-sm text-white/40 font-light mt-0.5">
-                        {savedSongs.length} {savedSongs.length === 1 ? 'song' : 'songs'}
-                      </p>
-                    </div>
-                  </div>
+                <div className="flex items-center justify-end mb-3">
                   <button 
                     onClick={handleCloseBookmarks}
                     className="p-2 hover:bg-white/5 rounded-full transition-all hover:scale-105"
