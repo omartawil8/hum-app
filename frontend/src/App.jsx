@@ -4863,7 +4863,7 @@ export default function HumApp() {
             width: isHoveringBookmark ? '32px' : '16px',
             height: isHoveringBookmark ? '32px' : '16px',
             borderRadius: '50%',
-            backgroundColor: (isHoveringBookmark || isHoveringInteractive) ? '#D8B5FE' : '#FFFFFF',
+            backgroundColor: isHoveringBookmark ? '#1DB954' : (isHoveringInteractive ? '#D8B5FE' : '#FFFFFF'),
             pointerEvents: 'none',
             transform: 'translate(-50%, -50%)',
             zIndex: 10001,
