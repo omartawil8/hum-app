@@ -5141,13 +5141,13 @@ export default function HumApp() {
             )}
 
             {/* Results State */}
-            {hasResult && matchData && (
+            {(hasResult || isClosingResults) && matchData && (
               <div 
                 className="pt-16 pb-8"
                 style={{
                   opacity: isClosingResults ? 0 : 1,
                   transform: isClosingResults ? 'translateY(10px) translateZ(0)' : 'translateY(0) translateZ(0)',
-                  transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                  transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
                   willChange: 'opacity, transform',
                   pointerEvents: isClosingResults ? 'none' : 'auto'
                 }}
