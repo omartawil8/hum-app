@@ -5148,10 +5148,8 @@ export default function HumApp() {
             position: 'fixed',
             left: 0,
             top: 0,
-            width: isHoveringBirdButton ? 'auto' : (isHoveringBookmark ? '32px' : '16px'),
-            height: isHoveringBirdButton ? 'auto' : (isHoveringBookmark ? '32px' : '16px'),
-            minWidth: isHoveringBirdButton ? 'auto' : '0',
-            minHeight: isHoveringBirdButton ? 'auto' : '0',
+            width: isHoveringBirdButton ? '50px' : (isHoveringBookmark ? '32px' : '16px'),
+            height: isHoveringBirdButton ? '28px' : (isHoveringBookmark ? '32px' : '16px'),
             borderRadius: isHoveringBirdButton ? '100px' : '50%',
             backgroundColor: isHoveringBirdButton ? '#D8B5FE' : (isHoveringBookmark ? '#1DB954' : (isHoveringInteractive ? '#D8B5FE' : '#FFFFFF')),
             pointerEvents: 'none',
@@ -5173,24 +5171,25 @@ export default function HumApp() {
             margin: 0
           }}
         >
-          {isHoveringBirdButton && (
-            <span style={{ 
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              lineHeight: '1',
-              margin: 0,
-              padding: 0,
-              width: '100%',
-              height: '100%',
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)'
-            }}>
-              tap
-            </span>
-          )}
+          <span style={{ 
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            lineHeight: '1',
+            margin: 0,
+            padding: 0,
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            opacity: isHoveringBirdButton ? 1 : 0,
+            transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            pointerEvents: 'none'
+          }}>
+            tap
+          </span>
           <svg
             width="18"
             height="18"
