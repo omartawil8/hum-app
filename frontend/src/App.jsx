@@ -4588,16 +4588,16 @@ export default function HumApp() {
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto">
             {/* Home Screen - Initial State */}
-            {(!hasResult || isClosingResults) && !isListening && !isProcessing && (
+            {!hasResult && !isClosingResults && !isListening && !isProcessing && (
               <div 
                 className="flex flex-col items-center"
                 style={{
-                  opacity: (!hasResult && !isClosingResults) ? 1 : 0,
-                  transform: (!hasResult && !isClosingResults) ? 'translateY(0) translateZ(0)' : 'translateY(10px) translateZ(0)',
+                  opacity: isHomepageAnimating ? 1 : 0,
+                  transform: isHomepageAnimating ? 'translateY(0) translateZ(0)' : 'translateY(10px) translateZ(0)',
                   transition: isHomepageAnimating ? 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)' : 'opacity 0.3s ease-out, transform 0.3s ease-out',
                   willChange: 'transform, opacity',
                   backfaceVisibility: 'hidden',
-                  pointerEvents: (!hasResult && !isClosingResults) ? 'auto' : 'none'
+                  pointerEvents: isHomepageAnimating ? 'auto' : 'none'
                 }}
               >
                 <h1 className="text-5xl font-bold text-white text-center mb-12 mt-20">
