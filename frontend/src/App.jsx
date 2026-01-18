@@ -1947,10 +1947,10 @@ export default function HumApp() {
     
     // Wait for animation to complete, then remove from list
     setTimeout(() => {
-    const newSavedSongs = savedSongs.filter(
-      s => !(s.title === song.title && s.artist === song.artist)
-    );
-    setSavedSongs(newSavedSongs);
+      const newSavedSongs = savedSongs.filter(
+        s => !(s.title === song.title && s.artist === song.artist)
+      );
+      setSavedSongs(newSavedSongs);
       setRemovingBookmarks(prev => {
         const next = new Set(prev);
         next.delete(songId);
@@ -1961,9 +1961,9 @@ export default function HumApp() {
       if (user) {
         saveBookmarksToAPI(newSavedSongs);
       } else {
-    localStorage.setItem('hum-saved-songs', JSON.stringify(newSavedSongs));
+        localStorage.setItem('hum-saved-songs', JSON.stringify(newSavedSongs));
       }
-    }, 300); // Match animation duration
+    }, 150); // Match animation duration
   };
 
   const toggleSearchBookmark = (search, e) => {
@@ -2668,7 +2668,7 @@ export default function HumApp() {
         }
 
         .animate-bookmark-remove {
-          animation: bookmarkRemove 0.3s ease-out forwards;
+          animation: bookmarkRemove 0.15s ease-out forwards;
         }
 
         @keyframes wave {
