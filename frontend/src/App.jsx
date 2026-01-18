@@ -5157,7 +5157,7 @@ export default function HumApp() {
             pointerEvents: 'none',
             transform: 'translate(-50%, -50%)',
             zIndex: 10001,
-            transition: 'background-color 0.3s ease, width 0.3s ease, height 0.3s ease, border-radius 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1), fontSize 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease',
+            transition: 'background-color 0.3s ease, width 0.3s cubic-bezier(0.4, 0, 0.2, 1), height 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-radius 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1), fontSize 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease',
             mixBlendMode: isHoveringBirdButton || isHoveringBookmark ? 'normal' : 'difference',
             willChange: 'left, top',
             display: 'flex',
