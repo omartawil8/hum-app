@@ -8,9 +8,9 @@ import avidListenerIcon from './assets/Avid_Listener.png';
 // Import pixel art icons - make sure these files exist in frontend/src/assets/
 import crownIcon from './assets/crown.png';
 import potionIcon from './assets/potion.png';
-import treeIcon from './assets/tree.png';
-import fireFaceIcon from './assets/fire-face.png';
-import abstractIcon from './assets/abstract.png';
+import shibaIcon from './assets/shiba.png';
+import cryingCatIcon from './assets/crying-cat.png';
+import ghostIcon from './assets/ghost.png';
 
 // API base URL - use environment variable or default to localhost for development
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -19,9 +19,9 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 const iconMap = {
   'crown': crownIcon,
   'potion': potionIcon,
-  'tree': treeIcon,
-  'fire-face': fireFaceIcon,
-  'abstract': abstractIcon
+  'shiba': shibaIcon,
+  'crying-cat': cryingCatIcon,
+  'ghost': ghostIcon
 };
 
 const getIconImage = (iconId) => {
@@ -4418,9 +4418,9 @@ export default function HumApp() {
                     {[
                       { id: 'crown', icon: crownIcon },
                       { id: 'potion', icon: potionIcon },
-                      { id: 'tree', icon: treeIcon },
-                      { id: 'fire-face', icon: fireFaceIcon },
-                      { id: 'abstract', icon: abstractIcon }
+                      { id: 'shiba', icon: shibaIcon },
+                      { id: 'crying-cat', icon: cryingCatIcon },
+                      { id: 'ghost', icon: ghostIcon }
                     ].map((item, idx) => (
                       <button
                         key={idx}
