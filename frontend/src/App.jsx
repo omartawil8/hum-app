@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, ChevronRight, LogOut, User, Eye, EyeOff, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, ChevronRight, LogOut, User, Eye, EyeOff, ArrowLeft, ArrowRight, XCircle } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
 import wizardGuyIcon from './assets/Wizard_guy.png';
@@ -4334,39 +4334,32 @@ export default function HumApp() {
                 {/* Icon Selection */}
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-white/80 mb-3">choose your icon</label>
-                  <div className="flex items-center gap-3">
-                    <div className="w-16 h-16 rounded-full bg-white/[0.05] border-2 border-white/20 flex items-center justify-center text-3xl">
-                      {userIcon || '👤'}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex gap-2 flex-wrap">
-                        <button
-                          onClick={async () => {
-                            await handleUpdateIcon(null);
-                          }}
-                          className={`w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 transition-all text-sm border ${
-                            !userIcon ? 'bg-[#D8B5FE]/30 border-[#D8B5FE]' : 'border-white/20'
-                          }`}
-                          title="No icon"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                        {['😎', '🔥', '✨', '⭐', '🚀'].map((emoji, idx) => (
-                          <button
-                            key={idx}
-                            onClick={async () => {
-                              await handleUpdateIcon(emoji);
-                            }}
-                            className={`w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 transition-all text-xl leading-none ${
-                              userIcon === emoji ? 'bg-[#D8B5FE]/30 border-2 border-[#D8B5FE]' : 'border border-transparent'
-                            }`}
-                            style={{ aspectRatio: '1' }}
-                          >
-                            <span className="block" style={{ lineHeight: '1' }}>{emoji}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                  <div className="flex gap-2 flex-wrap">
+                    <button
+                      onClick={async () => {
+                        await handleUpdateIcon(null);
+                      }}
+                      className={`w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 transition-all border ${
+                        !userIcon ? 'bg-[#D8B5FE]/30 border-[#D8B5FE]' : 'border-white/20'
+                      }`}
+                      title="No icon"
+                    >
+                      <XCircle className="w-5 h-5" />
+                    </button>
+                    {['😎', '🔥', '✨', '⭐', '🚀'].map((emoji, idx) => (
+                      <button
+                        key={idx}
+                        onClick={async () => {
+                          await handleUpdateIcon(emoji);
+                        }}
+                        className={`w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 transition-all text-xl leading-none ${
+                          userIcon === emoji ? 'bg-[#D8B5FE]/30 border-2 border-[#D8B5FE]' : 'border border-transparent'
+                        }`}
+                        style={{ aspectRatio: '1' }}
+                      >
+                        <span className="block" style={{ lineHeight: '1' }}>{emoji}</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
 
