@@ -1412,6 +1412,7 @@ export default function HumApp() {
         setIsListening(false);
         setRecordingStartTime(null);
         setIsProcessing(false);
+        setIsHoveringBirdButton(false);
         stream.getTracks().forEach(track => track.stop());
       };
       
@@ -1432,6 +1433,7 @@ export default function HumApp() {
           setIsListening(false);
           setRecordingStartTime(null);
           setAudioLevel(0);
+          setIsHoveringBirdButton(false);
           return;
         }
         
@@ -1540,6 +1542,7 @@ export default function HumApp() {
           mediaRecorder.stop();
           setIsListening(false);
           setRecordingStartTime(null);
+          setIsHoveringBirdButton(false);
         }
         // Clean up interval
         if (dataInterval) {
@@ -1555,6 +1558,7 @@ export default function HumApp() {
       setError('Could not access microphone. Please allow microphone permissions.');
       setIsListening(false);
       setRecordingStartTime(null);
+      setIsHoveringBirdButton(false);
     }
   };
 
@@ -2053,6 +2057,7 @@ export default function HumApp() {
     setError(null);
     setIsListening(false);
     setIsProcessing(false);
+    setIsHoveringBirdButton(false);
     setShowFeedback(false);
     setAudioBlob(null);
   };
@@ -2086,6 +2091,7 @@ export default function HumApp() {
     setRecordingStartTime(null);
     setAudioLevel(0);
     setAudioBlob(null);
+    setIsHoveringBirdButton(false);
     setError(null);
   };
 
