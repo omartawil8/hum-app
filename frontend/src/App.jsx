@@ -8,9 +8,9 @@ import avidListenerIcon from './assets/Avid_Listener.png';
 // Import pixel art icons - make sure these files exist in frontend/src/assets/
 import crownIcon from './assets/crown.png';
 import potionIcon from './assets/potion.png';
-import shibaIcon from './assets/shiba.png';
-import cryingCatIcon from './assets/crying-cat.png';
-import ghostIcon from './assets/ghost.png';
+import shibaIcon from './assets/keyboard cat.png';
+import cryingCatIcon from './assets/crying catg.png';
+import ghostIcon from './assets/bongo cat.png';
 
 // API base URL - use environment variable or default to localhost for development
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
