@@ -1947,10 +1947,10 @@ export default function HumApp() {
     
     // Wait for animation to complete, then remove from list
     setTimeout(() => {
-      const newSavedSongs = savedSongs.filter(
-        s => !(s.title === song.title && s.artist === song.artist)
-      );
-      setSavedSongs(newSavedSongs);
+    const newSavedSongs = savedSongs.filter(
+      s => !(s.title === song.title && s.artist === song.artist)
+    );
+    setSavedSongs(newSavedSongs);
       setRemovingBookmarks(prev => {
         const next = new Set(prev);
         next.delete(songId);
@@ -1961,7 +1961,7 @@ export default function HumApp() {
       if (user) {
         saveBookmarksToAPI(newSavedSongs);
       } else {
-        localStorage.setItem('hum-saved-songs', JSON.stringify(newSavedSongs));
+    localStorage.setItem('hum-saved-songs', JSON.stringify(newSavedSongs));
       }
     }, 150); // Match animation duration
   };
@@ -4318,7 +4318,7 @@ export default function HumApp() {
               </button>
               
               {/* Modal */}
-              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-6 max-w-sm w-full border border-[#D8B5FE]/40 shadow-2xl">
+              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-6 max-w-sm w-full border border-[#D8B5FE] shadow-2xl">
                 <h2 className="text-2xl font-bold text-center mb-6">your profile</h2>
 
                 {/* Nickname Section - Moved to top */}
