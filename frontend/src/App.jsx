@@ -3320,7 +3320,7 @@ export default function HumApp() {
             {!(isListening && !isProcessing) && (
               <button
                 onClick={() => setShowBookmarks(!showBookmarks)}
-                className="flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all group"
+                className="flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 hover:border-[#D8B5FE] transition-all group"
               >
                 <Bookmark 
                   className={`w-5 h-5 transition-all duration-200 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse fill-purple-400/90 text-purple-400' : ''}`} 
@@ -3953,7 +3953,7 @@ export default function HumApp() {
                   </div>
                   <button 
                     onClick={handleCloseBookmarks}
-                    className="p-2 hover:bg-white/5 rounded-lg transition-all hover:scale-105"
+                    className="p-2 hover:bg-white/5 rounded-full transition-all hover:scale-105"
                   >
                     <X className="w-5 h-5 text-white/40" />
                   </button>
