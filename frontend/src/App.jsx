@@ -85,6 +85,7 @@ export default function HumApp() {
   const [showNicknameModal, setShowNicknameModal] = useState(false);
   const [isClosingNickname, setIsClosingNickname] = useState(false);
   const [nicknameInput, setNicknameInput] = useState('');
+  const [previewNickname, setPreviewNickname] = useState('');
   const [userIcon, setUserIcon] = useState('');
   const [initialIcon, setInitialIcon] = useState('');
   const [iconInput, setIconInput] = useState(null);
@@ -805,6 +806,7 @@ export default function HumApp() {
         } else if (showProfileModal) {
           // If updating from profile modal, close it after saving
           setNicknameInput(data.nickname || '');
+          setPreviewNickname(data.nickname || '');
           // initialIcon will be updated in save button if icon was also changed
           setIsClosingProfile(true);
           setTimeout(() => {
@@ -814,6 +816,7 @@ export default function HumApp() {
         } else {
           // If updating from elsewhere, just update the input
           setNicknameInput(data.nickname || '');
+          setPreviewNickname(data.nickname || '');
         }
       } else {
         alert('Failed to save nickname. Please try again.');
@@ -842,6 +845,7 @@ export default function HumApp() {
       if (data.success) {
         setNickname('');
         setNicknameInput('');
+        setPreviewNickname('');
       } else {
         alert('Failed to remove nickname. Please try again.');
       }
@@ -3480,6 +3484,7 @@ export default function HumApp() {
             <button
               onClick={() => {
                 setNicknameInput(nickname || '');
+                setPreviewNickname(nickname || '');
                 setInitialIcon(userIcon || '');
                 setIconInput(userIcon || null);
                 setShowProfileModal(true);
@@ -4362,7 +4367,7 @@ export default function HumApp() {
               <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-6 max-w-sm w-full border border-[#D8B5FE] shadow-2xl">
                 <div className="flex items-center justify-center gap-2 mb-6">
                   <h2 className="text-2xl font-bold text-center">
-                    hi, {nickname || 'there'}
+                    hi, {previewNickname || 'there'}
                   </h2>
                   <div className="w-9 h-9 flex items-center justify-center flex-shrink-0">
                     {(iconInput !== null ? iconInput : userIcon) && getIconImage(iconInput !== null ? iconInput : userIcon) && (
@@ -4384,6 +4389,7 @@ export default function HumApp() {
                         type="text"
                         value={nicknameInput !== null ? nicknameInput : (nickname || '')}
                         onChange={(e) => setNicknameInput(e.target.value)}
+                        onBlur={() => setPreviewNickname(nicknameInput !== null ? nicknameInput.trim() : (nickname || ''))}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             handleSaveNickname();
