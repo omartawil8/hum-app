@@ -74,6 +74,8 @@ export default function HumApp() {
   const [isLyricsInputFocused, setIsLyricsInputFocused] = useState(false);
   const [isSearchingLyrics, setIsSearchingLyrics] = useState(false);
   const [lyricsInputLength, setLyricsInputLength] = useState(0);
+  const lyricsInputRef = useRef(null);
+  const [caretPosition, setCaretPosition] = useState(0);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [authEmail, setAuthEmail] = useState('');
@@ -2551,10 +2553,19 @@ export default function HumApp() {
 
         /* Smooth typing cursor effect for lyrics input */
         input[type="text"].lyrics-input-smooth {
-          caret-color: #D8B5FE;
+          caret-color: transparent;
           text-rendering: optimizeLegibility;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
+        }
+
+        @keyframes caretBlink {
+          0%, 50% {
+            opacity: 1;
+          }
+          51%, 100% {
+            opacity: 0;
+          }
         }
 
         /* Song hover lavender border */
@@ -4693,32 +4704,117 @@ export default function HumApp() {
                         <path d="m43.281 31.086c-1.6094-4.3555-7.7656-4.3555-9.3789 0l-4.5312 12.242c-1.5195 4.1094-4.7539 7.3438-8.8594 8.8633l-12.246 4.5312c-4.3555 1.6094-4.3555 7.7695 0 9.3789l12.246 4.5312c4.1055 1.5195 7.3398 4.7578 8.8594 8.8633l4.5312 12.242c1.6133 4.3555 7.7695 4.3555 9.3789 0l4.5312-12.242c1.5195-4.1055 4.7578-7.3438 8.8633-8.8633l12.242-4.5312c4.3555-1.6094 4.3555-7.7695 0-9.3789l-12.242-4.5312c-4.1055-1.5195-7.3438-4.7578-8.8633-8.8633z" fill={isLyricsInputFocused ? "#D8B5FE" : "currentColor"} style={{ color: 'white' }}/>
                       </svg>
                     </div>
-                    <input
-                      type="text"
-                      placeholder="smart search with lyrics..."
-                      value={lyricsInput}
-                      onChange={(e) => {
-                        setLyricsInput(e.target.value);
-                        setLyricsInputLength(e.target.value.length);
-                      }}
-                      onFocus={() => setIsLyricsInputFocused(true)}
-                      onBlur={() => setIsLyricsInputFocused(false)}
-                      onKeyPress={handleLyricsKeyPress}
-                      onClick={() => {
-                        // If disabled due to being out of searches, show appropriate modal
-                        if (!user && anonymousSearchCount >= ANONYMOUS_SEARCH_LIMIT) {
-                          setShowAuthModal(true);
-                        } else if (user && userTier === 'free' && searchCount >= FREE_SEARCH_LIMIT) {
-                          setShowUpgradeModal(true);
-                        }
-                      }}
-                      disabled={isSearchingLyrics}
-                      className="w-full bg-white/10 backdrop-blur-sm border border-white/20 focus:border-purple-400/30 rounded-full py-4 pl-14 pr-14 text-white placeholder-white/50 focus:outline-none transition-all disabled:opacity-50 lyrics-input-smooth"
-                      style={{
-                        transition: 'border-color 0.2s ease, background-color 0.2s ease',
-                        caretColor: '#D8B5FE'
-                      }}
-                    />
+                    <div className="relative">
+                      <input
+                        ref={lyricsInputRef}
+                        type="text"
+                        placeholder="smart search with lyrics..."
+                        value={lyricsInput}
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          setLyricsInput(newValue);
+                          setLyricsInputLength(newValue.length);
+                          
+                          // Calculate caret position
+                          if (lyricsInputRef.current) {
+                            const input = lyricsInputRef.current;
+                            setTimeout(() => {
+                              const selectionStart = input.selectionStart || newValue.length;
+                              const textBeforeCaret = newValue.substring(0, selectionStart);
+                              
+                              // Create a temporary span to measure text width
+                              const canvas = document.createElement('canvas');
+                              const context = canvas.getContext('2d');
+                              const computedStyle = window.getComputedStyle(input);
+                              context.font = `${computedStyle.fontSize} ${computedStyle.fontFamily}`;
+                              const textWidth = context.measureText(textBeforeCaret).width;
+                              
+                              setCaretPosition(textWidth);
+                            }, 0);
+                          }
+                        }}
+                        onKeyUp={(e) => {
+                          if (lyricsInputRef.current) {
+                            const input = e.target;
+                            const selectionStart = input.selectionStart || lyricsInput.length;
+                            const textBeforeCaret = lyricsInput.substring(0, selectionStart);
+                            
+                            const canvas = document.createElement('canvas');
+                            const context = canvas.getContext('2d');
+                            const computedStyle = window.getComputedStyle(input);
+                            context.font = `${computedStyle.fontSize} ${computedStyle.fontFamily}`;
+                            const textWidth = context.measureText(textBeforeCaret).width;
+                            
+                            setCaretPosition(textWidth);
+                          }
+                        }}
+                        onFocus={() => {
+                          setIsLyricsInputFocused(true);
+                          if (lyricsInputRef.current) {
+                            const input = lyricsInputRef.current;
+                            setTimeout(() => {
+                              const selectionStart = input.selectionStart || lyricsInput.length;
+                              const textBeforeCaret = lyricsInput.substring(0, selectionStart);
+                              
+                              const canvas = document.createElement('canvas');
+                              const context = canvas.getContext('2d');
+                              const computedStyle = window.getComputedStyle(input);
+                              context.font = `${computedStyle.fontSize} ${computedStyle.fontFamily}`;
+                              const textWidth = context.measureText(textBeforeCaret).width;
+                              
+                              setCaretPosition(textWidth);
+                            }, 0);
+                          }
+                        }}
+                        onBlur={() => setIsLyricsInputFocused(false)}
+                        onKeyPress={handleLyricsKeyPress}
+                        onClick={(e) => {
+                          if (lyricsInputRef.current) {
+                            const input = e.target;
+                            setTimeout(() => {
+                              const selectionStart = input.selectionStart || lyricsInput.length;
+                              const textBeforeCaret = lyricsInput.substring(0, selectionStart);
+                              
+                              const canvas = document.createElement('canvas');
+                              const context = canvas.getContext('2d');
+                              const computedStyle = window.getComputedStyle(input);
+                              context.font = `${computedStyle.fontSize} ${computedStyle.fontFamily}`;
+                              const textWidth = context.measureText(textBeforeCaret).width;
+                              
+                              setCaretPosition(textWidth);
+                            }, 0);
+                          }
+                          
+                          // If disabled due to being out of searches, show appropriate modal
+                          if (!user && anonymousSearchCount >= ANONYMOUS_SEARCH_LIMIT) {
+                            setShowAuthModal(true);
+                          } else if (user && userTier === 'free' && searchCount >= FREE_SEARCH_LIMIT) {
+                            setShowUpgradeModal(true);
+                          }
+                        }}
+                        disabled={isSearchingLyrics}
+                        className="w-full bg-white/10 backdrop-blur-sm border border-white/20 focus:border-purple-400/30 rounded-full py-4 pl-14 pr-14 text-white placeholder-white/50 focus:outline-none transition-all disabled:opacity-50 lyrics-input-smooth"
+                        style={{
+                          transition: 'border-color 0.2s ease, background-color 0.2s ease',
+                          caretColor: 'transparent'
+                        }}
+                      />
+                      {/* Custom animated caret */}
+                      {isLyricsInputFocused && (
+                        <div
+                          className="absolute top-1/2 -translate-y-1/2 pointer-events-none z-20"
+                          style={{
+                            left: `${56 + 20 + caretPosition}px`, // pl-14 (56px) + icon width (20px) + text width
+                            width: '2px',
+                            height: '1.2em',
+                            background: '#D8B5FE',
+                            transition: 'left 0.15s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.1s ease',
+                            animation: 'caretBlink 1s ease-in-out infinite',
+                            opacity: 1
+                          }}
+                        />
+                      )}
+                    </div>
                     
                     {/* Loading spinner OR Submit arrow */}
                     {isSearchingLyrics ? (
