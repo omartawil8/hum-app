@@ -2117,6 +2117,7 @@ export default function HumApp() {
     setAudioLevel(0);
     setAudioBlob(null);
     setIsHoveringBirdButton(false);
+    setIsButtonClickable(false);
     setError(null);
   };
 
