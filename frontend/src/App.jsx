@@ -104,6 +104,7 @@ export default function HumApp() {
   const [isHoveringInteractive, setIsHoveringInteractive] = useState(false);
   const [isHoveringBookmark, setIsHoveringBookmark] = useState(false);
   const [isHoveringBirdButton, setIsHoveringBirdButton] = useState(false);
+  const [isMouseInViewport, setIsMouseInViewport] = useState(true);
   const [removingBookmarks, setRemovingBookmarks] = useState(new Set());
   const [showTopBar, setShowTopBar] = useState(true);
   const lastScrollYRef = useRef(0);
@@ -954,6 +955,9 @@ export default function HumApp() {
       mouseX = e.clientX;
       mouseY = e.clientY;
       
+      // Ensure mouse is in viewport (mousemove only fires when mouse is in viewport)
+      setIsMouseInViewport(true);
+      
       // Update cursor position immediately for 1:1 tracking
       // No need for scroll handler - position: fixed handles viewport positioning automatically
       if (cursorRef.current) {
@@ -988,10 +992,19 @@ export default function HumApp() {
       setIsHoveringBookmark(isBookmark);
     };
 
+    const handleMouseLeave = (e) => {
+      // Only hide cursor if mouse actually left the document (not just moved to a child element)
+      if (!e.relatedTarget && !e.toElement) {
+        setIsMouseInViewport(false);
+      }
+    };
+
     document.addEventListener('mousemove', handleMouseMove, { passive: true });
+    document.addEventListener('mouseleave', handleMouseLeave, { passive: true });
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseleave', handleMouseLeave);
     };
   }, []);
 
@@ -5407,7 +5420,8 @@ export default function HumApp() {
             pointerEvents: 'none',
             transform: 'translate(-50%, -50%)',
             zIndex: 10001,
-            transition: 'background-color 0.3s ease, width 0.3s cubic-bezier(0.4, 0, 0.2, 1), height 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-radius 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1), fontSize 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease',
+            opacity: isMouseInViewport ? 1 : 0,
+            transition: 'background-color 0.3s ease, width 0.3s cubic-bezier(0.4, 0, 0.2, 1), height 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-radius 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1), fontSize 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease, opacity 0.2s ease',
             mixBlendMode: isHoveringBirdButton || isHoveringBookmark ? 'normal' : 'difference',
             willChange: 'left, top',
             display: 'flex',
