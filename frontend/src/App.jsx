@@ -3569,7 +3569,7 @@ export default function HumApp() {
               ) : userIcon ? (
                 <span className="text-lg flex-shrink-0">{userIcon}</span>
               ) : null}
-              <span className="truncate max-w-[150px]">{nickname || user.email}</span>
+              <span className="truncate max-w-[150px] hidden sm:inline">{nickname || user.email}</span>
             </button>
           )}
 
@@ -3582,7 +3582,7 @@ export default function HumApp() {
           <button
             className={`flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm border rounded-full hover:bg-white/10 hover:border-[#D8B5FE] transition-all ${showTips ? 'border-[#D8B5FE]' : 'border-white/10'}`}
           >
-              <span className="text-sm font-bold">help!</span>
+              <span className="text-sm font-bold hidden sm:inline">help!</span>
             <span className="text-base">💡</span>
           </button>
 
@@ -3675,7 +3675,11 @@ export default function HumApp() {
               <span className="text-sm text-white/70 group-hover:hidden transition-opacity">
                 {searchCount >= FREE_SEARCH_LIMIT
                   ? "no more searches :("
-                  : `${FREE_SEARCH_LIMIT - searchCount}/${FREE_SEARCH_LIMIT} free searches left`
+                  : (
+                    <>
+                      {FREE_SEARCH_LIMIT - searchCount}/{FREE_SEARCH_LIMIT} free searches<span className="hidden sm:inline"> left</span>
+                    </>
+                  )
                 }
               </span>
               <span className="text-sm text-purple-300 font-semibold hidden group-hover:inline-flex items-center gap-1 transition-opacity">
