@@ -3538,7 +3538,7 @@ export default function HumApp() {
         {/* Top Right - User Account & Help Button - Rendered via portal */}
         {createPortal(
           <div 
-            className="flex items-center gap-2 transition-opacity duration-300"
+            className="flex items-center gap-1 transition-opacity duration-300"
             style={{
               position: 'fixed',
               top: '24px',
@@ -3558,16 +3558,16 @@ export default function HumApp() {
                 setIconInput(userIcon || null);
                 setShowProfileModal(true);
               }}
-              className={`flex items-center gap-2 px-4 h-10 bg-white/5 hover:bg-white/10 backdrop-blur-sm border rounded-full text-sm text-white/70 hover:border-[#D8B5FE] transition-all ${showProfileModal ? 'border-[#D8B5FE]' : 'border-white/10'}`}
+              className={`flex items-center justify-center gap-2 px-2 h-9 w-9 sm:px-4 sm:h-10 sm:w-auto bg-white/5 hover:bg-white/10 backdrop-blur-sm border rounded-full text-sm text-white/70 hover:border-[#D8B5FE] transition-all ${showProfileModal ? 'border-[#D8B5FE]' : 'border-white/10'}`}
             >
               {userIcon && getIconImage(userIcon) ? (
                 <img 
                   src={getIconImage(userIcon)} 
                   alt={userIcon} 
-                  className={`object-contain flex-shrink-0 ${userIcon === 'shiba' || userIcon === 'ghost' ? 'w-7 h-7' : 'w-6 h-6'}`}
+                  className={`object-contain flex-shrink-0 ${userIcon === 'shiba' || userIcon === 'ghost' ? 'w-5 h-5 sm:w-7 sm:h-7' : 'w-5 h-5 sm:w-6 sm:h-6'}`}
                 />
               ) : userIcon ? (
-                <span className="text-lg flex-shrink-0">{userIcon}</span>
+                <span className="text-base sm:text-lg flex-shrink-0">{userIcon}</span>
               ) : null}
               <span className="truncate max-w-[150px] hidden sm:inline">{nickname || user.email}</span>
             </button>
@@ -3580,10 +3580,10 @@ export default function HumApp() {
           onMouseLeave={handleCloseTips}
         >
           <button
-            className={`flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm border rounded-full hover:bg-white/10 hover:border-[#D8B5FE] transition-all ${showTips ? 'border-[#D8B5FE]' : 'border-white/10'}`}
+            className={`flex items-center justify-center gap-2 px-2 py-2 h-9 w-9 sm:px-4 sm:w-auto bg-white/5 backdrop-blur-sm border rounded-full hover:bg-white/10 hover:border-[#D8B5FE] transition-all ${showTips ? 'border-[#D8B5FE]' : 'border-white/10'}`}
           >
               <span className="text-sm font-bold hidden sm:inline">help!</span>
-            <span className="text-base">💡</span>
+            <span className="text-lg sm:text-base">💡</span>
           </button>
 
           {/* Help Dropdown */}
