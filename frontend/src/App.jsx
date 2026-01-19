@@ -3558,7 +3558,7 @@ export default function HumApp() {
                 setIconInput(userIcon || null);
                 setShowProfileModal(true);
               }}
-              className={`flex items-center justify-center gap-2 px-2 h-9 w-9 sm:px-4 sm:h-10 sm:w-auto bg-white/5 hover:bg-white/10 backdrop-blur-sm border rounded-full text-sm text-white/70 hover:border-[#D8B5FE] transition-all ${showProfileModal ? 'border-[#D8B5FE]' : 'border-white/10'}`}
+              className={`flex items-center justify-center gap-2 px-2 h-9 w-9 sm:justify-start sm:px-4 sm:h-10 sm:w-auto bg-white/5 hover:bg-white/10 backdrop-blur-sm border rounded-full text-sm text-white/70 hover:border-[#D8B5FE] transition-all ${showProfileModal ? 'border-[#D8B5FE]' : 'border-white/10'}`}
             >
               {userIcon && getIconImage(userIcon) ? (
                 <img 
@@ -3580,7 +3580,7 @@ export default function HumApp() {
           onMouseLeave={handleCloseTips}
         >
           <button
-            className={`flex items-center justify-center gap-2 px-2 py-2 h-9 w-9 sm:px-4 sm:w-auto bg-white/5 backdrop-blur-sm border rounded-full hover:bg-white/10 hover:border-[#D8B5FE] transition-all ${showTips ? 'border-[#D8B5FE]' : 'border-white/10'}`}
+            className={`flex items-center justify-center gap-2 px-2 py-2 h-9 w-9 sm:justify-start sm:px-4 sm:py-2 sm:h-auto sm:w-auto bg-white/5 backdrop-blur-sm border rounded-full hover:bg-white/10 hover:border-[#D8B5FE] transition-all ${showTips ? 'border-[#D8B5FE]' : 'border-white/10'}`}
           >
               <span className="text-sm font-bold hidden sm:inline">help!</span>
             <span className="text-base">💡</span>
