@@ -71,6 +71,7 @@ export default function HumApp() {
   const [showUnlimitedInfo, setShowUnlimitedInfo] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [isCancelingSubscription, setIsCancelingSubscription] = useState(false);
+  const [billingPeriod, setBillingPeriod] = useState('monthly'); // 'monthly' or 'yearly'
   const [outOfSearchesError, setOutOfSearchesError] = useState(false);
   const [hasUsedInitialSearches, setHasUsedInitialSearches] = useState(false);
   const [lyricsInput, setLyricsInput] = useState('');
@@ -2288,7 +2289,7 @@ export default function HumApp() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ plan: tier })
+          body: JSON.stringify({ plan: tier, billingPeriod: billingPeriod })
         });
 
         const data = await response.json();
@@ -3969,6 +3970,30 @@ export default function HumApp() {
               <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-6 max-w-xl w-full max-h-[90vh] border border-white/20 shadow-2xl overflow-y-auto">
                 <h2 className="text-3xl font-bold text-center mb-6">wanna keep humming?</h2>
 
+                {/* Billing Period Toggle */}
+                <div className="flex items-center justify-center gap-3 mb-6">
+                  <button
+                    onClick={() => setBillingPeriod('monthly')}
+                    className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                      billingPeriod === 'monthly'
+                        ? 'bg-[#D8B5FE]/30 text-white border-2 border-[#D8B5FE]'
+                        : 'bg-white/5 text-white/60 border-2 border-white/10 hover:border-white/20'
+                    }`}
+                  >
+                    monthly
+                  </button>
+                  <button
+                    onClick={() => setBillingPeriod('yearly')}
+                    className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                      billingPeriod === 'yearly'
+                        ? 'bg-[#D8B5FE]/30 text-white border-2 border-[#D8B5FE]'
+                        : 'bg-white/5 text-white/60 border-2 border-white/10 hover:border-white/20'
+                    }`}
+                  >
+                    yearly
+                  </button>
+                </div>
+
                 <div className={`grid gap-4 ${userTier === 'avid' && searchCount >= AVID_LISTENER_LIMIT ? 'md:grid-cols-2' : 'md:grid-cols-1 max-w-sm mx-auto'}`}>
                   {/* Avid Listener Plan */}
                   <button
@@ -4015,7 +4040,11 @@ export default function HumApp() {
 
                       {/* Price */}
                       <div className="text-center mt-2 mb-4">
-                        <div className="text-4xl font-bold mb-1">$2<span className="text-xl text-white/60">/month</span></div>
+                        {billingPeriod === 'monthly' ? (
+                          <div className="text-4xl font-bold mb-1">$2<span className="text-xl text-white/60">/month</span></div>
+                        ) : (
+                          <div className="text-4xl font-bold mb-1">$20<span className="text-xl text-white/60">/year</span></div>
+                        )}
                       </div>
 
                       {/* Character illustration */}
@@ -4086,7 +4115,11 @@ export default function HumApp() {
 
                       {/* Price */}
                       <div className="text-center mt-4 mb-6">
-                        <div className="text-5xl font-bold mb-1">$4<span className="text-2xl text-white/60">/month</span></div>
+                        {billingPeriod === 'monthly' ? (
+                          <div className="text-5xl font-bold mb-1">$4<span className="text-2xl text-white/60">/month</span></div>
+                        ) : (
+                          <div className="text-5xl font-bold mb-1">$40<span className="text-2xl text-white/60">/year</span></div>
+                        )}
                       </div>
 
                       {/* Character illustration */}

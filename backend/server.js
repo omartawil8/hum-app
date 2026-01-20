@@ -2145,26 +2145,34 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    const { plan } = req.body; // 'avid' or 'unlimited'
+    const { plan, billingPeriod = 'monthly' } = req.body; // 'avid' or 'unlimited', 'monthly' or 'yearly'
     
     if (!plan || !['avid', 'unlimited'].includes(plan)) {
       return res.status(400).json({ error: 'Invalid plan' });
     }
 
+    if (billingPeriod && !['monthly', 'yearly'].includes(billingPeriod)) {
+      return res.status(400).json({ error: 'Invalid billing period' });
+    }
+
     const planDetails = {
       avid: {
         name: 'Avid Listener',
-        price: 100, // $1.00 in cents
-        description: '100 searches per month'
+        monthlyPrice: 200, // $2.00 in cents
+        yearlyPrice: 2000, // $20.00 in cents
+        description: '200 searches per month'
       },
       unlimited: {
         name: 'Eat, Breath, Music',
-        price: 400, // $4.00 in cents
+        monthlyPrice: 400, // $4.00 in cents
+        yearlyPrice: 4000, // $40.00 in cents
         description: 'Unlimited searches'
       }
     };
 
     const selectedPlan = planDetails[plan];
+    const price = billingPeriod === 'yearly' ? selectedPlan.yearlyPrice : selectedPlan.monthlyPrice;
+    const interval = billingPeriod === 'yearly' ? 'year' : 'month';
     
     if (!isMongoConnected()) {
       return res.status(503).json({ error: 'Database not available' });
@@ -2187,9 +2195,9 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
               description: selectedPlan.description,
             },
             recurring: {
-              interval: 'month',
+              interval: interval,
             },
-            unit_amount: selectedPlan.price,
+            unit_amount: price,
           },
           quantity: 1,
         },
