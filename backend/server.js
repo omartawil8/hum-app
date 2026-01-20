@@ -2185,7 +2185,10 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
     }
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'], // Stripe supports Apple Pay, Google Pay automatically
+      payment_method_types: ['card'],
+      automatic_payment_methods: {
+        enabled: true,
+      },
       line_items: [
         {
           price_data: {
