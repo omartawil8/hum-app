@@ -2294,15 +2294,22 @@ export default function HumApp() {
 
         const data = await response.json();
 
+        if (!response.ok) {
+          console.error('Payment API error:', data);
+          alert(`Failed to start payment: ${data.error || 'Unknown error'}. Please try again.`);
+          return;
+        }
+
         if (data.success && data.url) {
           // Redirect to Stripe Checkout
           window.location.href = data.url;
         } else {
-          alert('Failed to start payment. Please try again.');
+          console.error('Payment response error:', data);
+          alert(`Failed to start payment: ${data.error || 'Unknown error'}. Please try again.`);
         }
       } catch (error) {
         console.error('Payment error:', error);
-        alert('Failed to process payment. Please try again.');
+        alert(`Failed to process payment: ${error.message || 'Network error'}. Please try again.`);
       }
     }
   };

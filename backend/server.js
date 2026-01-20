@@ -2185,10 +2185,10 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
     }
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
       automatic_payment_methods: {
         enabled: true,
       },
+      payment_method_types: ['card'],
       line_items: [
         {
           price_data: {
@@ -2216,6 +2216,7 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       },
     });
 
+    console.log(`✅ Checkout session created: ${session.id} for user ${user.email}`);
     res.json({ 
       success: true, 
       sessionId: session.id,
@@ -2223,7 +2224,17 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
     });
   } catch (error) {
     console.error('Stripe checkout error:', error);
-    res.status(500).json({ error: 'Failed to create checkout session' });
+    const errorMessage = error.message || 'Failed to create checkout session';
+    console.error('Error details:', {
+      message: errorMessage,
+      type: error.type,
+      code: error.code,
+      statusCode: error.statusCode
+    });
+    res.status(500).json({ 
+      error: errorMessage,
+      details: error.type || 'Unknown error'
+    });
   }
 });
 
