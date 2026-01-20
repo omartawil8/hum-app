@@ -3978,12 +3978,15 @@ export default function HumApp() {
                       className="absolute top-1 bottom-1 rounded-full bg-white/10 transition-all duration-300 ease-out"
                       style={{
                         width: 'calc(50% - 6px)',
-                        left: billingPeriod === 'monthly' ? '4px' : 'calc(50% + 2px)'
+                        left: billingPeriod === 'monthly' ? '4px' : 'calc(50% + 2px)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
                       }}
                     />
                     <button
                       onClick={() => setBillingPeriod('monthly')}
-                      className={`relative z-10 px-3 py-1 rounded-full text-xs font-medium transition-colors duration-300 ${
+                      className={`relative z-10 flex-1 px-3 py-1 rounded-full text-xs font-medium transition-colors duration-300 text-center ${
                         billingPeriod === 'monthly'
                           ? 'text-white'
                           : 'text-white/40 hover:text-white/60'
@@ -3993,7 +3996,7 @@ export default function HumApp() {
                     </button>
                     <button
                       onClick={() => setBillingPeriod('yearly')}
-                      className={`relative z-10 px-3 py-1 rounded-full text-xs font-medium transition-colors duration-300 ${
+                      className={`relative z-10 flex-1 px-3 py-1 rounded-full text-xs font-medium transition-colors duration-300 text-center ${
                         billingPeriod === 'yearly'
                           ? 'text-white'
                           : 'text-white/40 hover:text-white/60'
