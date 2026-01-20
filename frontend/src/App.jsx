@@ -3970,29 +3970,39 @@ export default function HumApp() {
               <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-6 max-w-xl w-full max-h-[90vh] border border-white/20 shadow-2xl overflow-y-auto">
                 <h2 className="text-3xl font-bold text-center mb-6">wanna keep humming?</h2>
 
-                {/* Billing Period Toggle */}
-                <div className="flex items-center justify-center gap-3 mb-6">
+                {/* Billing Period Toggle - Subtle with savings indicator */}
+                <div className="flex items-center justify-center gap-3 mb-4">
                   <button
                     onClick={() => setBillingPeriod('monthly')}
-                    className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
                       billingPeriod === 'monthly'
-                        ? 'bg-[#D8B5FE]/30 text-white border-2 border-[#D8B5FE]'
-                        : 'bg-white/5 text-white/60 border-2 border-white/10 hover:border-white/20'
+                        ? 'text-white bg-white/10'
+                        : 'text-white/40 hover:text-white/60'
                     }`}
                   >
                     monthly
                   </button>
-                  <button
-                    onClick={() => setBillingPeriod('yearly')}
-                    className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-                      billingPeriod === 'yearly'
-                        ? 'bg-[#D8B5FE]/30 text-white border-2 border-[#D8B5FE]'
-                        : 'bg-white/5 text-white/60 border-2 border-white/10 hover:border-white/20'
-                    }`}
-                  >
-                    yearly
-                  </button>
+                  <div className="relative">
+                    <button
+                      onClick={() => setBillingPeriod('yearly')}
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all relative ${
+                        billingPeriod === 'yearly'
+                          ? 'text-white bg-white/10'
+                          : 'text-white/40 hover:text-white/60'
+                      }`}
+                    >
+                      yearly
+                    </button>
+                    {billingPeriod === 'yearly' && (
+                      <span className="absolute -top-1.5 -right-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap shadow-lg">
+                        save 17%
+                      </span>
+                    )}
+                  </div>
                 </div>
+                <p className="text-center text-xs text-white/30 mb-6">
+                  {billingPeriod === 'yearly' ? 'billed annually' : 'billed monthly'}
+                </p>
 
                 <div className={`grid gap-4 ${userTier === 'avid' && searchCount >= AVID_LISTENER_LIMIT ? 'md:grid-cols-2' : 'md:grid-cols-1 max-w-sm mx-auto'}`}>
                   {/* Avid Listener Plan */}
@@ -4043,7 +4053,15 @@ export default function HumApp() {
                         {billingPeriod === 'monthly' ? (
                           <div className="text-4xl font-bold mb-1">$2<span className="text-xl text-white/60">/month</span></div>
                         ) : (
-                          <div className="text-4xl font-bold mb-1">$20<span className="text-xl text-white/60">/year</span></div>
+                          <div>
+                            <div className="text-4xl font-bold mb-1">
+                              $1.67<span className="text-xl text-white/60">/month</span>
+                            </div>
+                            <div className="text-xs text-white/40 mt-1">billed as $20/year</div>
+                            <div className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 bg-green-500/20 border border-green-500/30 rounded-full">
+                              <span className="text-[10px] font-semibold text-green-400">Save $4/year</span>
+                            </div>
+                          </div>
                         )}
                       </div>
 
@@ -4118,7 +4136,15 @@ export default function HumApp() {
                         {billingPeriod === 'monthly' ? (
                           <div className="text-5xl font-bold mb-1">$4<span className="text-2xl text-white/60">/month</span></div>
                         ) : (
-                          <div className="text-5xl font-bold mb-1">$40<span className="text-2xl text-white/60">/year</span></div>
+                          <div>
+                            <div className="text-5xl font-bold mb-1">
+                              $3.33<span className="text-2xl text-white/60">/month</span>
+                            </div>
+                            <div className="text-xs text-white/40 mt-1">billed as $40/year</div>
+                            <div className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 bg-green-500/20 border border-green-500/30 rounded-full">
+                              <span className="text-[10px] font-semibold text-green-400">Save $8/year</span>
+                            </div>
+                          </div>
                         )}
                       </div>
 
