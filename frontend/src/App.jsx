@@ -4015,7 +4015,7 @@ export default function HumApp() {
                     }`}
                   >
                     {/* Card background */}
-                    <div className={`absolute inset-0 bg-gradient-to-br from-gray-600/15 via-gray-500/12 to-gray-400/10 backdrop-blur-sm rounded-2xl ${
+                    <div className={`absolute inset-0 bg-gradient-to-br from-black/30 via-gray-900/20 to-black/25 backdrop-blur-sm rounded-2xl ${
                       selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-50'
                     }`}></div>
                     <div className={`relative rounded-2xl p-4 border-2 transition-all duration-300 ${
