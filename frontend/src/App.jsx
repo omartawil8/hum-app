@@ -4622,17 +4622,17 @@ export default function HumApp() {
                   </div>
                 </div>
 
-                {/* Subscription Status */}
-                {hasActiveSubscription && userTier !== 'free' && (
-                  <div className="mb-6 p-4 bg-white/[0.05] border border-white/10 rounded-xl">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <label className="block text-sm font-semibold text-white/80 mb-1">subscription</label>
-                        <div className="text-sm text-white/60 capitalize">
-                          {userTier === 'avid' ? 'Avid Listener' : userTier === 'unlimited' ? 'Eat, Breath, Music' : 'Free'}
-                        </div>
+                {/* Subscription Management */}
+                <div className="mb-6 p-4 bg-white/[0.05] border border-white/10 rounded-xl">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <label className="block text-sm font-semibold text-white/80 mb-1">manage subscriptions</label>
+                      <div className="text-sm text-white/60 capitalize">
+                        {userTier === 'avid' ? 'Avid Listener' : userTier === 'unlimited' ? 'Eat, Breath, Music' : 'Free'}
                       </div>
                     </div>
+                  </div>
+                  {hasActiveSubscription && userTier !== 'free' ? (
                     <button
                       onClick={handleCancelSubscription}
                       disabled={isCancelingSubscription}
@@ -4648,8 +4648,18 @@ export default function HumApp() {
                         </>
                       )}
                     </button>
-                  </div>
-                )}
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setShowUpgradeModal(true);
+                        handleCloseProfile();
+                      }}
+                      className="w-full px-4 py-2 rounded-full border-2 border-[#D8B5FE]/40 hover:bg-[#D8B5FE]/30 hover:border-[#D8B5FE]/60 flex items-center justify-center gap-2 transition-all text-sm text-[#D8B5FE] font-semibold"
+                    >
+                      <span>upgrade</span>
+                    </button>
+                  )}
+                </div>
 
                 {/* Save and Logout Buttons */}
                 <div className="flex justify-center gap-3">
