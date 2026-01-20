@@ -4004,7 +4004,7 @@ export default function HumApp() {
                   {billingPeriod === 'yearly' ? 'billed annually' : 'billed monthly'}
                 </p>
 
-                <div className={`grid gap-4 ${userTier === 'avid' && searchCount >= AVID_LISTENER_LIMIT ? 'md:grid-cols-2' : 'md:grid-cols-1 max-w-sm mx-auto'}`}>
+                <div className="grid gap-4 md:grid-cols-2 max-w-3xl mx-auto">
                   {/* Avid Listener Plan */}
                   <button
                     onClick={() => handleSelectPlan('Avid Listener')}
@@ -4068,7 +4068,7 @@ export default function HumApp() {
                       {/* Character illustration */}
                       <div className="relative h-52 flex items-center justify-center mb-4">
                         <img 
-                          src={wizardGuyIcon} 
+                          src={avidListenerIcon} 
                           alt="avid listener" 
                           className="w-full h-full object-contain drop-shadow-2xl relative z-10"
                         />
@@ -4094,8 +4094,7 @@ export default function HumApp() {
                     </div>
                   </button>
 
-                  {/* Eat, Breath, Music Plan - Only show when avid tier has used 200 searches */}
-                  {userTier === 'avid' && searchCount >= AVID_LISTENER_LIMIT && (
+                  {/* Eat, Breath, Music Plan */}
                   <button
                     onClick={() => handleSelectPlan('Eat, Breath, Music')}
                     className={`relative group rounded-3xl overflow-hidden transition-all duration-300 ${
@@ -4172,7 +4171,6 @@ export default function HumApp() {
                       </div>
                     </div>
                   </button>
-                  )}
                 </div>
 
                 {/* Payment options (shows when plan selected) */}
