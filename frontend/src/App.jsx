@@ -4080,6 +4080,13 @@ export default function HumApp() {
                           alt="avid listener" 
                           className="w-full h-full object-contain drop-shadow-2xl relative z-10"
                         />
+                        {/* Stars decoration */}
+                        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                          <Star className="absolute top-2 left-4 w-5 h-5 text-yellow-400 fill-yellow-400 opacity-80" style={{ zIndex: 1 }} />
+                          <Star className="absolute top-6 right-8 w-4 h-4 text-yellow-400 fill-yellow-400 opacity-60" style={{ zIndex: 1 }} />
+                          <Star className="absolute bottom-8 left-4 w-4 h-4 text-yellow-400 fill-yellow-400 opacity-70" style={{ zIndex: 1 }} />
+                          <Star className="absolute top-12 right-4 w-3 h-3 text-yellow-400 fill-yellow-400 opacity-50" style={{ zIndex: 1 }} />
+                        </div>
                       </div>
 
                       {/* Plan name */}
@@ -4165,6 +4172,13 @@ export default function HumApp() {
                             alt="music wizard" 
                           className="w-full h-full object-contain drop-shadow-2xl relative z-10"
                         />
+                        {/* Stars decoration */}
+                        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                          <Star className="absolute top-2 left-4 w-5 h-5 text-yellow-400 fill-yellow-400 opacity-80" style={{ zIndex: 1 }} />
+                          <Star className="absolute top-6 right-8 w-4 h-4 text-yellow-400 fill-yellow-400 opacity-60" style={{ zIndex: 1 }} />
+                          <Star className="absolute bottom-8 left-4 w-4 h-4 text-yellow-400 fill-yellow-400 opacity-70" style={{ zIndex: 1 }} />
+                          <Star className="absolute top-12 right-4 w-3 h-3 text-yellow-400 fill-yellow-400 opacity-50" style={{ zIndex: 1 }} />
+                        </div>
                       </div>
 
                       {/* Plan name */}
