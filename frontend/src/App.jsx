@@ -69,6 +69,8 @@ export default function HumApp() {
   const [userTier, setUserTier] = useState('free'); // 'free', 'avid', 'unlimited'
   const [showAvidInfo, setShowAvidInfo] = useState(false);
   const [showUnlimitedInfo, setShowUnlimitedInfo] = useState(false);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [isCancelingSubscription, setIsCancelingSubscription] = useState(false);
   const [outOfSearchesError, setOutOfSearchesError] = useState(false);
   const [hasUsedInitialSearches, setHasUsedInitialSearches] = useState(false);
   const [lyricsInput, setLyricsInput] = useState('');
@@ -893,6 +895,70 @@ export default function HumApp() {
       setShowProfileModal(false);
       setIsClosingProfile(false);
     }, 250);
+  };
+
+  const fetchSubscriptionStatus = async () => {
+    try {
+      const token = localStorage.getItem('hum-auth-token');
+      if (!token || !user) return;
+
+      const response = await fetch(`${API_BASE_URL}/api/payments/status`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setHasActiveSubscription(data.hasActiveSubscription || false);
+        if (data.tier) {
+          setUserTier(data.tier);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching subscription status:', error);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!confirm('Are you sure you want to cancel your subscription? You will be downgraded to the free tier.')) {
+      return;
+    }
+
+    setIsCancelingSubscription(true);
+    try {
+      const token = localStorage.getItem('hum-auth-token');
+      if (!token) {
+        alert('Please log in to cancel your subscription');
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/payments/cancel-subscription`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setHasActiveSubscription(false);
+        setUserTier('free');
+        localStorage.setItem('hum-user-tier', 'free');
+        alert('Subscription canceled successfully. You have been downgraded to the free tier.');
+        // Refresh user data
+        await checkAuthStatus(token);
+      } else {
+        alert(data.error || 'Failed to cancel subscription. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error canceling subscription:', error);
+      alert('Failed to cancel subscription. Please try again.');
+    } finally {
+      setIsCancelingSubscription(false);
+    }
   };
 
   const handleCloseAuth = () => {
@@ -3564,12 +3630,14 @@ export default function HumApp() {
           {/* User Account Button (if logged in) */}
           {user && (
             <button
-              onClick={() => {
+              onClick={async () => {
                 setNicknameInput(nickname || '');
                 setPreviewNickname(nickname || '');
                 setInitialIcon(userIcon || '');
                 setIconInput(userIcon || null);
                 setShowProfileModal(true);
+                // Fetch subscription status when opening profile
+                await fetchSubscriptionStatus();
               }}
               className={`flex items-center justify-center gap-2 px-2 h-9 w-9 sm:justify-start sm:px-4 sm:h-10 sm:w-auto bg-white/5 hover:bg-white/10 backdrop-blur-sm border rounded-full text-sm text-white/70 hover:border-[#D8B5FE] transition-all ${showProfileModal ? 'border-[#D8B5FE]' : 'border-white/10'}`}
             >
@@ -4553,6 +4621,35 @@ export default function HumApp() {
                     {user?.email}
                   </div>
                 </div>
+
+                {/* Subscription Status */}
+                {hasActiveSubscription && userTier !== 'free' && (
+                  <div className="mb-6 p-4 bg-white/[0.05] border border-white/10 rounded-xl">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <label className="block text-sm font-semibold text-white/80 mb-1">subscription</label>
+                        <div className="text-sm text-white/60 capitalize">
+                          {userTier === 'avid' ? 'Avid Listener' : userTier === 'unlimited' ? 'Eat, Breath, Music' : 'Free'}
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleCancelSubscription}
+                      disabled={isCancelingSubscription}
+                      className="w-full px-4 py-2 rounded-full border-2 border-red-500/40 hover:bg-red-500/30 hover:border-red-500/60 flex items-center justify-center gap-2 transition-all text-sm text-red-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isCancelingSubscription ? (
+                        <>
+                          <span>canceling...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>cancel subscription</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
 
                 {/* Save and Logout Buttons */}
                 <div className="flex justify-center gap-3">

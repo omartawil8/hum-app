@@ -2420,6 +2420,57 @@ app.get('/api/payments/status', authenticateToken, async (req, res) => {
   }
 });
 
+// Cancel subscription
+app.post('/api/payments/cancel-subscription', authenticateToken, async (req, res) => {
+  try {
+    if (!stripe) {
+      return res.status(503).json({ error: 'Payment system not configured' });
+    }
+
+    if (!req.user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    if (!isMongoConnected()) {
+      return res.status(503).json({ error: 'Database not available' });
+    }
+    
+    const user = await User.findById(req.user.userId);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (!user.stripeSubscriptionId) {
+      return res.status(400).json({ error: 'No active subscription to cancel' });
+    }
+
+    // Cancel the subscription in Stripe
+    try {
+      await stripe.subscriptions.cancel(user.stripeSubscriptionId);
+      
+      // Update user in database
+      user.tier = 'free';
+      user.stripeSubscriptionId = null;
+      await user.save();
+      
+      console.log(`✅ User ${user.email} subscription canceled`);
+      
+      res.json({
+        success: true,
+        message: 'Subscription canceled successfully',
+        tier: 'free'
+      });
+    } catch (stripeError) {
+      console.error('Stripe cancellation error:', stripeError);
+      res.status(500).json({ error: 'Failed to cancel subscription with Stripe' });
+    }
+  } catch (error) {
+    console.error('Cancel subscription error:', error);
+    res.status(500).json({ error: 'Failed to cancel subscription' });
+  }
+});
+
 // Send welcome email to existing user (admin endpoint)
 app.post('/api/admin/send-welcome-email', async (req, res) => {
   try {
