@@ -4097,47 +4097,49 @@ export default function HumApp() {
                   {/* Eat, Breath, Music Plan */}
                   <button
                     onClick={() => handleSelectPlan('Eat, Breath, Music')}
-                    className={`relative group rounded-3xl overflow-hidden transition-all duration-300 ${
+                    className={`relative group rounded-2xl overflow-hidden transition-all duration-300 ${
                       selectedPlan === 'Eat, Breath, Music' 
                           ? 'scale-[1.025]' 
                           : 'hover:scale-[1.025]'
                     }`}
                   >
                     {/* Card background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 backdrop-blur-sm"></div>
-                      <div className={`relative rounded-3xl p-6 border-2 transition-all ${
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 backdrop-blur-sm rounded-2xl"></div>
+                      <div className={`relative rounded-2xl p-4 border-2 transition-all ${
                         selectedPlan === 'Eat, Breath, Music' 
                           ? 'border-purple-500 shadow-[0_0_0_2px_rgba(168,85,247,0.5)]' 
                           : 'border-purple-500/30 hover:border-purple-500/50'
                       }`}>
                       {/* Info icon */}
                       <div 
-                        className="absolute top-6 right-6 group/info"
+                        className="absolute top-4 right-4 group/info"
                         onMouseEnter={() => setShowUnlimitedInfo(true)}
                         onMouseLeave={() => setShowUnlimitedInfo(false)}
                       >
-                        <div className="w-6 h-6 rounded-full border border-white/30 flex items-center justify-center cursor-help hover:border-white/50 transition-colors">
-                          <Info className="w-4 h-4 text-white/60" />
+                        <div className="w-5 h-5 rounded-full border border-white/30 flex items-center justify-center cursor-help hover:border-white/50 transition-colors">
+                          <Info className="w-3.5 h-3.5 text-white/60" />
                         </div>
                         
                         {/* Tooltip */}
-                        {showUnlimitedInfo && (
-                          <div className="absolute top-8 right-0 w-48 bg-black/90 backdrop-blur-xl rounded-xl p-3 border border-purple-500/30 shadow-2xl z-10 animate-slide-down">
-                            <p className="text-sm text-white/70 leading-relaxed">
-                                enjoy <span className="text-purple-300 font-semibold">unlimited searches</span> with no limits!
-                            </p>
-                          </div>
-                        )}
+                        <div className={`absolute top-6 right-0 w-48 bg-black/95 backdrop-blur-xl rounded-xl p-3 border border-purple-500/30 shadow-2xl z-10 transition-all duration-300 ${
+                          showUnlimitedInfo 
+                            ? 'opacity-100 translate-y-0 pointer-events-auto' 
+                            : 'opacity-0 -translate-y-2 pointer-events-none'
+                        }`}>
+                          <p className="text-sm text-white/90 leading-relaxed">
+                            enjoy <span className="text-purple-300 font-semibold">unlimited searches</span> with no limits!
+                          </p>
+                        </div>
                       </div>
 
                       {/* Price */}
-                      <div className="text-center mt-4 mb-6">
+                      <div className="text-center mt-2 mb-4">
                         {billingPeriod === 'monthly' ? (
-                          <div className="text-5xl font-bold mb-1">$4<span className="text-2xl text-white/60">/month</span></div>
+                          <div className="text-4xl font-bold mb-1">$4<span className="text-xl text-white/60">/month</span></div>
                         ) : (
                           <div>
-                            <div className="text-5xl font-bold mb-1">
-                              $3.33<span className="text-2xl text-white/60">/month</span>
+                            <div className="text-4xl font-bold mb-1">
+                              $3.33<span className="text-xl text-white/60">/month</span>
                             </div>
                             <div className="text-xs text-white/40 mt-1">billed as $40/year</div>
                             <div className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 bg-green-500/20 border border-green-500/30 rounded-full">
@@ -4148,26 +4150,25 @@ export default function HumApp() {
                       </div>
 
                       {/* Character illustration */}
-                      <div className="relative h-64 flex items-center justify-center mb-6">
+                      <div className="relative h-52 flex items-center justify-center mb-4">
                         <img 
                           src={wizardGuyIcon} 
                             alt="music wizard" 
-                          className="w-full h-full object-contain drop-shadow-2xl"
+                          className="w-full h-full object-contain drop-shadow-2xl relative z-10"
                         />
                         {/* Stars decoration */}
-                        <div className="absolute inset-0 pointer-events-none">
-                          <Star className="absolute top-6 left-10 w-7 h-7 text-yellow-400 fill-yellow-400 opacity-90" />
-                          <Star className="absolute top-4 right-8 w-6 h-6 text-yellow-400 fill-yellow-400 opacity-80" />
-                          <Star className="absolute bottom-16 left-8 w-5 h-5 text-yellow-400 fill-yellow-400 opacity-70" />
-                          <Star className="absolute top-20 right-12 w-4 h-4 text-yellow-400 fill-yellow-400 opacity-60" />
-                          <Star className="absolute bottom-8 right-6 w-6 h-6 text-yellow-400 fill-yellow-400 opacity-85" />
+                        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                          <Star className="absolute top-2 left-4 w-5 h-5 text-yellow-400 fill-yellow-400 opacity-80" style={{ zIndex: 1 }} />
+                          <Star className="absolute top-6 right-8 w-4 h-4 text-yellow-400 fill-yellow-400 opacity-60" style={{ zIndex: 1 }} />
+                          <Star className="absolute bottom-8 left-4 w-4 h-4 text-yellow-400 fill-yellow-400 opacity-70" style={{ zIndex: 1 }} />
+                          <Star className="absolute top-12 right-4 w-3 h-3 text-yellow-400 fill-yellow-400 opacity-50" style={{ zIndex: 1 }} />
                         </div>
                       </div>
 
                       {/* Plan name */}
                       <div className="text-center">
-                          <h3 className="text-2xl font-bold">eat, breath, music</h3>
-                          <p className="text-sm text-purple-300/80 mt-1">unlimited searches</p>
+                          <h3 className="text-lg font-bold">eat, breath, music</h3>
+                          <p className="text-xs text-purple-300/80 mt-1">unlimited searches</p>
                       </div>
                     </div>
                   </button>
