@@ -2214,6 +2214,11 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
         userId: user._id.toString(),
         plan: plan,
       },
+      payment_method_options: {
+        apple_pay: {
+          enabled: true,
+        },
+      },
     });
 
     console.log(`✅ Checkout session created: ${session.id} for user ${user.email}`);
