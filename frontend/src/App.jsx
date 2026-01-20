@@ -3971,30 +3971,38 @@ export default function HumApp() {
                 <h2 className="text-3xl font-bold text-center mb-6">wanna keep humming?</h2>
 
                 {/* Billing Period Toggle - Subtle with savings indicator */}
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <button
-                    onClick={() => setBillingPeriod('monthly')}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                      billingPeriod === 'monthly'
-                        ? 'text-white bg-white/10'
-                        : 'text-white/40 hover:text-white/60'
-                    }`}
-                  >
-                    monthly
-                  </button>
-                  <div className="relative">
+                <div className="flex items-center justify-center mb-4">
+                  <div className="relative flex items-center gap-1 bg-white/5 rounded-full p-1">
+                    {/* Sliding background bubble */}
+                    <div 
+                      className="absolute top-1 bottom-1 rounded-full bg-white/10 transition-all duration-300 ease-out"
+                      style={{
+                        width: 'calc(50% - 6px)',
+                        left: billingPeriod === 'monthly' ? '4px' : 'calc(50% + 2px)'
+                      }}
+                    />
+                    <button
+                      onClick={() => setBillingPeriod('monthly')}
+                      className={`relative z-10 px-3 py-1 rounded-full text-xs font-medium transition-colors duration-300 ${
+                        billingPeriod === 'monthly'
+                          ? 'text-white'
+                          : 'text-white/40 hover:text-white/60'
+                      }`}
+                    >
+                      monthly
+                    </button>
                     <button
                       onClick={() => setBillingPeriod('yearly')}
-                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all relative ${
+                      className={`relative z-10 px-3 py-1 rounded-full text-xs font-medium transition-colors duration-300 ${
                         billingPeriod === 'yearly'
-                          ? 'text-white bg-white/10'
+                          ? 'text-white'
                           : 'text-white/40 hover:text-white/60'
                       }`}
                     >
                       yearly
                     </button>
                     {billingPeriod === 'yearly' && (
-                      <span className="absolute -top-1.5 -right-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap shadow-lg">
+                      <span className="absolute -top-1.5 -right-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap shadow-lg z-20">
                         save 17%
                       </span>
                     )}
