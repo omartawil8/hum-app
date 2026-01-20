@@ -3972,21 +3972,21 @@ export default function HumApp() {
 
                 {/* Billing Period Toggle - Subtle with savings indicator */}
                 <div className="flex items-center justify-center mb-4">
-                  <div className="relative flex items-center gap-1 bg-white/5 rounded-full p-1">
+                  <div className="relative inline-flex items-center gap-1 bg-white/5 rounded-full p-1">
                     {/* Sliding background bubble */}
                     <div 
-                      className="absolute top-1 bottom-1 rounded-full bg-white/10 transition-all duration-300 ease-out"
+                      className="absolute top-1 bottom-1 rounded-full bg-white/10 transition-transform duration-300 ease-out"
                       style={{
                         width: 'calc(50% - 6px)',
-                        left: billingPeriod === 'monthly' ? '4px' : 'calc(50% + 2px)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
+                        transform: billingPeriod === 'monthly' 
+                          ? 'translateX(0)' 
+                          : 'translateX(calc(100% + 4px))',
+                        left: '4px'
                       }}
                     />
                     <button
                       onClick={() => setBillingPeriod('monthly')}
-                      className={`relative z-10 flex-1 px-3 py-1 rounded-full text-xs font-medium transition-colors duration-300 text-center ${
+                      className={`relative z-10 w-[70px] px-3 py-1 rounded-full text-xs font-medium transition-colors duration-300 ${
                         billingPeriod === 'monthly'
                           ? 'text-white'
                           : 'text-white/40 hover:text-white/60'
@@ -3996,7 +3996,7 @@ export default function HumApp() {
                     </button>
                     <button
                       onClick={() => setBillingPeriod('yearly')}
-                      className={`relative z-10 flex-1 px-3 py-1 rounded-full text-xs font-medium transition-colors duration-300 text-center ${
+                      className={`relative z-10 w-[70px] px-3 py-1 rounded-full text-xs font-medium transition-colors duration-300 ${
                         billingPeriod === 'yearly'
                           ? 'text-white'
                           : 'text-white/40 hover:text-white/60'
