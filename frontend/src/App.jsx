@@ -4011,18 +4011,22 @@ export default function HumApp() {
                     className={`relative group rounded-2xl overflow-hidden transition-all duration-300 ${
                       selectedPlan === 'Avid Listener' 
                         ? 'scale-[1.025]' 
-                        : 'hover:scale-[1.025]'
+                        : 'hover:scale-[1.025] opacity-60'
                     }`}
                   >
                     {/* Card background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/15 via-purple-600/12 to-violet-500/10 backdrop-blur-sm rounded-2xl"></div>
+                    <div className={`absolute inset-0 bg-gradient-to-br from-indigo-500/15 via-purple-600/12 to-violet-500/10 backdrop-blur-sm rounded-2xl transition-opacity duration-300 ${
+                      selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-50'
+                    }`}></div>
                     <div className={`relative rounded-2xl p-4 border-2 transition-all ${
                       selectedPlan === 'Avid Listener' 
                         ? 'border-[#D8B5FE] shadow-[0_0_0_2px_rgba(216,181,254,0.5)]' 
-                        : 'border-[#D8B5FE]/30 hover:border-[#D8B5FE]/50'
+                        : 'border-[#D8B5FE]/20 hover:border-[#D8B5FE]/40'
                     }`}>
                       {/* Star badge */}
-                      <div className="absolute top-4 left-4">
+                      <div className={`absolute top-4 left-4 transition-opacity duration-300 ${
+                        selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-40'
+                      }`}>
                         <Star className="w-5 h-5 text-[#D8B5FE] fill-[#D8B5FE]" />
                       </div>
 
@@ -4049,7 +4053,9 @@ export default function HumApp() {
                       </div>
 
                       {/* Price */}
-                      <div className="text-center mt-2 mb-4">
+                      <div className={`text-center mt-2 mb-4 transition-opacity duration-300 ${
+                        selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-60'
+                      }`}>
                         {billingPeriod === 'monthly' ? (
                           <div className="text-4xl font-bold mb-1">$2<span className="text-xl text-white/60">/month</span></div>
                         ) : (
@@ -4066,7 +4072,9 @@ export default function HumApp() {
                       </div>
 
                       {/* Character illustration */}
-                      <div className="relative h-52 flex items-center justify-center mb-4">
+                      <div className={`relative h-52 flex items-center justify-center mb-4 transition-opacity duration-300 ${
+                        selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-50'
+                      }`}>
                         <img 
                           src={avidListenerIcon} 
                           alt="avid listener" 
@@ -4082,7 +4090,9 @@ export default function HumApp() {
                       </div>
 
                       {/* Plan name */}
-                      <div className="text-center">
+                      <div className={`text-center transition-opacity duration-300 ${
+                        selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-60'
+                      }`}>
                         <h3 className="text-lg font-bold">avid listener</h3>
                         <p className="text-xs text-[#D8B5FE]/80 mt-1">200 searches per month</p>
                         {userTier === 'avid' && (
@@ -4100,15 +4110,17 @@ export default function HumApp() {
                     className={`relative group rounded-2xl overflow-hidden transition-all duration-300 ${
                       selectedPlan === 'Eat, Breath, Music' 
                           ? 'scale-[1.025]' 
-                          : 'hover:scale-[1.025]'
+                          : 'hover:scale-[1.025] opacity-60'
                     }`}
                   >
                     {/* Card background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 backdrop-blur-sm rounded-2xl"></div>
+                    <div className={`absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 backdrop-blur-sm rounded-2xl transition-opacity duration-300 ${
+                      selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-50'
+                    }`}></div>
                       <div className={`relative rounded-2xl p-4 border-2 transition-all ${
                         selectedPlan === 'Eat, Breath, Music' 
                           ? 'border-purple-500 shadow-[0_0_0_2px_rgba(168,85,247,0.5)]' 
-                          : 'border-purple-500/30 hover:border-purple-500/50'
+                          : 'border-purple-500/20 hover:border-purple-500/40'
                       }`}>
                       {/* Info icon */}
                       <div 
@@ -4128,12 +4140,14 @@ export default function HumApp() {
                         }`}>
                           <p className="text-sm text-white/90 leading-relaxed">
                             enjoy <span className="text-purple-300 font-semibold">unlimited searches</span> with no limits!
-                          </p>
-                        </div>
+                            </p>
+                          </div>
                       </div>
 
                       {/* Price */}
-                      <div className="text-center mt-2 mb-4">
+                      <div className={`text-center mt-2 mb-4 transition-opacity duration-300 ${
+                        selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-60'
+                      }`}>
                         {billingPeriod === 'monthly' ? (
                           <div className="text-4xl font-bold mb-1">$4<span className="text-xl text-white/60">/month</span></div>
                         ) : (
@@ -4150,7 +4164,9 @@ export default function HumApp() {
                       </div>
 
                       {/* Character illustration */}
-                      <div className="relative h-52 flex items-center justify-center mb-4">
+                      <div className={`relative h-52 flex items-center justify-center mb-4 transition-opacity duration-300 ${
+                        selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-50'
+                      }`}>
                         <img 
                           src={wizardGuyIcon} 
                             alt="music wizard" 
@@ -4166,7 +4182,9 @@ export default function HumApp() {
                       </div>
 
                       {/* Plan name */}
-                      <div className="text-center">
+                      <div className={`text-center transition-opacity duration-300 ${
+                        selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-60'
+                      }`}>
                           <h3 className="text-lg font-bold">eat, breath, music</h3>
                           <p className="text-xs text-purple-300/80 mt-1">unlimited searches</p>
                       </div>
