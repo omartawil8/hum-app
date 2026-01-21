@@ -4041,6 +4041,12 @@ export default function HumApp() {
                         ? 'border-[#D8B5FE] shadow-[0_0_0_2px_rgba(216,181,254,0.5)]' 
                         : 'border-[#D8B5FE]/20 hover:border-[#D8B5FE]/40'
                     }`}>
+                      {/* Current plan badge */}
+                      {userTier === 'avid' && (
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white/10 border border-white/25 text-[10px] font-semibold uppercase tracking-wide text-white/70 backdrop-blur-md">
+                          current plan
+                        </div>
+                      )}
                       {/* Star badge */}
                       <div className={`absolute top-4 left-4 ${
                         selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-40'
@@ -4167,7 +4173,14 @@ export default function HumApp() {
                         selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-60'
                       }`}>
                         {billingPeriod === 'monthly' ? (
-                          <div className="text-4xl font-bold mb-1">$4<span className="text-xl text-white/60">/month</span></div>
+                          <div className="text-4xl font-bold mb-1">
+                            $4<span className="text-xl text-white/60">/month</span>
+                            {userTier === 'avid' && (
+                              <div className="text-[11px] text-green-300 mt-1 font-medium">
+                                only $2 more than your current plan
+                              </div>
+                            )}
+                          </div>
                         ) : (
                           <div>
                             <div className="text-4xl font-bold mb-1">
@@ -4177,6 +4190,11 @@ export default function HumApp() {
                             <div className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 bg-green-500/20 border border-green-500/30 rounded-full">
                               <span className="text-[10px] font-semibold text-green-400">Save $8/year</span>
                             </div>
+                            {userTier === 'avid' && (
+                              <div className="text-[11px] text-green-300 mt-2 font-medium">
+                                only $20 more per year than your current plan
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
