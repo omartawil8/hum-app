@@ -621,6 +621,12 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
       return res.json({ authenticated: false });
     }
 
+    // Backfill subscriptionStartedAt for existing subscribers who upgraded before this field existed
+    if ((user.tier === 'avid' || user.tier === 'unlimited') && !user.subscriptionStartedAt) {
+      user.subscriptionStartedAt = new Date();
+      await user.save();
+    }
+
     res.json({
       authenticated: true,
       user: {
@@ -630,6 +636,7 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
         tier: user.tier || 'free', // Default to free if not set
         nickname: user.nickname || null,
         icon: user.icon || null,
+        subscriptionStartedAt: user.subscriptionStartedAt || null,
         bookmarks: user.bookmarks || [],
         recentSearches: user.recentSearches || []
       }
