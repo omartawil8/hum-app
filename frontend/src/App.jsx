@@ -4135,7 +4135,7 @@ export default function HumApp() {
                             <div className="text-xs text-white/40 mt-1">billed as $20/year</div>
                             <div className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 bg-green-500/20 border border-green-500/30 rounded-full">
                               <span className="text-[10px] font-semibold text-green-400">
-                                {userTier === 'avid' ? 'Saving $4/year' : 'Save $4/year'}
+                                Save $4/year
                               </span>
                             </div>
                           </div>
@@ -4182,7 +4182,7 @@ export default function HumApp() {
                   <button
                     onClick={() => handleSelectPlan('Eat, Breath, Music')}
                     className={`relative group rounded-2xl overflow-hidden transition-transform duration-300 border-2 ${
-                      selectedPlan === 'Eat, Breath, Music'
+                      selectedPlan === 'Eat, Breath, Music' 
                         ? 'scale-[1.025] border-purple-500 shadow-[0_0_0_2px_rgba(168,85,247,0.5)]'
                         : 'hover:scale-[1.025] opacity-60 border-purple-500/20 hover:border-purple-500/40'
                     }`}
