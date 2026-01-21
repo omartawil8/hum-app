@@ -4216,7 +4216,7 @@ export default function HumApp() {
                             <div className="space-y-1">
                               {/* New effective price difference */}
                               <div className="text-4xl font-bold">
-                                $2<span className="text-xl text-white/60"> more /month</span>
+                                $2<span className="text-xl text-white/60">/month</span>
                               </div>
                               {/* Original full price, neatly crossed out */}
                               <div className="text-sm font-medium text-white/40 line-through">
@@ -4224,7 +4224,7 @@ export default function HumApp() {
                               </div>
                               {/* Upgrade helper text */}
                               <div className="text-[11px] text-green-300 font-medium">
-                                to upgrade from avid listener to eat, breath, music
+                                to upgrade
                               </div>
                             </div>
                           ) : (
