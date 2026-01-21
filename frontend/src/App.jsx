@@ -72,6 +72,7 @@ export default function HumApp() {
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [isCancelingSubscription, setIsCancelingSubscription] = useState(false);
   const [billingPeriod, setBillingPeriod] = useState('monthly'); // 'monthly' or 'yearly'
+  const [subscriptionStartDate, setSubscriptionStartDate] = useState(null); // for monthly reset display
   const [outOfSearchesError, setOutOfSearchesError] = useState(false);
   const [hasUsedInitialSearches, setHasUsedInitialSearches] = useState(false);
   const [lyricsInput, setLyricsInput] = useState('');
@@ -302,6 +303,9 @@ export default function HumApp() {
         }
         if (data.user.icon) {
           setUserIcon(data.user.icon);
+        }
+        if (data.user.createdAt) {
+          setSubscriptionStartDate(data.user.createdAt);
         }
         if (data.user.bookmarks && data.user.bookmarks.length > 0) {
           setSavedSongs(data.user.bookmarks);
@@ -2246,13 +2250,45 @@ export default function HumApp() {
     }, 200);
   };
 
-  // Calculate days until monthly reset (1st of next month)
   const getDaysUntilReset = () => {
-    const now = new Date();
-    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    const diffTime = nextMonth - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    // If we know when the subscription (or account) started, reset each month on that day.
+    // Example: bought on the 12th → resets on the 12th of each month.
+    try {
+      const now = new Date();
+
+      if (subscriptionStartDate) {
+        const start = new Date(subscriptionStartDate);
+        // Guard against invalid dates
+        if (!isNaN(start.getTime())) {
+          let nextReset = new Date(start);
+
+          // Move forward month by month until the reset date is in the future
+          while (nextReset <= now) {
+            nextReset = new Date(
+              nextReset.getFullYear(),
+              nextReset.getMonth() + 1,
+              nextReset.getDate()
+            );
+          }
+
+          const diffTime = nextReset - now;
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          // Safety clamp to avoid weird huge numbers in case of any date issues
+          if (diffDays > 0 && diffDays < 365) {
+            return diffDays;
+          }
+        }
+      }
+
+      // Fallback: reset on the 1st of next month (previous behavior)
+      const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      const diffTime = nextMonth - now;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays;
+    } catch (e) {
+      console.error('Error calculating days until reset:', e);
+      return 0;
+    }
   };
 
   const handleCloseUpgrade = () => {
