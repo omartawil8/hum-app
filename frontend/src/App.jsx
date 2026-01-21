@@ -4248,11 +4248,6 @@ export default function HumApp() {
                             <div className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 bg-green-500/20 border border-green-500/30 rounded-full">
                               <span className="text-[10px] font-semibold text-green-400">Save $8/year</span>
                             </div>
-                            {userTier === 'avid' && (
-                              <div className="text-[11px] text-green-300 mt-2 font-medium">
-                                only $20 more per year than your current plan
-                              </div>
-                            )}
                           </div>
                         )}
                       </div>
