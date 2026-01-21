@@ -4088,7 +4088,7 @@ export default function HumApp() {
                     }`}>
                       {/* Current plan badge - only for Avid monthly when viewing monthly billing */}
                       {userTier === 'avid' && billingPeriod === 'monthly' && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white/20 border border-white/40 text-[10px] font-semibold uppercase tracking-wide text-white/90 backdrop-blur-md z-20">
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white/10 border border-white/25 text-[10px] font-semibold uppercase tracking-wide text-white/70 backdrop-blur-md z-20">
                           current plan
                         </div>
                       )}
