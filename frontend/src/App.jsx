@@ -140,7 +140,7 @@ export default function HumApp() {
   
   const ANONYMOUS_SEARCH_LIMIT = 1; // 1 free search without login
   const FREE_SEARCH_LIMIT = 5; // Total free searches (1 anonymous + 4 authenticated)
-  const AVID_LISTENER_LIMIT = 200; // 200 searches per month for $2 tier
+  const AVID_LISTENER_LIMIT = 100; // 100 searches per month for $2 tier
   // Unlimited tier has no limit
   
   const defaultSearches = [
@@ -1403,7 +1403,7 @@ export default function HumApp() {
     if (userTier === 'unlimited') return true; // Unlimited users have no limits
     
     if (userTier === 'avid') {
-      // Avid Listener: 200 searches per month
+      // Avid Listener: 100 searches per month
       if (searchCount >= AVID_LISTENER_LIMIT) {
         setShowUpgradeModal(true);
         return false;
@@ -4165,7 +4165,7 @@ export default function HumApp() {
                         selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-60'
                       }`}>
                         <h3 className="text-lg font-bold">avid listener</h3>
-                        <p className="text-xs text-[#D8B5FE]/80 mt-1">200 searches per month</p>
+                        <p className="text-xs text-[#D8B5FE]/80 mt-1">100 searches per month</p>
                         {userTier === 'avid' && (
                           <p className="text-xs text-white/50 mt-2 flex items-center justify-center gap-1">
                             <Clock className="w-3 h-3" />
