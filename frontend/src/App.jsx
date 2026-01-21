@@ -4230,8 +4230,8 @@ export default function HumApp() {
                                 $4/month
                               </div>
                               {/* Show upgrade cost clearly */}
-                              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-500/10 border border-green-500/30 rounded-full">
-                                <span className="text-sm font-semibold text-green-300">just $2/month more</span>
+                              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#D8B5FE]/10 border border-[#D8B5FE]/30 rounded-full">
+                                <span className="text-sm font-semibold text-[#D8B5FE]">just $2/month more</span>
                               </div>
                             </div>
                           ) : (
