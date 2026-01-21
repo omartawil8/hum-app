@@ -304,7 +304,10 @@ export default function HumApp() {
         if (data.user.icon) {
           setUserIcon(data.user.icon);
         }
-        if (data.user.createdAt) {
+        if (data.user.subscriptionStartedAt) {
+          setSubscriptionStartDate(data.user.subscriptionStartedAt);
+        } else if (data.user.createdAt) {
+          // Fallback for older accounts that don't have subscriptionStartedAt yet
           setSubscriptionStartDate(data.user.createdAt);
         }
         if (data.user.bookmarks && data.user.bookmarks.length > 0) {

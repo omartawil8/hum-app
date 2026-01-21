@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema({
     enum: ['free', 'avid', 'unlimited'],
     default: 'free'
   },
+  subscriptionStartedAt: {
+    type: Date,
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now

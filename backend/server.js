@@ -2357,6 +2357,7 @@ app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), asy
           user.tier = plan;
           user.searchCount = 0; // Reset search count for new subscription
           user.stripeSubscriptionId = session.subscription;
+          user.subscriptionStartedAt = new Date();
           await user.save();
           console.log(`✅ User ${user.email} upgraded to ${plan} tier`);
         }
@@ -2372,6 +2373,7 @@ app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), asy
         if (user) {
           user.tier = 'free';
           user.stripeSubscriptionId = null;
+          user.subscriptionStartedAt = null;
           await user.save();
           console.log(`⚠️ User ${user.email} subscription canceled, downgraded to free`);
         }
@@ -2470,6 +2472,7 @@ app.post('/api/payments/verify-payment', authenticateToken, async (req, res) => 
           user.tier = session.metadata.plan;
           user.searchCount = 0;
           user.stripeSubscriptionId = session.subscription;
+          user.subscriptionStartedAt = new Date();
           await user.save();
           
           console.log(`✅ User ${user.email} upgraded to ${session.metadata.plan} tier`);
