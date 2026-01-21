@@ -1803,35 +1803,64 @@ app.post('/api/identify', upload.single('audio'), authenticateToken, checkSearch
         }
       });
       
-      // NEW: Replace covers/remixes with originals BEFORE final ranking
-      console.log('\n🔄 Checking for covers/remixes to replace with originals...');
+      // NEW: Replace obvious covers AND low-popularity versions with the most popular "canonical" version
+      //      BEFORE final ranking. This helps map things like random "Hey Jude" covers to The Beatles version.
+      console.log('\n🔄 Checking for more popular canonical versions (covers + low-popularity matches)...');
       const replacementPromises = matchesWithSpotify.map(async (match) => {
-        // Skip if already has high popularity (likely original)
-        if (match.spotify && match.spotify.popularity >= 50) {
+        if (!match.title) return match;
+
+        const currentPopularity = match.spotify?.popularity || 0;
+
+        // Skip if already very popular – likely the canonical version
+        if (currentPopularity >= 75) {
           return match;
         }
         
-        // Skip if title doesn't suggest it's a cover/remix
         const titleLower = (match.title || '').toLowerCase();
+        const artistLower = (match.artists?.[0]?.name || '').toLowerCase();
+
+        // 1) Detect obvious covers/remixes
         const isCoverRemix = titleLower.includes('cover') || 
                             titleLower.includes('remix') || 
                             titleLower.includes('tribute') ||
                             titleLower.includes('acoustic') ||
-                            (match.artists?.[0]?.name || '').toLowerCase().includes('cover');
+                            artistLower.includes('cover');
         
-        if (!isCoverRemix) {
+        // 2) Detect "reasonably specific" titles for canonical replacement
+        //    - at least two words after cleaning
+        //    - total length >= 6 characters
+        const cleanedForLength = cleanTitleForComparison(match.title);
+        const titleWords = cleanedForLength.split(/\s+/).filter(Boolean);
+        const isReasonablySpecificTitle = titleWords.length >= 2 && cleanedForLength.length >= 6;
+        
+        // If it's not an obvious cover/remix AND the title is very generic (e.g. "Intro"),
+        // don't attempt replacement to avoid weird jumps.
+        if (!isCoverRemix && !isReasonablySpecificTitle) {
           return match;
         }
         
-        // Try to find original
+        // Try to find a more popular canonical version on Spotify
         const mostPopular = await findMostPopularVersion(match.title);
         if (mostPopular && mostPopular.popularity > (match.spotify?.popularity || 0)) {
           const cleanMatchTitle = cleanTitleForComparison(match.title);
           const cleanPopularTitle = cleanTitleForComparison(mostPopular.title);
           const similarity = calculateSimilarity(cleanMatchTitle, cleanPopularTitle);
+
+          // For explicit covers/remixes we can be a bit looser;
+          // for generic "Hey Jude" style titles, require a tighter match and bigger popularity gap.
+          const requiredSimilarity = isCoverRemix ? 0.75 : 0.90;
+          const requiredGap = isCoverRemix ? 10 : 20;
           
-          if (similarity >= 0.75 && mostPopular.popularity >= (match.spotify?.popularity || 0) + 10) {
-            console.log(`   🔄 Replacing "${match.title}" (${match.spotify?.popularity || 0}/100) with "${mostPopular.title}" (${mostPopular.popularity}/100)`);
+          if (
+            similarity >= requiredSimilarity &&
+            mostPopular.popularity >= currentPopularity + requiredGap &&
+            mostPopular.popularity >= 50 // don't jump to an obscure version
+          ) {
+            console.log(
+              `   🔄 Replacing "${match.title}" (${currentPopularity}/100)` +
+              ` with canonical "${mostPopular.title}" (${mostPopular.popularity}/100)` +
+              (isCoverRemix ? ' [cover/remix detected]' : ' [canonical popularity upgrade]')
+            );
             
             // Get Spotify data for the original
             let originalSpotify = await getSpotifyTrackByName(mostPopular.title, mostPopular.artist);
