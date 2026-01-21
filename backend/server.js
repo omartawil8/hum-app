@@ -1069,7 +1069,7 @@ async function findMostPopularVersion(songTitle) {
           popularity: mostPopular.popularity,
           preview_url: mostPopular.preview_url,
           external_url: mostPopular.external_urls.spotify,
-            album_art: mostPopular.album.images[0]?.url
+          album_art: mostPopular.album.images[0]?.url
         },
         isrc: mostPopular.external_ids?.isrc
       };
@@ -2273,10 +2273,9 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
     }
 
     const session = await stripe.checkout.sessions.create({
+      // Use basic card payments; Apple Pay / Google Pay are automatically
+      // enabled on Stripe Checkout when wallets are turned on in Dashboard.
       payment_method_types: ['card'],
-      automatic_payment_methods: {
-        enabled: true,
-      },
       line_items: [
         {
           price_data: {
