@@ -4128,7 +4128,9 @@ export default function HumApp() {
                             </div>
                             <div className="text-xs text-white/40 mt-1">billed as $20/year</div>
                             <div className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 bg-green-500/20 border border-green-500/30 rounded-full">
-                              <span className="text-[10px] font-semibold text-green-400">Save $4/year</span>
+                              <span className="text-[10px] font-semibold text-green-400">
+                                {userTier === 'avid' ? 'Saving $4/year' : 'Save $4/year'}
+                              </span>
                             </div>
                           </div>
                         )}
