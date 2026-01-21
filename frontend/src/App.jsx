@@ -4216,13 +4216,13 @@ export default function HumApp() {
                         {billingPeriod === 'monthly' ? (
                           userTier === 'avid' ? (
                             <div className="space-y-1">
-                              {/* New effective price difference */}
-                              <div className="text-4xl font-bold">
-                                $2<span className="text-xl text-white/60">/month</span>
+                              {/* Original full price, big and crossed out */}
+                              <div className="text-4xl font-bold text-white/40 line-through">
+                                $4<span className="text-xl text-white/40">/month</span>
                               </div>
-                              {/* Original full price, neatly crossed out */}
-                              <div className="text-sm font-medium text-white/40 line-through">
-                                $4<span className="text-xs text-white/40">/month</span>
+                              {/* Upgrade delta, smaller */}
+                              <div className="text-sm font-semibold text-white/80">
+                                $2<span className="text-xs text-white/60">/month</span>
                               </div>
                               {/* Upgrade helper text */}
                               <div className="text-[11px] text-green-300 font-medium">
