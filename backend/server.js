@@ -55,6 +55,14 @@ if (process.env.STRIPE_SECRET_KEY) {
   console.log('⚠️  Stripe not configured - payment features disabled');
 }
 
+// Stripe Price IDs for subscriptions (from Stripe Dashboard)
+// Avid Listener
+const STRIPE_PRICE_AVID_MONTHLY = 'price_1Srsq3ImpMKWmAgdgibsqCvl';
+const STRIPE_PRICE_AVID_YEARLY  = 'price_1SrsuZImpMKWmAgdKDuftnOV';
+// Eat, Breath, Music (Unlimited)
+const STRIPE_PRICE_UNLIMITED_MONTHLY = 'price_1Srss2ImpMKWmAgd5XUPpJhc';
+const STRIPE_PRICE_UNLIMITED_YEARLY  = 'price_1SrsvCImpMKWmAgdpBrILeVj';
+
 // =========================
 // AUTHENTICATION & USER STORAGE
 // =========================
@@ -2259,7 +2267,6 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
     };
 
     const selectedPlan = planDetails[plan];
-    const price = billingPeriod === 'yearly' ? selectedPlan.yearlyPrice : selectedPlan.monthlyPrice;
     const interval = billingPeriod === 'yearly' ? 'year' : 'month';
     
     if (!isMongoConnected()) {
@@ -2272,23 +2279,58 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       return res.status(404).json({ error: 'User not found' });
     }
 
+    // Map plan + billingPeriod to a Stripe Price ID
+    let targetPriceId;
+    if (plan === 'avid' && billingPeriod === 'monthly') {
+      targetPriceId = STRIPE_PRICE_AVID_MONTHLY;
+    } else if (plan === 'avid' && billingPeriod === 'yearly') {
+      targetPriceId = STRIPE_PRICE_AVID_YEARLY;
+    } else if (plan === 'unlimited' && billingPeriod === 'monthly') {
+      targetPriceId = STRIPE_PRICE_UNLIMITED_MONTHLY;
+    } else if (plan === 'unlimited' && billingPeriod === 'yearly') {
+      targetPriceId = STRIPE_PRICE_UNLIMITED_YEARLY;
+    }
+
+    if (!targetPriceId) {
+      return res.status(400).json({ error: 'Pricing configuration not found for this plan' });
+    }
+
+    // If user already has an active Stripe subscription, treat this as an upgrade/downgrade
+    if (user.stripeSubscriptionId) {
+      console.log(`🔄 Updating existing subscription for user ${user.email} to plan ${plan} (${billingPeriod})`);
+      const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+
+      if (!subscription || !subscription.items || !subscription.items.data.length) {
+        return res.status(400).json({ error: 'Existing subscription not found or has no items' });
+      }
+
+      const updated = await stripe.subscriptions.update(user.stripeSubscriptionId, {
+        cancel_at_period_end: false,
+        proration_behavior: 'create_prorations',
+        items: [{
+          id: subscription.items.data[0].id,
+          price: targetPriceId,
+        }],
+      });
+
+      user.tier = plan;
+      user.subscriptionStartedAt = new Date();
+      await user.save();
+
+      console.log(`✅ Subscription updated for ${user.email}: ${updated.id}`);
+      return res.json({
+        success: true,
+        upgraded: true,
+        tier: user.tier,
+      });
+    }
+
+    // New subscription via Checkout
     const session = await stripe.checkout.sessions.create({
-      // Use basic card payments; Apple Pay / Google Pay are automatically
-      // enabled on Stripe Checkout when wallets are turned on in Dashboard.
       payment_method_types: ['card'],
       line_items: [
         {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: selectedPlan.name,
-              description: selectedPlan.description,
-            },
-            recurring: {
-              interval: interval,
-            },
-            unit_amount: price,
-          },
+          price: targetPriceId,
           quantity: 1,
         },
       ],
