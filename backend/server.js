@@ -2295,33 +2295,29 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       return res.status(400).json({ error: 'Pricing configuration not found for this plan' });
     }
 
-    // If user already has an active Stripe subscription, treat this as an upgrade/downgrade
+    // If user already has an active Stripe subscription, send them to the Stripe Billing Portal
+    // so they can upgrade/downgrade with a clear prorated payment breakdown.
     if (user.stripeSubscriptionId) {
-      console.log(`🔄 Updating existing subscription for user ${user.email} to plan ${plan} (${billingPeriod})`);
-      const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+      console.log(`🔄 Redirecting ${user.email} to Stripe Billing Portal for subscription management`);
 
-      if (!subscription || !subscription.items || !subscription.items.data.length) {
-        return res.status(400).json({ error: 'Existing subscription not found or has no items' });
+      const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+      if (!subscription) {
+        return res.status(400).json({ error: 'Existing subscription not found' });
       }
 
-      const updated = await stripe.subscriptions.update(user.stripeSubscriptionId, {
-        cancel_at_period_end: false,
-        proration_behavior: 'create_prorations',
-        items: [{
-          id: subscription.items.data[0].id,
-          price: targetPriceId,
-        }],
+      const customerId = subscription.customer;
+      if (!customerId) {
+        return res.status(400).json({ error: 'Stripe customer not found for subscription' });
+      }
+
+      const portalSession = await stripe.billingPortal.sessions.create({
+        customer: customerId,
+        return_url: process.env.FRONTEND_URL || 'http://localhost:5173',
       });
 
-      user.tier = plan;
-      user.subscriptionStartedAt = new Date();
-      await user.save();
-
-      console.log(`✅ Subscription updated for ${user.email}: ${updated.id}`);
       return res.json({
         success: true,
-        upgraded: true,
-        tier: user.tier,
+        portalUrl: portalSession.url,
       });
     }
 
@@ -2406,6 +2402,10 @@ app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), asy
           user.searchCount = 0; // Reset search count for new subscription
           user.stripeSubscriptionId = session.subscription;
           user.subscriptionStartedAt = new Date();
+          // Capture Stripe customer ID for Billing Portal access
+          if (session.customer) {
+            user.stripeCustomerId = session.customer;
+          }
           await user.save();
           console.log(`✅ User ${user.email} upgraded to ${plan} tier`);
         }
@@ -2427,6 +2427,31 @@ app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), asy
         }
       } catch (error) {
         console.error('Error downgrading user:', error);
+      }
+    }
+  } else if (event.type === 'customer.subscription.updated') {
+    const subscription = event.data.object;
+    if (isMongoConnected()) {
+      try {
+        const user = await User.findOne({ stripeSubscriptionId: subscription.id });
+        if (user && subscription.items && subscription.items.data.length) {
+          const priceId = subscription.items.data[0].price.id;
+          let plan = user.tier;
+          if (priceId === STRIPE_PRICE_AVID_MONTHLY || priceId === STRIPE_PRICE_AVID_YEARLY) {
+            plan = 'avid';
+          } else if (priceId === STRIPE_PRICE_UNLIMITED_MONTHLY || priceId === STRIPE_PRICE_UNLIMITED_YEARLY) {
+            plan = 'unlimited';
+          }
+          user.tier = plan;
+          // Use Stripe's current_period_start as the new subscription start
+          if (subscription.current_period_start) {
+            user.subscriptionStartedAt = new Date(subscription.current_period_start * 1000);
+          }
+          await user.save();
+          console.log(`🔄 Updated user ${user.email} tier to ${user.tier} from subscription update`);
+        }
+      } catch (error) {
+        console.error('Error handling subscription update:', error);
       }
     }
   }
