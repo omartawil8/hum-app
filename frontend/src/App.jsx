@@ -4213,17 +4213,12 @@ export default function HumApp() {
                       }`}>
                         {billingPeriod === 'monthly' ? (
                           userTier === 'avid' ? (
-                            <div className="mb-1">
-                              {/* Original price crossed out */}
-                              <div className="text-3xl font-bold text-white/40 line-through">
-                                $4<span className="text-lg text-white/40">/month</span>
+                            <div className="space-y-1">
+                              <div className="text-4xl font-bold">
+                                $4<span className="text-xl text-white/60">/month</span>
                               </div>
-                              {/* Upgrade difference highlighted */}
-                              <div className="text-4xl font-bold mt-1">
-                                $2<span className="text-xl text-white/60"> more /month</span>
-                              </div>
-                              <div className="text-[11px] text-green-300 mt-1 font-medium">
-                                to jump from avid listener to eat, breath, music
+                              <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-green-500/15 border border-green-500/40 text-[11px] font-medium text-green-200">
+                                upgrade for <span className="mx-1 font-semibold text-green-100">+$2/month</span> over your current plan
                               </div>
                             </div>
                           ) : (
