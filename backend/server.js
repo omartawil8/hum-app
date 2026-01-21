@@ -840,6 +840,17 @@ async function getSpotifyToken() {
 }
 
 async function getSpotifyTrack(isrc) {
+  // Per-process in-memory cache to avoid duplicate lookups across a single request burst
+  if (!global.__humSpotifyIsrcCache) {
+    global.__humSpotifyIsrcCache = new Map();
+  }
+
+  if (!isrc) return null;
+
+  if (global.__humSpotifyIsrcCache.has(isrc)) {
+    return global.__humSpotifyIsrcCache.get(isrc);
+  }
+
   try {
     const token = await getSpotifyToken();
     if (!token) return null;
@@ -853,7 +864,7 @@ async function getSpotifyTrack(isrc) {
 
     if (response.data.tracks.items.length > 0) {
       const track = response.data.tracks.items[0];
-      return {
+      const result = {
         id: track.id,
         title: track.name,
         artist: track.artists[0].name,
@@ -864,6 +875,9 @@ async function getSpotifyTrack(isrc) {
         external_url: track.external_urls.spotify,
         album_art: track.album.images[0]?.url
       };
+      
+      global.__humSpotifyIsrcCache.set(isrc, result);
+      return result;
     }
     
     return null;
@@ -874,12 +888,23 @@ async function getSpotifyTrack(isrc) {
 }
 
 async function getSpotifyTrackByName(title, artist) {
+  if (!global.__humSpotifyNameCache) {
+    global.__humSpotifyNameCache = new Map();
+  }
+
   try {
     const token = await getSpotifyToken();
     if (!token) return null;
 
-    const cleanTitle = title.replace(/[()[\]]/g, '').trim();
-    const cleanArtist = artist.replace(/[()[\]]/g, '').trim();
+    const cleanTitle = (title || '').replace(/[()[\]]/g, '').trim();
+    const cleanArtist = (artist || '').replace(/[()[\]]/g, '').trim();
+
+    if (!cleanTitle || !cleanArtist) return null;
+
+    const cacheKey = `${cleanTitle.toLowerCase()}|${cleanArtist.toLowerCase()}`;
+    if (global.__humSpotifyNameCache.has(cacheKey)) {
+      return global.__humSpotifyNameCache.get(cacheKey);
+    }
     
     const query = `track:${cleanTitle} artist:${cleanArtist}`;
     
@@ -892,7 +917,7 @@ async function getSpotifyTrackByName(title, artist) {
 
     if (response.data.tracks.items.length > 0) {
       const track = response.data.tracks.items[0];
-      return {
+      const result = {
         id: track.id,
         title: track.name,
         artist: track.artists[0].name,
@@ -903,6 +928,9 @@ async function getSpotifyTrackByName(title, artist) {
         external_url: track.external_urls.spotify,
         album_art: track.album.images[0]?.url
       };
+      
+      global.__humSpotifyNameCache.set(cacheKey, result);
+      return result;
     }
     
     return null;
@@ -940,15 +968,26 @@ async function getSpotifyArtistInfo(artistId) {
 
 // NEW: Find the most popular version of a song on Spotify (catches unlabeled covers!)
 async function findMostPopularVersion(songTitle) {
+  if (!global.__humSpotifyCanonicalCache) {
+    global.__humSpotifyCanonicalCache = new Map();
+  }
+
   try {
     const token = await getSpotifyToken();
     if (!token) return null;
 
     // Clean the title - remove everything in parentheses/brackets
-    const cleanTitle = songTitle
+    const cleanTitle = (songTitle || '')
       .replace(/\s*[\(\[].*?[\)\]]\s*/g, '')
       .replace(/\s*-\s*(remix|mix|edit|acoustic|live|remaster).*$/i, '')
       .trim();
+
+    if (!cleanTitle) return null;
+
+    const cacheKey = cleanTitle.toLowerCase();
+    if (global.__humSpotifyCanonicalCache.has(cacheKey)) {
+      return global.__humSpotifyCanonicalCache.get(cacheKey);
+    }
     
     console.log(`\n🔍 Searching Spotify for most popular version of: "${cleanTitle}"`);
     
@@ -983,7 +1022,7 @@ async function findMostPopularVersion(songTitle) {
       if (originalTracks.length === 0) {
         console.log(`   ⚠️  No clear original found, using most popular overall`);
         const mostPopular = tracks[0];
-        return {
+        const fallback = {
           title: mostPopular.name,
           artist: mostPopular.artists[0].name,
           popularity: mostPopular.popularity,
@@ -1000,6 +1039,8 @@ async function findMostPopularVersion(songTitle) {
           },
           isrc: mostPopular.external_ids?.isrc
         };
+        global.__humSpotifyCanonicalCache.set(cacheKey, fallback);
+        return fallback;
       }
       
       // Sort by popularity
@@ -1008,7 +1049,7 @@ async function findMostPopularVersion(songTitle) {
       
       console.log(`   ✅ Most popular: "${mostPopular.name}" by ${mostPopular.artists[0].name} (${mostPopular.popularity}/100)`);
       
-      return {
+      const result = {
         title: mostPopular.name,
         artist: mostPopular.artists[0].name,
         popularity: mostPopular.popularity,
@@ -1021,10 +1062,13 @@ async function findMostPopularVersion(songTitle) {
           popularity: mostPopular.popularity,
           preview_url: mostPopular.preview_url,
           external_url: mostPopular.external_urls.spotify,
-          album_art: mostPopular.album.images[0]?.url
+            album_art: mostPopular.album.images[0]?.url
         },
         isrc: mostPopular.external_ids?.isrc
       };
+
+      global.__humSpotifyCanonicalCache.set(cacheKey, result);
+      return result;
     }
     
     return null;
