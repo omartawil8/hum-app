@@ -4226,8 +4226,8 @@ export default function HumApp() {
                           userTier === 'avid' ? (
                             <div className="space-y-2">
                               {/* Show full price crossed out */}
-                              <div className="text-4xl font-bold line-through text-white/60">
-                                $4<span className="text-xl">/month</span>
+                              <div className="text-3xl font-bold text-white/50 line-through">
+                                $4/month
                               </div>
                               {/* Show upgrade cost clearly */}
                               <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-500/10 border border-green-500/30 rounded-full">
