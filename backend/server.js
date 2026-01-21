@@ -1159,7 +1159,10 @@ function rankACRResults(acrMatches) {
     ];
     
     if (hasAsianChars || hasArabicChars || hasCyrillicChars) {
-      score -= 0.50; // Increased from 0.40 to 0.50
+      score -= 0.55; // Slightly stronger penalty for clearly non-English matches
+    } else {
+      // Small positive bias for titles that look purely English
+      score += 0.05;
     }
     
     const hasNonEnglishIndicator = nonEnglishIndicators.some(indicator => 
@@ -1265,11 +1268,16 @@ function combineWithSpotify(rankedMatches) {
     const hasAsianChars = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf\uac00-\ud7a3]/.test(combined);
     const hasArabicChars = /[\u0600-\u06ff]/.test(combined);
     
-    // Additional penalty for non-English songs in final scoring
+    // Additional language weighting in final scoring
     if (hasCyrillicChars || hasAsianChars || hasArabicChars) {
-      const languagePenalty = -0.25; // Additional penalty on top of the one in rankACRResults
+      const languagePenalty = -0.30; // Slightly stronger final penalty for non-English
       finalScore += languagePenalty;
       console.log(`   🌍 Language penalty for "${match.title}": ${languagePenalty.toFixed(2)} (non-English)`);
+    } else if (combined.trim().length > 0) {
+      // Small bonus for clearly English-looking titles/artists
+      const languageBonus = 0.05;
+      finalScore += languageBonus;
+      console.log(`   🇬🇧 Language bonus for "${match.title}": +${languageBonus.toFixed(2)} (English bias)`);
     }
     
     // Spotify popularity boost
@@ -2213,11 +2221,6 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       metadata: {
         userId: user._id.toString(),
         plan: plan,
-      },
-      payment_method_options: {
-        apple_pay: {
-          enabled: true,
-        },
       },
     });
 
