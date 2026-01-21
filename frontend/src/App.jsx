@@ -4181,21 +4181,19 @@ export default function HumApp() {
                   {/* Eat, Breath, Music Plan */}
                   <button
                     onClick={() => handleSelectPlan('Eat, Breath, Music')}
-                    className={`relative group rounded-2xl overflow-hidden transition-transform duration-300 ${
-                      selectedPlan === 'Eat, Breath, Music' 
-                          ? 'scale-[1.025]' 
-                          : 'hover:scale-[1.025] opacity-60'
+                    className={`relative group rounded-2xl overflow-hidden transition-transform duration-300 border-2 ${
+                      selectedPlan === 'Eat, Breath, Music'
+                        ? 'scale-[1.025] border-purple-500 shadow-[0_0_0_2px_rgba(168,85,247,0.5)]'
+                        : 'hover:scale-[1.025] opacity-60 border-purple-500/20 hover:border-purple-500/40'
                     }`}
                   >
                     {/* Card background */}
-                    <div className={`absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 backdrop-blur-sm rounded-2xl ${
-                      selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-50'
-                    }`}></div>
-                      <div className={`relative rounded-2xl p-4 border-2 transition-all duration-300 ${
-                        selectedPlan === 'Eat, Breath, Music' 
-                          ? 'border-purple-500 shadow-[0_0_0_2px_rgba(168,85,247,0.5)]' 
-                          : 'border-purple-500/20 hover:border-purple-500/40'
-                      }`}>
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 backdrop-blur-sm rounded-2xl ${
+                        selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-50'
+                      }`}
+                    ></div>
+                    <div className="relative rounded-2xl p-4 transition-all duration-300">
                       {/* Info icon */}
                       <div 
                         className="absolute top-4 right-4 group/info"
