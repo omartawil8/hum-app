@@ -4212,14 +4212,25 @@ export default function HumApp() {
                         selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-60'
                       }`}>
                         {billingPeriod === 'monthly' ? (
-                          <div className="text-4xl font-bold mb-1">
-                            $4<span className="text-xl text-white/60">/month</span>
-                            {userTier === 'avid' && (
-                              <div className="text-[11px] text-green-300 mt-1 font-medium">
-                                only $2 more than your current plan
+                          userTier === 'avid' ? (
+                            <div className="mb-1">
+                              {/* Original price crossed out */}
+                              <div className="text-3xl font-bold text-white/40 line-through">
+                                $4<span className="text-lg text-white/40">/month</span>
                               </div>
-                            )}
-                          </div>
+                              {/* Upgrade difference highlighted */}
+                              <div className="text-4xl font-bold mt-1">
+                                $2<span className="text-xl text-white/60"> more /month</span>
+                              </div>
+                              <div className="text-[11px] text-green-300 mt-1 font-medium">
+                                to jump from avid listener to eat, breath, music
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-4xl font-bold mb-1">
+                              $4<span className="text-xl text-white/60">/month</span>
+                            </div>
+                          )
                         ) : (
                           <div>
                             <div className="text-4xl font-bold mb-1">
