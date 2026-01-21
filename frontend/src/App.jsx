@@ -4116,7 +4116,7 @@ export default function HumApp() {
                             : 'opacity-0 -translate-y-2 pointer-events-none'
                         }`}>
                           <p className="text-sm text-white/90 leading-relaxed">
-                            get <span className="text-[#D8B5FE] font-semibold">200 searches each month.</span> great for casual listening!
+                            get <span className="text-[#D8B5FE] font-semibold">100 searches each month.</span> great for casual listening!
                             </p>
                           </div>
                       </div>
@@ -4224,18 +4224,14 @@ export default function HumApp() {
                       }`}>
                         {billingPeriod === 'monthly' ? (
                           userTier === 'avid' ? (
-                            <div className="space-y-1">
-                              {/* Original full price, big and crossed out (no fade) */}
-                              <div className="text-4xl font-bold line-through">
-                                $4<span className="text-xl text-white/80">/month</span>
+                            <div className="space-y-2">
+                              {/* Show full price prominently */}
+                              <div className="text-4xl font-bold">
+                                $4<span className="text-xl text-white/70">/month</span>
                               </div>
-                              {/* Upgrade delta, smaller */}
-                              <div className="text-sm font-semibold text-white/80">
-                                $2<span className="text-xs text-white/60">/month</span>
-                              </div>
-                              {/* Upgrade helper text */}
-                              <div className="text-[11px] text-green-300 font-medium">
-                                to upgrade
+                              {/* Show upgrade cost clearly */}
+                              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-500/10 border border-green-500/30 rounded-full">
+                                <span className="text-sm font-semibold text-green-300">+$2/month to upgrade</span>
                               </div>
                             </div>
                           ) : (
