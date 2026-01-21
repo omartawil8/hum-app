@@ -4216,9 +4216,15 @@ export default function HumApp() {
                         {billingPeriod === 'monthly' ? (
                           userTier === 'avid' ? (
                             <div className="space-y-1">
-                              <div className="text-4xl font-bold">
-                                $2<span className="text-xl text-white/60">/month</span>
+                              {/* Original full price, big and crossed out (no fade) */}
+                              <div className="text-4xl font-bold line-through">
+                                $4<span className="text-xl text-white/80">/month</span>
                               </div>
+                              {/* Upgrade delta, smaller */}
+                              <div className="text-sm font-semibold text-white/80">
+                                $2<span className="text-xs text-white/60">/month</span>
+                              </div>
+                              {/* Upgrade helper text */}
                               <div className="text-[11px] text-green-300 font-medium">
                                 to upgrade
                               </div>
