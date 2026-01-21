@@ -4299,33 +4299,41 @@ export default function HumApp() {
                     {/* Header with decorative lines */}
                     <div className="flex items-center justify-center gap-3 mb-3">
                       <div className="flex-1 h-px bg-white/20"></div>
-                      <h3 className="text-lg font-semibold text-white/90 whitespace-nowrap">ready to upgrade?</h3>
+                      <h3 className="text-lg font-semibold text-white/90 whitespace-nowrap">ready to checkout?</h3>
                       <div className="flex-1 h-px bg-white/20"></div>
                     </div>
-                    <p className="text-center text-white/60 mb-4 text-xs">choose your preferred payment method</p>
+                    <p className="text-center text-white/60 mb-4 text-xs">confirm your plan and continue to secure checkout</p>
                     
-                    {/* Payment buttons */}
+                    {/* Checkout button */}
                     <div className="flex flex-col gap-3 px-1 py-1">
-                      {/* Primary: Card payment */}
+                      {(() => {
+                        const isAvidMonthlyCurrent =
+                          userTier === 'avid' &&
+                          billingPeriod === 'monthly' &&
+                          selectedPlan === 'Avid Listener';
+                        const disabled = isAvidMonthlyCurrent;
+
+                        return (
                     <button
-                      onClick={handleContinueUpgrade}
-                        className="group relative w-full px-6 py-4 bg-gradient-to-r from-purple-500/20 to-blue-500/20 hover:from-purple-500/30 hover:to-blue-500/30 border-2 border-purple-500/40 hover:border-purple-500/60 rounded-xl font-semibold text-base transition-all duration-200 flex items-center justify-center gap-3 text-white shadow-lg hover:shadow-xl hover:scale-[1.02] backdrop-blur-sm"
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <CreditCard className="w-5 h-5 relative z-10" />
-                        <span className="relative z-10">card, apple pay, or google pay</span>
-                      </button>
-                      
-                      {/* Secondary: PayPal */}
-                      <button
-                        onClick={() => handlePayPalPayment(selectedPlan)}
-                        className="group relative w-full px-6 py-4 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/40 rounded-xl font-medium text-base transition-all duration-200 flex items-center justify-center gap-3 text-white/90 hover:text-white hover:scale-[1.01] backdrop-blur-sm"
-                      >
-                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.2zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.032.154-.054.237-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.2H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437z"/>
-                        </svg>
-                        <span>PayPal</span>
+                            onClick={disabled ? undefined : handleContinueUpgrade}
+                            disabled={disabled}
+                            className={`group relative w-full px-6 py-4 rounded-xl font-semibold text-base transition-all duration-200 flex items-center justify-center gap-3 shadow-lg backdrop-blur-sm
+                              ${
+                                disabled
+                                  ? 'bg-white/5 border border-white/10 text-white/40 cursor-not-allowed'
+                                  : 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 hover:from-purple-500/30 hover:to-blue-500/30 border-2 border-purple-500/40 hover:border-purple-500/60 text-white hover:shadow-xl hover:scale-[1.02]'
+                              }`}
+                          >
+                            {!disabled && (
+                              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            )}
+                            <CreditCard className="w-5 h-5 relative z-10" />
+                            <span className="relative z-10">
+                              {disabled ? 'already on this plan' : 'go to checkout'}
+                            </span>
                     </button>
+                        );
+                      })()}
                   </div>
                     
                     {/* Trust indicator */}
