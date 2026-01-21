@@ -2295,34 +2295,26 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       return res.status(400).json({ error: 'Pricing configuration not found for this plan' });
     }
 
-    // If user already has an active Stripe subscription, send them to the Stripe Billing Portal
-    // so they can upgrade/downgrade with a clear prorated payment breakdown.
+    // If user already has an active Stripe subscription, create a Checkout Session
+    // that will create a new subscription. We'll cancel the old one in the webhook.
+    // Stripe will automatically show prorated charges.
+    let customerId = null;
     if (user.stripeSubscriptionId) {
-      console.log(`🔄 Redirecting ${user.email} to Stripe Billing Portal for subscription management`);
-
+      console.log(`🔄 Creating upgrade Checkout Session for existing subscriber ${user.email}`);
+      
       const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
       if (!subscription) {
         return res.status(400).json({ error: 'Existing subscription not found' });
       }
 
-      const customerId = subscription.customer;
+      customerId = subscription.customer;
       if (!customerId) {
         return res.status(400).json({ error: 'Stripe customer not found for subscription' });
       }
-
-      const portalSession = await stripe.billingPortal.sessions.create({
-        customer: customerId,
-        return_url: process.env.FRONTEND_URL || 'http://localhost:5173',
-      });
-
-      return res.json({
-        success: true,
-        portalUrl: portalSession.url,
-      });
     }
 
-    // New subscription via Checkout
-    const session = await stripe.checkout.sessions.create({
+    // Create Checkout Session (new subscription or upgrade)
+    const sessionConfig = {
       payment_method_types: ['card'],
       line_items: [
         {
@@ -2334,12 +2326,22 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}?payment=canceled`,
       client_reference_id: user._id.toString(),
-      customer_email: user.email,
       metadata: {
         userId: user._id.toString(),
         plan: plan,
+        isUpgrade: user.stripeSubscriptionId ? 'true' : 'false',
+        oldSubscriptionId: user.stripeSubscriptionId || '',
       },
-    });
+    };
+
+    // If upgrading, use existing customer ID; otherwise create new customer
+    if (customerId) {
+      sessionConfig.customer = customerId;
+    } else {
+      sessionConfig.customer_email = user.email;
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     console.log(`✅ Checkout session created: ${session.id} for user ${user.email}`);
     res.json({ 
@@ -2393,21 +2395,34 @@ app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), asy
     const session = event.data.object;
     const userId = session.metadata?.userId;
     const plan = session.metadata?.plan;
+    const isUpgrade = session.metadata?.isUpgrade === 'true';
+    const oldSubscriptionId = session.metadata?.oldSubscriptionId;
 
     if (userId && plan && isMongoConnected()) {
       try {
         const user = await User.findById(userId);
         if (user) {
+          // If this is an upgrade, cancel the old subscription
+          if (isUpgrade && oldSubscriptionId) {
+            try {
+              await stripe.subscriptions.cancel(oldSubscriptionId);
+              console.log(`🔄 Canceled old subscription ${oldSubscriptionId} for upgrade`);
+            } catch (cancelError) {
+              console.error('Error canceling old subscription:', cancelError);
+              // Continue anyway - new subscription is active
+            }
+          }
+
           user.tier = plan;
           user.searchCount = 0; // Reset search count for new subscription
           user.stripeSubscriptionId = session.subscription;
           user.subscriptionStartedAt = new Date();
-          // Capture Stripe customer ID for Billing Portal access
+          // Capture Stripe customer ID for future use
           if (session.customer) {
             user.stripeCustomerId = session.customer;
           }
           await user.save();
-          console.log(`✅ User ${user.email} upgraded to ${plan} tier`);
+          console.log(`✅ User ${user.email} ${isUpgrade ? 'upgraded' : 'subscribed'} to ${plan} tier`);
         }
       } catch (error) {
         console.error('Error updating user tier:', error);

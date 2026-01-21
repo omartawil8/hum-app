@@ -2340,11 +2340,8 @@ export default function HumApp() {
         }
 
         if (data.success && data.url) {
-          // New subscription via Stripe Checkout
+          // Redirect to Stripe Checkout (works for both new subscriptions and upgrades)
           window.location.href = data.url;
-        } else if (data.success && data.portalUrl) {
-          // Existing subscription: send user to Stripe Billing Portal to manage/upgrade
-          window.location.href = data.portalUrl;
         } else {
           console.error('Payment response error:', data);
           alert(`Failed to start payment: ${data.error || 'Unknown error'}. Please try again.`);
