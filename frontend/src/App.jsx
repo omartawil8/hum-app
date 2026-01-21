@@ -4167,8 +4167,11 @@ export default function HumApp() {
                         <h3 className="text-lg font-bold">avid listener</h3>
                         <p className="text-xs text-[#D8B5FE]/80 mt-1">200 searches per month</p>
                         {userTier === 'avid' && (
-                          <p className="text-xs text-white/50 mt-2">
-                            resets in {getDaysUntilReset()} {getDaysUntilReset() === 1 ? 'day' : 'days'}
+                          <p className="text-xs text-white/50 mt-2 flex items-center justify-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            <span>
+                              resets in {getDaysUntilReset()} {getDaysUntilReset() === 1 ? 'day' : 'days'}
+                            </span>
                           </p>
                         )}
                       </div>
