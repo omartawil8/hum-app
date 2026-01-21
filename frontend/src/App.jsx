@@ -4086,8 +4086,8 @@ export default function HumApp() {
                         ? 'border-[#D8B5FE] shadow-[0_0_0_2px_rgba(216,181,254,0.5)]' 
                         : 'border-[#D8B5FE]/20 hover:border-[#D8B5FE]/40'
                     }`}>
-                      {/* Current plan badge */}
-                      {userTier === 'avid' && (
+                      {/* Current plan badge - only for Avid monthly when viewing monthly billing */}
+                      {userTier === 'avid' && billingPeriod === 'monthly' && (
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white/10 border border-white/25 text-[10px] font-semibold uppercase tracking-wide text-white/70 backdrop-blur-md">
                           current plan
                         </div>
