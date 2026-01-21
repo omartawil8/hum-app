@@ -2295,26 +2295,58 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       return res.status(400).json({ error: 'Pricing configuration not found for this plan' });
     }
 
-    // If user already has an active Stripe subscription, create a Checkout Session
-    // that will create a new subscription. We'll cancel the old one in the webhook.
-    // Stripe will automatically show prorated charges.
-    let customerId = null;
+    // If user already has an active Stripe subscription, handle as a proration-based upgrade
     if (user.stripeSubscriptionId) {
-      console.log(`🔄 Creating upgrade Checkout Session for existing subscriber ${user.email}`);
-      
+      console.log(`🔄 Updating existing subscription for user ${user.email} to plan ${plan} (${billingPeriod})`);
+
       const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
-      if (!subscription) {
-        return res.status(400).json({ error: 'Existing subscription not found' });
+      if (!subscription || !subscription.items || !subscription.items.data.length) {
+        return res.status(400).json({ error: 'Existing subscription not found or has no items' });
       }
 
-      customerId = subscription.customer;
-      if (!customerId) {
-        return res.status(400).json({ error: 'Stripe customer not found for subscription' });
+      const currentItem = subscription.items.data[0];
+      const currentInterval = currentItem.price?.recurring?.interval; // 'month' or 'year'
+
+      if (!currentInterval) {
+        return res.status(400).json({ error: 'Current subscription has no interval information' });
       }
+
+      // Prevent monthly ↔ yearly switches unless we explicitly support them
+      if ((currentInterval === 'month' && billingPeriod === 'yearly') ||
+          (currentInterval === 'year' && billingPeriod === 'monthly')) {
+        return res.status(400).json({ error: 'Switching between monthly and yearly plans is not supported yet.' });
+      }
+
+      const updated = await stripe.subscriptions.update(user.stripeSubscriptionId, {
+        cancel_at_period_end: false,
+        proration_behavior: 'create_prorations',
+        items: [{
+          id: currentItem.id,
+          price: targetPriceId,
+        }],
+      });
+
+      // Optionally, you could immediately invoice the prorated amount here.
+      // For now, we let Stripe include it on the next invoice.
+
+      user.tier = plan;
+      if (updated.current_period_start) {
+        user.subscriptionStartedAt = new Date(updated.current_period_start * 1000);
+      } else {
+        user.subscriptionStartedAt = new Date();
+      }
+      await user.save();
+
+      console.log(`✅ Subscription updated for ${user.email}: ${updated.id}`);
+      return res.json({
+        success: true,
+        upgraded: true,
+        tier: user.tier,
+      });
     }
 
-    // Create Checkout Session (new subscription or upgrade)
-    const sessionConfig = {
+    // No existing subscription: create a new one via Checkout
+    const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
@@ -2326,22 +2358,12 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}?payment=canceled`,
       client_reference_id: user._id.toString(),
+      customer_email: user.email,
       metadata: {
         userId: user._id.toString(),
         plan: plan,
-        isUpgrade: user.stripeSubscriptionId ? 'true' : 'false',
-        oldSubscriptionId: user.stripeSubscriptionId || '',
       },
-    };
-
-    // If upgrading, use existing customer ID; otherwise create new customer
-    if (customerId) {
-      sessionConfig.customer = customerId;
-    } else {
-      sessionConfig.customer_email = user.email;
-    }
-
-    const session = await stripe.checkout.sessions.create(sessionConfig);
+    });
 
     console.log(`✅ Checkout session created: ${session.id} for user ${user.email}`);
     res.json({ 
@@ -2395,24 +2417,11 @@ app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), asy
     const session = event.data.object;
     const userId = session.metadata?.userId;
     const plan = session.metadata?.plan;
-    const isUpgrade = session.metadata?.isUpgrade === 'true';
-    const oldSubscriptionId = session.metadata?.oldSubscriptionId;
 
     if (userId && plan && isMongoConnected()) {
       try {
         const user = await User.findById(userId);
         if (user) {
-          // If this is an upgrade, cancel the old subscription
-          if (isUpgrade && oldSubscriptionId) {
-            try {
-              await stripe.subscriptions.cancel(oldSubscriptionId);
-              console.log(`🔄 Canceled old subscription ${oldSubscriptionId} for upgrade`);
-            } catch (cancelError) {
-              console.error('Error canceling old subscription:', cancelError);
-              // Continue anyway - new subscription is active
-            }
-          }
-
           user.tier = plan;
           user.searchCount = 0; // Reset search count for new subscription
           user.stripeSubscriptionId = session.subscription;
@@ -2422,7 +2431,7 @@ app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), asy
             user.stripeCustomerId = session.customer;
           }
           await user.save();
-          console.log(`✅ User ${user.email} ${isUpgrade ? 'upgraded' : 'subscribed'} to ${plan} tier`);
+          console.log(`✅ User ${user.email} subscribed to ${plan} tier`);
         }
       } catch (error) {
         console.error('Error updating user tier:', error);

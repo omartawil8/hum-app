@@ -2340,8 +2340,14 @@ export default function HumApp() {
         }
 
         if (data.success && data.url) {
-          // Redirect to Stripe Checkout (works for both new subscriptions and upgrades)
+          // New subscription via Stripe Checkout
           window.location.href = data.url;
+        } else if (data.success && data.upgraded) {
+          // Existing subscription was upgraded in place (no Checkout redirect)
+          const tierName = tier === 'avid' ? 'Avid Listener' : 'Eat, Breath, Music';
+          alert(`🎉 Your subscription has been upgraded to ${tierName}.`);
+          await checkAuthStatus(token);
+          handleCloseUpgrade();
         } else {
           console.error('Payment response error:', data);
           alert(`Failed to start payment: ${data.error || 'Unknown error'}. Please try again.`);
