@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, ChevronRight, LogOut, User, Eye, EyeOff, ArrowLeft, ArrowRight, XCircle } from 'lucide-react';
+import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, ChevronRight, LogOut, User, Eye, EyeOff, ArrowLeft, ArrowRight, XCircle, ShoppingCart } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
 import wizardGuyIcon from './assets/Wizard_guy.png';
@@ -4327,9 +4327,9 @@ export default function HumApp() {
                             {!disabled && (
                               <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             )}
-                            <CreditCard className="w-5 h-5 relative z-10" />
+                            <ShoppingCart className="w-5 h-5 relative z-10" />
                             <span className="relative z-10">
-                              {disabled ? 'already on this plan' : 'go to checkout'}
+                              {disabled ? 'already on this plan' : 'proceed to checkout'}
                             </span>
                     </button>
                         );
