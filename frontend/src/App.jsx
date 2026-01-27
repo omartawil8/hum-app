@@ -2710,6 +2710,9 @@ export default function HumApp() {
           .custom-cursor.show-on-mobile {
             display: flex !important;
           }
+          .custom-cursor.show-on-mobile svg {
+            opacity: 1 !important;
+          }
         }
 
         /* Custom cursor smooth animation */
@@ -4319,35 +4322,29 @@ export default function HumApp() {
                             cursorRef.current.style.height = '32px';
                             cursorRef.current.classList.add('show-on-mobile');
                             
-                            // Show Spotify icon immediately - remove transition and set opacity directly
-                            const showSpotifyIcon = () => {
+                            // Force SVG to show - try multiple approaches to ensure it works
+                            const forceShowSVG = () => {
                               if (spotifyIconRef.current) {
-                                spotifyIconRef.current.style.transition = 'none';
+                                spotifyIconRef.current.style.setProperty('opacity', '1', 'important');
                                 spotifyIconRef.current.style.opacity = '1';
-                                // Restore transition after a moment
-                                setTimeout(() => {
-                                  if (spotifyIconRef.current) {
-                                    spotifyIconRef.current.style.transition = '';
-                                  }
-                                }, 50);
-                              } else {
-                                const svgElement = cursorRef.current?.querySelector('svg');
-                                if (svgElement) {
-                                  svgElement.style.transition = 'none';
-                                  svgElement.style.opacity = '1';
-                                  setTimeout(() => {
-                                    if (svgElement) {
-                                      svgElement.style.transition = '';
-                                    }
-                                  }, 50);
-                                }
+                              }
+                              const svgElement = cursorRef.current?.querySelector('svg');
+                              if (svgElement) {
+                                svgElement.style.setProperty('opacity', '1', 'important');
+                                svgElement.style.opacity = '1';
                               }
                             };
                             
-                            // Try immediately and also after React renders
-                            showSpotifyIcon();
+                            // Try immediately
+                            forceShowSVG();
+                            
+                            // Try after a microtask (ensures DOM is ready)
+                            Promise.resolve().then(forceShowSVG);
+                            
+                            // Try after requestAnimationFrame (ensures React has rendered)
                             requestAnimationFrame(() => {
-                              showSpotifyIcon();
+                              forceShowSVG();
+                              requestAnimationFrame(forceShowSVG);
                             });
                             
                             // Hide cursor after animation
