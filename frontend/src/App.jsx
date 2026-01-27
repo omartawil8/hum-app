@@ -112,6 +112,7 @@ export default function HumApp() {
   const [selectedBookmarkId, setSelectedBookmarkId] = useState(null);
   const [removingBookmarks, setRemovingBookmarks] = useState(new Set());
   const [showTopBar, setShowTopBar] = useState(true);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const lastScrollYRef = useRef(0);
   const cursorRef = useRef(null);
   const spotifyIconRef = useRef(null);
@@ -213,6 +214,15 @@ export default function HumApp() {
         }
       }
     }
+
+    // Track viewport size for mobile-only behaviors
+    const updateViewport = () => {
+      if (typeof window !== 'undefined') {
+        setIsMobileViewport(window.innerWidth < 768);
+      }
+    };
+    updateViewport();
+    window.addEventListener('resize', updateViewport);
 
     // Check for payment success
     const urlParams = new URLSearchParams(window.location.search);
@@ -1096,6 +1106,10 @@ export default function HumApp() {
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseleave', handleMouseLeave);
+    };
+
+    return () => {
+      window.removeEventListener('resize', updateViewport);
     };
   }, []);
 
@@ -3699,16 +3713,16 @@ export default function HumApp() {
         )}
 
         {/* Top Right - User Account & Help Button - Rendered via portal */}
-        {!showBookmarks && createPortal(
+        {createPortal(
         <div 
             className="flex items-center gap-1 sm:gap-2 transition-opacity duration-300"
             style={{
               position: 'fixed',
               top: '24px',
               right: '24px',
-              zIndex: showBookmarks ? 9000 : 9999,
+              zIndex: showBookmarks && isMobileViewport ? 9000 : 9999,
               opacity: showTopBar ? 1 : 0,
-              pointerEvents: showTopBar && !showBookmarks ? 'auto' : 'none'
+              pointerEvents: showTopBar && !(showBookmarks && isMobileViewport) ? 'auto' : 'none'
             }}
           >
           {/* User Account Button (if logged in) */}
@@ -3781,7 +3795,7 @@ export default function HumApp() {
         )}
 
         {/* Search Counter - Top Center - Rendered via portal */}
-        {!showBookmarks && createPortal(
+        {createPortal(
           <div 
             className="transition-opacity duration-300"
             style={{
@@ -3789,9 +3803,9 @@ export default function HumApp() {
               top: '24px',
               left: '50%',
               transform: 'translateX(-50%)',
-              zIndex: showBookmarks ? 9000 : 9999,
+              zIndex: showBookmarks && isMobileViewport ? 9000 : 9999,
               opacity: showTopBar ? 1 : 0,
-              pointerEvents: showTopBar && !showBookmarks ? 'auto' : 'none'
+              pointerEvents: showTopBar && !(showBookmarks && isMobileViewport) ? 'auto' : 'none'
             }}
           >
         {!user ? (
