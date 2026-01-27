@@ -4315,24 +4315,40 @@ export default function HumApp() {
                             setIsBookmarkClicked(true);
                             
                             // Immediately update cursor position and show it
-                            cursorRef.current.style.left = `${x}px`;
-                            cursorRef.current.style.top = `${y}px`;
-                            cursorRef.current.style.display = 'flex';
-                            cursorRef.current.style.opacity = '1';
-                            cursorRef.current.style.backgroundColor = '#1DB954';
-                            cursorRef.current.style.width = '32px';
-                            cursorRef.current.style.height = '32px';
+                            // Use setProperty with !important to override any React styles
+                            cursorRef.current.style.setProperty('left', `${x}px`, 'important');
+                            cursorRef.current.style.setProperty('top', `${y}px`, 'important');
+                            cursorRef.current.style.setProperty('display', 'flex', 'important');
+                            cursorRef.current.style.setProperty('opacity', '1', 'important');
+                            cursorRef.current.style.setProperty('background-color', '#1DB954', 'important');
+                            cursorRef.current.style.setProperty('width', '32px', 'important');
+                            cursorRef.current.style.setProperty('height', '32px', 'important');
                             cursorRef.current.classList.add('show-on-mobile');
                             
-                            // Add class directly to SVG element immediately so CSS can show it
-                            // Also set opacity directly as backup
-                            const svgElement = spotifyIconRef.current || cursorRef.current?.querySelector('svg');
-                            if (svgElement) {
-                              svgElement.classList.add('spotify-icon-mobile-show');
-                              // Remove inline opacity style so CSS can control it
-                              svgElement.style.removeProperty('opacity');
-                              svgElement.style.removeProperty('transition');
-                            }
+                            // Force SVG to show immediately with multiple attempts
+                            const forceShowSVG = () => {
+                              const svgElement = spotifyIconRef.current || cursorRef.current?.querySelector('svg');
+                              if (svgElement) {
+                                // Add class for CSS
+                                svgElement.classList.add('spotify-icon-mobile-show');
+                                // Force opacity with !important - this overrides everything
+                                svgElement.style.setProperty('opacity', '1', 'important');
+                                svgElement.style.setProperty('display', 'block', 'important');
+                                svgElement.style.setProperty('visibility', 'visible', 'important');
+                              }
+                            };
+                            
+                            // Try immediately
+                            forceShowSVG();
+                            
+                            // Try multiple times to ensure it sticks even if React re-renders
+                            setTimeout(forceShowSVG, 0);
+                            setTimeout(forceShowSVG, 10);
+                            setTimeout(forceShowSVG, 50);
+                            requestAnimationFrame(() => {
+                              forceShowSVG();
+                              setTimeout(forceShowSVG, 0);
+                            });
                             
                             // Hide cursor after animation
                             setTimeout(() => {
