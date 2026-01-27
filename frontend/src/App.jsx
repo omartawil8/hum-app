@@ -3699,16 +3699,16 @@ export default function HumApp() {
         )}
 
         {/* Top Right - User Account & Help Button - Rendered via portal */}
-        {createPortal(
+        {!showBookmarks && createPortal(
         <div 
             className="flex items-center gap-1 sm:gap-2 transition-opacity duration-300"
             style={{
               position: 'fixed',
               top: '24px',
               right: '24px',
-              zIndex: 9999,
+              zIndex: showBookmarks ? 9000 : 9999,
               opacity: showTopBar ? 1 : 0,
-              pointerEvents: showTopBar ? 'auto' : 'none'
+              pointerEvents: showTopBar && !showBookmarks ? 'auto' : 'none'
             }}
           >
           {/* User Account Button (if logged in) */}
@@ -3781,7 +3781,7 @@ export default function HumApp() {
         )}
 
         {/* Search Counter - Top Center - Rendered via portal */}
-        {createPortal(
+        {!showBookmarks && createPortal(
           <div 
             className="transition-opacity duration-300"
             style={{
@@ -3789,9 +3789,9 @@ export default function HumApp() {
               top: '24px',
               left: '50%',
               transform: 'translateX(-50%)',
-              zIndex: 9999,
+              zIndex: showBookmarks ? 9000 : 9999,
               opacity: showTopBar ? 1 : 0,
-              pointerEvents: showTopBar ? 'auto' : 'none'
+              pointerEvents: showTopBar && !showBookmarks ? 'auto' : 'none'
             }}
           >
         {!user ? (
@@ -4275,12 +4275,12 @@ export default function HumApp() {
           <>
             {/* Backdrop */}
             <div 
-              className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-40 ${isClosingBookmarks ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'}`}
+              className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-[10000] md:z-40 ${isClosingBookmarks ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'}`}
               onClick={handleCloseBookmarks}
             ></div>
             
             {/* Panel */}
-            <div className={`fixed top-0 left-0 h-full w-96 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f15] to-[#0a0a0f] backdrop-blur-2xl border-r border-white/[0.08] z-50 overflow-hidden flex flex-col rounded-tr-2xl rounded-br-2xl ${isClosingBookmarks ? 'animate-slide-out' : 'animate-slide-in'}`} style={{
+            <div className={`fixed top-0 left-0 h-full w-96 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f15] to-[#0a0a0f] backdrop-blur-2xl border-r border-white/[0.08] z-[10001] md:z-50 overflow-hidden flex flex-col rounded-tr-2xl rounded-br-2xl ${isClosingBookmarks ? 'animate-slide-out' : 'animate-slide-in'}`} style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E")`,
               backgroundSize: '200px 200px'
             }}>
