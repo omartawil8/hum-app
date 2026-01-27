@@ -1107,11 +1107,34 @@ export default function HumApp() {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseleave', handleMouseLeave);
     };
+  }, []);
+
+  // Lock background scroll on mobile while bookmarks panel is open
+  useEffect(() => {
+    if (!isMobileViewport) {
+      // Ensure scroll is restored if viewport changes from mobile to desktop
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+      return;
+    }
+
+    if (!showBookmarks) {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    const previousTouchAction = document.body.style.touchAction;
+
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
 
     return () => {
-      window.removeEventListener('resize', updateViewport);
+      document.body.style.overflow = previousOverflow;
+      document.body.style.touchAction = previousTouchAction;
     };
-  }, []);
+  }, [showBookmarks, isMobileViewport]);
 
   // Scroll bookmarks panel to top when it opens (independent of page scroll)
   useEffect(() => {
