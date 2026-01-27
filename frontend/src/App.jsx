@@ -3867,7 +3867,7 @@ export default function HumApp() {
                 <p className="text-lg text-white/60 text-center mb-6">
                   {isLoginMode 
                     ? 'login to continue searching' 
-                    : 'get 2 more free searches (3 total)'}
+                    : 'get more free searches'}
                 </p>
 
                 {authError && (
