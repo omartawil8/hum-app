@@ -110,7 +110,7 @@ function getAnonymousId(req) {
 // Check search limits
 async function checkSearchLimit(req, res, next) {
   const ANONYMOUS_LIMIT = 1; // 1 free search without login
-  const FREE_SEARCH_LIMIT = 4; // Total free searches (1 anonymous + 3 authenticated)
+  const FREE_SEARCH_LIMIT = 3; // Total free searches (1 anonymous + 2 authenticated)
 
   if (!isMongoConnected()) {
     // Fallback: allow request if MongoDB not connected (will fail gracefully)
@@ -119,7 +119,7 @@ async function checkSearchLimit(req, res, next) {
   }
 
   if (req.user) {
-    // Authenticated user - check their search count (total of 4 free searches)
+    // Authenticated user - check their search count (total of 3 free searches)
     try {
       const user = await User.findById(req.user.userId);
       if (user) {
@@ -391,10 +391,10 @@ app.post('/api/auth/signup', async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // If user used an anonymous search, set searchCount to 1 (so they have 3/4 left)
-    // Otherwise, set to 0 (so they have 4/4 left)
+    // If user used an anonymous search, set searchCount to 1 (so they have 2/3 left)
+    // Otherwise, set to 0 (so they have 3/3 left)
     const initialSearchCount = usedAnonymousSearch ? 1 : 0;
-    const remainingSearches = 4 - initialSearchCount;
+    const remainingSearches = 3 - initialSearchCount;
 
     // Create new user - always start on free tier
     const newUser = new User({
@@ -581,7 +581,7 @@ app.get('/api/auth/google/callback', async (req, res) => {
       const userCount = await User.countDocuments();
       console.log(`📝 Creating new Google OAuth user: ${email} (${userCount} existing users)`);
 
-      const initialSearchCount = 0; // New signups start with 4/4 searches
+      const initialSearchCount = 0; // New signups start with 3/3 searches
       
       user = new User({
         email: email.toLowerCase(),
@@ -2675,7 +2675,7 @@ app.post('/api/admin/send-welcome-email', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const remainingSearches = 4 - (user.searchCount || 0);
+    const remainingSearches = 3 - (user.searchCount || 0);
     await sendWelcomeEmail(user.email, remainingSearches);
     
     res.json({
@@ -2738,7 +2738,7 @@ app.post('/api/admin/test-email', async (req, res) => {
       });
     }
 
-    const remainingSearches = 4;
+    const remainingSearches = 3;
     await sendWelcomeEmail(email, remainingSearches);
     
     res.json({
