@@ -4081,6 +4081,15 @@ export default function HumApp() {
                           current plan
                       </div>
                       )}
+                      {/* Star badge - only show for yearly */}
+                      {billingPeriod === 'yearly' && (
+                        <div className={`absolute top-4 left-4 ${
+                          selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-40'
+                        }`}>
+                          <Star className="w-5 h-5 text-[#D8B5FE] fill-[#D8B5FE]" />
+                        </div>
+                      )}
+
                       {/* Info icon */}
                       <div 
                         className="absolute top-4 right-4 group/info"
