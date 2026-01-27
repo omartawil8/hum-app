@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, ChevronRight, LogOut, User, Eye, EyeOff, ArrowLeft, ArrowRight, XCircle, ShoppingCart } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
-import wizardGuyIcon from './assets/Wizard_guy.png';
 import avidListenerIcon from './assets/Avid_Listener.png';
 // Import pixel art icons - make sure these files exist in frontend/src/assets/
 import crownIcon from './assets/crown.png';
@@ -66,9 +65,8 @@ export default function HumApp() {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [searchCount, setSearchCount] = useState(0);
   const [isPro, setIsPro] = useState(false);
-  const [userTier, setUserTier] = useState('free'); // 'free', 'avid', 'unlimited'
+  const [userTier, setUserTier] = useState('free'); // 'free', 'avid'
   const [showAvidInfo, setShowAvidInfo] = useState(false);
-  const [showUnlimitedInfo, setShowUnlimitedInfo] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [isCancelingSubscription, setIsCancelingSubscription] = useState(false);
   const [billingPeriod, setBillingPeriod] = useState('monthly'); // 'monthly' or 'yearly'
@@ -423,8 +421,8 @@ export default function HumApp() {
         // Refresh user data
         await checkAuthStatus(token);
         
-        const tierName = verifyData.tier === 'avid' ? 'Avid Listener' : 'Eat, Breath, Music';
-        const limit = verifyData.tier === 'avid' ? '200 searches/month' : 'unlimited searches';
+        const tierName = 'Avid Listener';
+        const limit = '100 searches/month';
         
         alert(`🎉 Welcome to ${tierName}! You now have ${limit}.`);
       } else {
@@ -439,8 +437,8 @@ export default function HumApp() {
         
         if (data.hasActiveSubscription) {
           await checkAuthStatus(token);
-          const tierName = data.tier === 'avid' ? 'Avid Listener' : 'Eat, Breath, Music';
-          const limit = data.tier === 'avid' ? '200 searches/month' : 'unlimited searches';
+          const tierName = 'Avid Listener';
+          const limit = '100 searches/month';
           alert(`🎉 Welcome to ${tierName}! You now have ${limit}.`);
         }
       }
@@ -450,7 +448,7 @@ export default function HumApp() {
   };
 
   const handlePayPalPayment = async (plan) => {
-    const tier = plan === 'Avid Listener' ? 'avid' : 'unlimited';
+    const tier = 'avid';
     
     try {
       const token = localStorage.getItem('hum-auth-token');
@@ -1400,8 +1398,6 @@ export default function HumApp() {
   }, [isListening]);
 
   const checkSearchLimit = () => {
-    if (userTier === 'unlimited') return true; // Unlimited users have no limits
-    
     if (userTier === 'avid') {
       // Avid Listener: 100 searches per month
       if (searchCount >= AVID_LISTENER_LIMIT) {
@@ -2311,7 +2307,7 @@ export default function HumApp() {
   const handleContinueUpgrade = async () => {
     // This is where the actual payment happens
     if (selectedPlan) {
-      const tier = selectedPlan === 'Avid Listener' ? 'avid' : 'unlimited';
+      const tier = 'avid'; // Only Avid Listener tier available
       
       try {
         const token = localStorage.getItem('hum-auth-token');
@@ -2344,8 +2340,7 @@ export default function HumApp() {
           window.location.href = data.url;
         } else if (data.success && data.upgraded) {
           // Existing subscription was upgraded in place (no Checkout redirect)
-          const tierName = tier === 'avid' ? 'Avid Listener' : 'Eat, Breath, Music';
-          alert(`🎉 Your subscription has been upgraded to ${tierName}.`);
+          alert(`🎉 Your subscription has been upgraded to Avid Listener.`);
           await checkAuthStatus(token);
           handleCloseUpgrade();
         } else {
@@ -3836,17 +3831,11 @@ export default function HumApp() {
             </span>
             <span className="text-sm text-purple-300 font-semibold hidden group-hover:inline-flex items-center gap-1">
               <Star className="w-3.5 h-3.5 fill-purple-300" />
-              Upgrade to Unlimited
+              Upgrade to Avid Listener
               <Star className="w-3.5 h-3.5 fill-purple-300" />
             </span>
           </button>
-        ) : (
-          <div className="px-4 py-2 bg-purple-500/20 backdrop-blur-sm border border-purple-500/30 rounded-full transition-opacity duration-300">
-            <span className="text-sm text-purple-300 font-semibold">
-              🧙‍♂️ Unlimited - No Limits!
-            </span>
-          </div>
-        )}
+        ) : null}
           </div>,
           document.body
         )}
@@ -4067,11 +4056,11 @@ export default function HumApp() {
                   {billingPeriod === 'yearly' ? 'billed annually' : 'billed monthly'}
                 </p>
 
-                <div className="grid gap-4 md:grid-cols-2 max-w-3xl mx-auto">
+                <div className="flex justify-center max-w-md mx-auto">
                   {/* Avid Listener Plan */}
                   <button
                     onClick={() => handleSelectPlan('Avid Listener')}
-                    className={`relative group rounded-2xl overflow-visible transition-transform duration-300 ${
+                    className={`relative group rounded-2xl overflow-visible transition-transform duration-300 w-full ${
                       selectedPlan === 'Avid Listener' 
                         ? 'scale-[1.025]' 
                         : 'hover:scale-[1.025] opacity-60'
@@ -4174,106 +4163,6 @@ export default function HumApp() {
                             </span>
                           </p>
                         )}
-                      </div>
-                    </div>
-                  </button>
-
-                  {/* Eat, Breath, Music Plan */}
-                  <button
-                    onClick={() => handleSelectPlan('Eat, Breath, Music')}
-                    className={`relative group rounded-2xl overflow-hidden transition-transform duration-300 border-2 ${
-                      selectedPlan === 'Eat, Breath, Music' 
-                        ? 'scale-[1.025] border-purple-500 shadow-[0_0_0_2px_rgba(168,85,247,0.5)]'
-                        : 'hover:scale-[1.025] opacity-60 border-purple-500/20 hover:border-purple-500/40'
-                    }`}
-                  >
-                    {/* Card background */}
-                    <div
-                      className={`absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 backdrop-blur-sm rounded-2xl ${
-                        selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-50'
-                      }`}
-                    ></div>
-                    <div className="relative rounded-2xl p-4 transition-all duration-300">
-                      {/* Info icon */}
-                      <div 
-                        className="absolute top-4 right-4 group/info"
-                        onMouseEnter={() => setShowUnlimitedInfo(true)}
-                        onMouseLeave={() => setShowUnlimitedInfo(false)}
-                      >
-                        <div className="w-5 h-5 rounded-full border border-white/30 flex items-center justify-center cursor-help hover:border-white/50 transition-colors">
-                          <Info className="w-3.5 h-3.5 text-white/60" />
-                        </div>
-                        
-                        {/* Tooltip */}
-                        <div className={`absolute top-6 right-0 w-48 bg-black/95 backdrop-blur-xl rounded-xl p-3 border border-purple-500/30 shadow-2xl z-10 transition-all duration-300 ${
-                          showUnlimitedInfo 
-                            ? 'opacity-100 translate-y-0 pointer-events-auto' 
-                            : 'opacity-0 -translate-y-2 pointer-events-none'
-                        }`}>
-                          <p className="text-sm text-white/90 leading-relaxed">
-                            enjoy <span className="text-purple-300 font-semibold">unlimited searches</span> with no limits!
-                            </p>
-                          </div>
-                      </div>
-
-                      {/* Price */}
-                      <div className={`text-center mt-2 mb-4 ${
-                        selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-60'
-                      }`}>
-                        {billingPeriod === 'monthly' ? (
-                          userTier === 'avid' ? (
-                            <div className="space-y-2">
-                              {/* Show full price crossed out */}
-                              <div className="text-3xl font-bold text-white/50 line-through">
-                                $4/month
-                              </div>
-                              {/* Show upgrade cost clearly */}
-                              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#D8B5FE]/10 border border-[#D8B5FE]/30 rounded-full">
-                                <span className="text-sm font-semibold text-[#D8B5FE]">just $2/month more</span>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="text-4xl font-bold mb-1">
-                              $4<span className="text-xl text-white/60">/month</span>
-                            </div>
-                          )
-                        ) : (
-                          <div>
-                            <div className="text-4xl font-bold mb-1">
-                              $3.33<span className="text-xl text-white/60">/month</span>
-                            </div>
-                            <div className="text-xs text-white/40 mt-1">billed as $40/year</div>
-                            <div className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 bg-green-500/20 border border-green-500/30 rounded-full">
-                              <span className="text-[10px] font-semibold text-green-400">Save $8/year</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Character illustration */}
-                      <div className={`relative h-52 flex items-center justify-center mb-4 ${
-                        selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-50'
-                      }`}>
-                        <img 
-                          src={wizardGuyIcon} 
-                            alt="music wizard" 
-                          className="w-full h-full object-contain drop-shadow-2xl relative z-10"
-                        />
-                        {/* Stars decoration */}
-                        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                          <Star className="absolute top-2 left-4 w-5 h-5 text-yellow-400 fill-yellow-400 opacity-80" style={{ zIndex: 1 }} />
-                          <Star className="absolute top-6 right-8 w-4 h-4 text-yellow-400 fill-yellow-400 opacity-60" style={{ zIndex: 1 }} />
-                          <Star className="absolute bottom-8 left-4 w-4 h-4 text-yellow-400 fill-yellow-400 opacity-70" style={{ zIndex: 1 }} />
-                          <Star className="absolute top-12 right-4 w-3 h-3 text-yellow-400 fill-yellow-400 opacity-50" style={{ zIndex: 1 }} />
-                        </div>
-                      </div>
-
-                      {/* Plan name */}
-                      <div className={`text-center ${
-                        selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-60'
-                      }`}>
-                          <h3 className="text-lg font-bold">eat, breath, music</h3>
-                          <p className="text-xs text-purple-300/80 mt-1">unlimited searches</p>
                       </div>
                     </div>
                   </button>
@@ -4799,7 +4688,7 @@ export default function HumApp() {
                     <div>
                       <label className="block text-sm font-semibold text-white/80 mb-1">manage subscriptions</label>
                       <div className="text-sm text-white/60 capitalize">
-                        {userTier === 'avid' ? 'Avid Listener' : userTier === 'unlimited' ? 'Eat, Breath, Music' : 'Free'}
+                        {userTier === 'avid' ? 'Avid Listener' : 'Free'}
                       </div>
                     </div>
                   </div>

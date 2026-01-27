@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
   },
   tier: {
     type: String,
-    enum: ['free', 'avid', 'unlimited'],
+    enum: ['free', 'avid'],
     default: 'free'
   },
   subscriptionStartedAt: {

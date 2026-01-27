@@ -137,11 +137,10 @@ async function checkSearchLimit(req, res, next) {
           return res.status(403).json({
             success: false,
             error: 'Search limit reached',
-            message: 'You have reached your monthly search limit. Please upgrade to unlimited.',
+            message: 'You have reached your monthly search limit. Please upgrade to Avid Listener.',
             requiresUpgrade: true
           });
         }
-        // Unlimited tier has no limit
       }
     } catch (error) {
       console.error('Error checking user search limit:', error);
@@ -630,7 +629,7 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
     }
 
     // Backfill subscriptionStartedAt for existing subscribers who upgraded before this field existed
-    if ((user.tier === 'avid' || user.tier === 'unlimited') && !user.subscriptionStartedAt) {
+    if (user.tier === 'avid' && !user.subscriptionStartedAt) {
       user.subscriptionStartedAt = new Date();
       await user.save();
     }
@@ -2241,9 +2240,9 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    const { plan, billingPeriod = 'monthly' } = req.body; // 'avid' or 'unlimited', 'monthly' or 'yearly'
+    const { plan, billingPeriod = 'monthly' } = req.body; // 'avid', 'monthly' or 'yearly'
     
-    if (!plan || !['avid', 'unlimited'].includes(plan)) {
+    if (!plan || plan !== 'avid') {
       return res.status(400).json({ error: 'Invalid plan' });
     }
 
@@ -2256,13 +2255,7 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
         name: 'Avid Listener',
         monthlyPrice: 200, // $2.00 in cents
         yearlyPrice: 2000, // $20.00 in cents
-        description: '200 searches per month'
-      },
-      unlimited: {
-        name: 'Eat, Breath, Music',
-        monthlyPrice: 400, // $4.00 in cents
-        yearlyPrice: 4000, // $40.00 in cents
-        description: 'Unlimited searches'
+        description: '100 searches per month'
       }
     };
 
@@ -2285,10 +2278,6 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       targetPriceId = STRIPE_PRICE_AVID_MONTHLY;
     } else if (plan === 'avid' && billingPeriod === 'yearly') {
       targetPriceId = STRIPE_PRICE_AVID_YEARLY;
-    } else if (plan === 'unlimited' && billingPeriod === 'monthly') {
-      targetPriceId = STRIPE_PRICE_UNLIMITED_MONTHLY;
-    } else if (plan === 'unlimited' && billingPeriod === 'yearly') {
-      targetPriceId = STRIPE_PRICE_UNLIMITED_YEARLY;
     }
 
     if (!targetPriceId) {
@@ -2463,8 +2452,6 @@ app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), asy
           let plan = user.tier;
           if (priceId === STRIPE_PRICE_AVID_MONTHLY || priceId === STRIPE_PRICE_AVID_YEARLY) {
             plan = 'avid';
-          } else if (priceId === STRIPE_PRICE_UNLIMITED_MONTHLY || priceId === STRIPE_PRICE_UNLIMITED_YEARLY) {
-            plan = 'unlimited';
           }
           user.tier = plan;
           // Use Stripe's current_period_start as the new subscription start
@@ -2492,20 +2479,15 @@ app.post('/api/payments/create-paypal-order', authenticateToken, async (req, res
 
     const { plan } = req.body;
     
-    if (!plan || !['avid', 'unlimited'].includes(plan)) {
+    if (!plan || plan !== 'avid') {
       return res.status(400).json({ error: 'Invalid plan' });
     }
 
     const planDetails = {
       avid: {
         name: 'Avid Listener',
-        price: '1.00',
+        price: '2.00',
         description: '100 searches per month'
-      },
-      unlimited: {
-        name: 'Eat, Breath, Music',
-        price: '4.00',
-        description: 'Unlimited searches'
       }
     };
 
