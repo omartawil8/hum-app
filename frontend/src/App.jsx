@@ -2699,6 +2699,13 @@ export default function HumApp() {
           }
         }
 
+        /* Hide custom cursor on mobile */
+        @media (max-width: 767px) {
+          .custom-cursor {
+            display: none !important;
+          }
+        }
+
         /* Custom cursor smooth animation */
         .custom-cursor {
           will-change: transform;
