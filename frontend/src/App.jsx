@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, ChevronRight, LogOut, User, Eye, EyeOff, ArrowLeft, ArrowRight, XCircle, ShoppingCart } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
@@ -1010,6 +1010,17 @@ export default function HumApp() {
     }, 10);
     return () => clearTimeout(timer);
   }, []);
+
+  // Ensure Spotify icon is visible on mobile when bookmark is clicked
+  useLayoutEffect(() => {
+    if (isBookmarkClicked && spotifyIconRef.current) {
+      const svg = spotifyIconRef.current;
+      svg.style.setProperty('opacity', '1', 'important');
+      svg.style.setProperty('display', 'block', 'important');
+      svg.style.setProperty('visibility', 'visible', 'important');
+      svg.classList.add('spotify-icon-mobile-show');
+    }
+  }, [isBookmarkClicked]);
 
   // Custom cursor tracking and interactive element detection
   useEffect(() => {
@@ -5719,12 +5730,10 @@ export default function HumApp() {
             fill="white"
             style={{ 
               pointerEvents: 'none',
-              // When bookmark is clicked on mobile, CSS handles opacity via class
-              // Otherwise use React state for desktop hover
-              ...(!isBookmarkClicked && {
-                opacity: isHoveringBookmark && !isHoveringBirdButton ? 1 : 0,
-                transition: 'opacity 0.3s ease'
-              })
+              // Only set opacity via React for desktop hover
+              // On mobile click, useLayoutEffect and CSS handle it
+              opacity: !isBookmarkClicked && isHoveringBookmark && !isHoveringBirdButton ? 1 : (isBookmarkClicked ? undefined : 0),
+              transition: !isBookmarkClicked ? 'opacity 0.3s ease' : 'none'
             }}
             className={isBookmarkClicked ? 'spotify-icon-mobile-show' : ''}
           >
