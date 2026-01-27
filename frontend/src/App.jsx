@@ -113,6 +113,7 @@ export default function HumApp() {
   const [removingBookmarks, setRemovingBookmarks] = useState(new Set());
   const [showTopBar, setShowTopBar] = useState(true);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const bookmarkTouchLastYRef = useRef(null);
   const lastScrollYRef = useRef(0);
   const cursorRef = useRef(null);
   const spotifyIconRef = useRef(null);
@@ -1152,6 +1153,14 @@ export default function HumApp() {
       return;
     }
 
+    const handleTouchStart = (e) => {
+      const panel = bookmarksScrollRef.current;
+      if (!panel) return;
+      if (!panel.contains(e.target)) return;
+      const touch = e.touches[0];
+      bookmarkTouchLastYRef.current = touch.clientY;
+    };
+
     const handleTouchMove = (e) => {
       const panel = bookmarksScrollRef.current;
       if (!panel) {
@@ -1162,13 +1171,45 @@ export default function HumApp() {
       // If touch is outside the bookmarks panel, prevent scrolling entirely
       if (!panel.contains(e.target)) {
         e.preventDefault();
+        return;
+      }
+
+      // Inside the panel: allow scrolling within, but block the rubber-band when not scrollable
+      const { scrollTop, scrollHeight, clientHeight } = panel;
+      const touch = e.touches[0];
+      const currentY = touch.clientY;
+      const lastY = bookmarkTouchLastYRef.current ?? currentY;
+      const deltaY = currentY - lastY;
+      bookmarkTouchLastYRef.current = currentY;
+
+      const isScrollable = scrollHeight > clientHeight;
+      const atTop = scrollTop <= 0;
+      const atBottom = scrollTop + clientHeight >= scrollHeight;
+
+      // If not scrollable at all, or we're at the edge and user is dragging further, block to prevent page scroll
+      if (
+        !isScrollable ||
+        (atTop && deltaY > 0) ||
+        (atBottom && deltaY < 0)
+      ) {
+        e.preventDefault();
       }
     };
 
+    const handleTouchEnd = () => {
+      bookmarkTouchLastYRef.current = null;
+    };
+
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+    document.addEventListener('touchcancel', handleTouchEnd, { passive: true });
 
     return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
       document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('touchcancel', handleTouchEnd);
     };
   }, [showBookmarks, isMobileViewport]);
 
