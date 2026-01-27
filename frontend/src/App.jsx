@@ -1048,7 +1048,6 @@ export default function HumApp() {
         target.closest('input') ||
         target.closest('[role="button"]') ||
         target.closest('[onClick]') ||
-        target.closest('.cursor-pointer') ||
         window.getComputedStyle(target).cursor === 'pointer';
       
       // Check if hovering over bookmark item (but not the X button)
@@ -3645,7 +3644,7 @@ export default function HumApp() {
                 onClick={handleResetApp}
                 onMouseEnter={() => setIsHoveringBirdButton(false)}
                 onMouseLeave={() => setIsHoveringBirdButton(false)}
-                className="group flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 hover:border-[#D8B5FE]/40 transition-all duration-200 cursor-pointer relative"
+                className="group flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 hover:border-[#D8B5FE]/40 transition-all duration-200 md:cursor-pointer relative"
               >
                 <img 
                   src={hummingBirdIcon} 
@@ -3767,7 +3766,7 @@ export default function HumApp() {
                 e.stopPropagation();
                 setShowAuthModal(true);
               }}
-              className="px-4 py-2 bg-white/5 hover:bg-gradient-to-r hover:from-purple-500/20 hover:to-blue-500/20 backdrop-blur-sm border border-white/10 hover:border-purple-500/40 rounded-full transition-all duration-300 hover:scale-105 group cursor-pointer"
+              className="px-4 py-2 bg-white/5 hover:bg-gradient-to-r hover:from-purple-500/20 hover:to-blue-500/20 backdrop-blur-sm border border-white/10 hover:border-purple-500/40 rounded-full transition-all duration-300 hover:scale-105 group md:cursor-pointer"
             >
               <div className="flex flex-col items-center gap-0.5">
                 <span className="text-sm text-white/70 group-hover:hidden transition-opacity">
@@ -3798,7 +3797,7 @@ export default function HumApp() {
               e.stopPropagation();
               setShowUpgradeModal(true);
             }}
-            className="px-4 py-2 bg-white/5 hover:bg-gradient-to-r hover:from-purple-500/20 hover:to-blue-500/20 backdrop-blur-sm border border-white/10 hover:border-purple-500/40 rounded-full transition-all duration-300 hover:scale-105 group cursor-pointer"
+            className="px-4 py-2 bg-white/5 hover:bg-gradient-to-r hover:from-purple-500/20 hover:to-blue-500/20 backdrop-blur-sm border border-white/10 hover:border-purple-500/40 rounded-full transition-all duration-300 hover:scale-105 group md:cursor-pointer"
           >
             <div className="flex flex-col items-center gap-0.5">
               <span className="text-sm text-white/70 group-hover:hidden transition-opacity">
@@ -3824,7 +3823,7 @@ export default function HumApp() {
               e.stopPropagation();
               setShowUpgradeModal(true);
             }}
-            className="px-4 py-2 bg-teal-500/20 hover:bg-teal-500/30 backdrop-blur-sm border border-teal-500/30 hover:border-teal-500/50 rounded-full transition-all duration-300 hover:scale-105 group cursor-pointer"
+            className="px-4 py-2 bg-teal-500/20 hover:bg-teal-500/30 backdrop-blur-sm border border-teal-500/30 hover:border-teal-500/50 rounded-full transition-all duration-300 hover:scale-105 group md:cursor-pointer"
           >
             <span className="text-sm text-teal-300 font-semibold group-hover:hidden">
               🎧 Avid Listener - {searchCount}/{AVID_LISTENER_LIMIT} this month
@@ -3942,7 +3941,7 @@ export default function HumApp() {
                   <button
                     onClick={isLoginMode ? handleLogin : handleSignup}
                     disabled={isAuthenticating}
-                    className="w-full bg-gradient-to-b from-indigo-900/40 to-indigo-800/30 hover:from-indigo-900/60 hover:to-indigo-800/50 border border-purple-400/30 hover:border-purple-400/70 rounded-full py-3 font-medium text-base transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-gradient-to-b from-indigo-900/40 to-indigo-800/30 hover:from-indigo-900/60 hover:to-indigo-800/50 border border-purple-400/30 hover:border-purple-400/70 rounded-full py-3 font-medium text-base transition-all duration-300 disabled:opacity-50 disabled:md:cursor-not-allowed"
                     style={{ color: '#D8B5FE' }}
                   >
                     {isAuthenticating ? 'please wait...' : (isLoginMode ? 'login' : 'sign up')}
@@ -4203,7 +4202,7 @@ export default function HumApp() {
                             className={`group relative w-full px-6 py-4 rounded-xl font-semibold text-base transition-all duration-200 flex items-center justify-center gap-3 shadow-lg backdrop-blur-sm
                               ${
                                 disabled
-                                  ? 'bg-white/5 border border-white/10 text-white/40 cursor-not-allowed'
+                                  ? 'bg-white/5 border border-white/10 text-white/40 md:cursor-not-allowed'
                                   : 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 hover:from-purple-500/30 hover:to-blue-500/30 border-2 border-purple-500/40 hover:border-purple-500/60 text-white hover:shadow-xl hover:scale-[1.02]'
                               }`}
                           >
@@ -4289,7 +4288,7 @@ export default function HumApp() {
                             window.open(song.spotifyUrl, '_blank', 'noopener,noreferrer');
                           }
                         }}
-                        className={`bookmark-item group relative bg-white/[0.03] backdrop-blur-sm rounded-xl p-3 border border-white/[0.06] hover:bg-white/[0.06] transition-all duration-200 hover:scale-[1.01] cursor-pointer ${
+                        className={`bookmark-item group relative bg-white/[0.03] backdrop-blur-sm rounded-xl p-3 border border-white/[0.06] hover:bg-white/[0.06] transition-all duration-200 hover:scale-[1.01] md:cursor-pointer ${
                           removingBookmarks.has(`${song.title}|${song.artist}`) ? 'animate-bookmark-remove' : ''
                         }`}
                       >
@@ -4418,7 +4417,7 @@ export default function HumApp() {
                   <button
                     onClick={sendGeneralFeedback}
                     disabled={isSendingGeneralFeedback || !feedbackText.trim()}
-                    className="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl rounded-full border border-white/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:scale-105"
+                    className="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl rounded-full border border-white/30 transition-all disabled:opacity-50 disabled:md:cursor-not-allowed shadow-lg hover:scale-105"
                     title="Send feedback"
                   >
                     <Send className="w-5 h-5" strokeWidth={1.5} />
@@ -4531,7 +4530,7 @@ export default function HumApp() {
                   <button
                     onClick={handleSaveNickname}
                     disabled={!nicknameInput.trim()}
-                    className="px-6 py-2.5 text-sm font-medium text-white rounded-full transition-all disabled:opacity-30 disabled:cursor-not-allowed backdrop-blur-sm border"
+                    className="px-6 py-2.5 text-sm font-medium text-white rounded-full transition-all disabled:opacity-30 disabled:md:cursor-not-allowed backdrop-blur-sm border"
                     style={{
                       backgroundColor: 'transparent',
                       borderColor: nicknameInput.trim() ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)'
@@ -4698,7 +4697,7 @@ export default function HumApp() {
                     <button
                       onClick={handleCancelSubscription}
                       disabled={isCancelingSubscription}
-                      className="w-full px-4 py-2 rounded-full border-2 border-red-500/40 hover:bg-red-500/30 hover:border-red-500/60 flex items-center justify-center gap-2 transition-all text-sm text-red-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-2 rounded-full border-2 border-red-500/40 hover:bg-red-500/30 hover:border-red-500/60 flex items-center justify-center gap-2 transition-all text-sm text-red-300 font-semibold disabled:opacity-50 disabled:md:cursor-not-allowed"
                     >
                       {isCancelingSubscription ? (
                         <>
@@ -4763,7 +4762,7 @@ export default function HumApp() {
                       }
                     }}
                     disabled={nicknameInput === null || ((nicknameInput.trim() === (nickname || '')) && (iconInput === initialIcon))}
-                    className={`px-4 py-2 bg-transparent hover:border-[#D8B5FE] rounded-full text-sm text-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`px-4 py-2 bg-transparent hover:border-[#D8B5FE] rounded-full text-sm text-white/90 transition-all disabled:opacity-50 disabled:md:cursor-not-allowed ${
                       (nicknameInput !== null && (nicknameInput.trim() !== (nickname || ''))) || (iconInput !== initialIcon)
                         ? 'border border-[#D8B5FE]/60' 
                         : 'border border-white/20'
@@ -4804,7 +4803,7 @@ export default function HumApp() {
                   }}
                   className={`relative group mb-8 ${
                     searchCount >= FREE_SEARCH_LIMIT && userTier === 'free'
-                      ? 'opacity-50 cursor-not-allowed' 
+                      ? 'opacity-50 md:cursor-not-allowed' 
                       : ''
                   }`}
                   onMouseMove={(e) => {
@@ -4916,7 +4915,7 @@ export default function HumApp() {
                 <div className="w-full max-w-md mb-16">
                   <div className="relative group">
                     <div
-                      className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center z-10 cursor-pointer"
+                      className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center z-10 md:cursor-pointer"
                       style={{ 
                         opacity: isLyricsInputFocused ? 1 : 0.6,
                         pointerEvents: 'none'
@@ -5165,7 +5164,7 @@ export default function HumApp() {
                               window.open(spotifyUrl, '_blank', 'noopener,noreferrer');
                             }
                           }}
-                          className="recent-search-item group relative bg-white/5 backdrop-blur-sm rounded-2xl p-4 hover:bg-white/10 transition-all cursor-pointer border border-white/10 flex items-center justify-between"
+                          className="recent-search-item group relative bg-white/5 backdrop-blur-sm rounded-2xl p-4 hover:bg-white/10 transition-all md:cursor-pointer border border-white/10 flex items-center justify-between"
                         >
                           <div className="flex items-center gap-4">
                             <div className="w-14 h-14 bg-white/10 rounded-lg overflow-hidden flex-shrink-0">
@@ -5289,8 +5288,8 @@ export default function HumApp() {
                   }}
                   className={`relative mb-8 ${
                     !isButtonClickable
-                      ? 'cursor-not-allowed opacity-50'
-                      : 'cursor-pointer'
+                      ? 'md:cursor-not-allowed opacity-50'
+                      : 'md:cursor-pointer'
                   }`}
                 >
                   <div className="absolute -inset-8 rounded-full blur-3xl animate-pulse" style={{ background: 'rgba(168, 85, 247, 0.3)', opacity: 0.6 }}></div>
@@ -5473,7 +5472,7 @@ export default function HumApp() {
                                 const newMatches = [clickedSong, ...otherSongs];
                                 setMatchData(newMatches);
                               }}
-                              className={`song-item bg-white/[0.02] backdrop-blur-sm rounded-2xl p-5 hover:bg-white/[0.04] transition-all cursor-pointer border group ${
+                              className={`song-item bg-white/[0.02] backdrop-blur-sm rounded-2xl p-5 hover:bg-white/[0.04] transition-all md:cursor-pointer border group ${
                                 song.isAlternative ? 'border-green-500/20 bg-green-500/5' : 'border-white/5'
                               }`}
                             >
@@ -5522,7 +5521,7 @@ export default function HumApp() {
                       <span>open in spotify</span>
                     </a>
                   ) : (
-                    <button className="bg-white/[0.02] backdrop-blur-sm py-5 rounded-2xl font-bold tracking-wide border border-white/5 opacity-50 cursor-not-allowed">
+                    <button className="bg-white/[0.02] backdrop-blur-sm py-5 rounded-2xl font-bold tracking-wide border border-white/5 opacity-50 md:cursor-not-allowed">
                       Spotify Unavailable
                     </button>
                   )}
