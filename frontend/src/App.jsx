@@ -1015,10 +1015,15 @@ export default function HumApp() {
   useLayoutEffect(() => {
     if (isBookmarkClicked && spotifyIconRef.current) {
       const svg = spotifyIconRef.current;
+      // Force it to be visible with !important to override any conflicting styles
       svg.style.setProperty('opacity', '1', 'important');
       svg.style.setProperty('display', 'block', 'important');
       svg.style.setProperty('visibility', 'visible', 'important');
       svg.classList.add('spotify-icon-mobile-show');
+    } else if (!isBookmarkClicked && spotifyIconRef.current) {
+      // Clean up when not clicked
+      const svg = spotifyIconRef.current;
+      svg.classList.remove('spotify-icon-mobile-show');
     }
   }, [isBookmarkClicked]);
 
@@ -4321,45 +4326,21 @@ export default function HumApp() {
                             const x = rect.left + rect.width / 2;
                             const y = rect.top + rect.height / 2;
                             
-                            // Set state first so React can update
+                            // Set state - React will handle the rest via useLayoutEffect
                             setBookmarkClickPosition({ x, y });
                             setIsBookmarkClicked(true);
                             
                             // Immediately update cursor position and show it
-                            // Use setProperty with !important to override any React styles
-                            cursorRef.current.style.setProperty('left', `${x}px`, 'important');
-                            cursorRef.current.style.setProperty('top', `${y}px`, 'important');
-                            cursorRef.current.style.setProperty('display', 'flex', 'important');
-                            cursorRef.current.style.setProperty('opacity', '1', 'important');
-                            cursorRef.current.style.setProperty('background-color', '#1DB954', 'important');
-                            cursorRef.current.style.setProperty('width', '32px', 'important');
-                            cursorRef.current.style.setProperty('height', '32px', 'important');
-                            cursorRef.current.classList.add('show-on-mobile');
-                            
-                            // Force SVG to show immediately with multiple attempts
-                            const forceShowSVG = () => {
-                              const svgElement = spotifyIconRef.current || cursorRef.current?.querySelector('svg');
-                              if (svgElement) {
-                                // Add class for CSS
-                                svgElement.classList.add('spotify-icon-mobile-show');
-                                // Force opacity with !important - this overrides everything
-                                svgElement.style.setProperty('opacity', '1', 'important');
-                                svgElement.style.setProperty('display', 'block', 'important');
-                                svgElement.style.setProperty('visibility', 'visible', 'important');
-                              }
-                            };
-                            
-                            // Try immediately
-                            forceShowSVG();
-                            
-                            // Try multiple times to ensure it sticks even if React re-renders
-                            setTimeout(forceShowSVG, 0);
-                            setTimeout(forceShowSVG, 10);
-                            setTimeout(forceShowSVG, 50);
-                            requestAnimationFrame(() => {
-                              forceShowSVG();
-                              setTimeout(forceShowSVG, 0);
-                            });
+                            if (cursorRef.current) {
+                              cursorRef.current.style.setProperty('left', `${x}px`, 'important');
+                              cursorRef.current.style.setProperty('top', `${y}px`, 'important');
+                              cursorRef.current.style.setProperty('display', 'flex', 'important');
+                              cursorRef.current.style.setProperty('opacity', '1', 'important');
+                              cursorRef.current.style.setProperty('background-color', '#1DB954', 'important');
+                              cursorRef.current.style.setProperty('width', '32px', 'important');
+                              cursorRef.current.style.setProperty('height', '32px', 'important');
+                              cursorRef.current.classList.add('show-on-mobile');
+                            }
                             
                             // Hide cursor after animation
                             setTimeout(() => {
@@ -5730,10 +5711,9 @@ export default function HumApp() {
             fill="white"
             style={{ 
               pointerEvents: 'none',
-              // Only set opacity via React for desktop hover
-              // On mobile click, useLayoutEffect and CSS handle it
-              opacity: !isBookmarkClicked && isHoveringBookmark && !isHoveringBirdButton ? 1 : (isBookmarkClicked ? undefined : 0),
-              transition: !isBookmarkClicked ? 'opacity 0.3s ease' : 'none'
+              // Show when bookmark is clicked OR when hovering on desktop
+              opacity: (isBookmarkClicked || (isHoveringBookmark && !isHoveringBirdButton)) ? 1 : 0,
+              transition: 'opacity 0.3s ease'
             }}
             className={isBookmarkClicked ? 'spotify-icon-mobile-show' : ''}
           >
