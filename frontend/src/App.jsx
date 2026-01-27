@@ -3643,7 +3643,8 @@ export default function HumApp() {
               position: 'fixed',
               top: '24px',
               left: '24px',
-              zIndex: 9999
+              // Keep bookmarks button above other chrome; on mobile keep it above the bookmarks panel too
+              zIndex: showBookmarks && isMobileViewport ? 10002 : 9999
             }}
           >
             {/* Cancel Button - Only show while listening, before API call */}
