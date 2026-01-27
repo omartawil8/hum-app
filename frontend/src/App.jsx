@@ -4299,14 +4299,37 @@ export default function HumApp() {
                         onClick={(e) => {
                           // Show cursor on mobile when bookmark is clicked
                           const isMobile = window.innerWidth < 768;
-                          if (isMobile) {
+                          if (isMobile && cursorRef.current) {
                             const rect = e.currentTarget.getBoundingClientRect();
                             const x = rect.left + rect.width / 2;
                             const y = rect.top + rect.height / 2;
+                            
+                            // Immediately update cursor position and show it
+                            cursorRef.current.style.left = `${x}px`;
+                            cursorRef.current.style.top = `${y}px`;
+                            cursorRef.current.style.display = 'flex';
+                            cursorRef.current.style.opacity = '1';
+                            cursorRef.current.style.backgroundColor = '#1DB954';
+                            cursorRef.current.style.width = '32px';
+                            cursorRef.current.style.height = '32px';
+                            cursorRef.current.classList.add('show-on-mobile');
+                            
                             setBookmarkClickPosition({ x, y });
                             setIsBookmarkClicked(true);
+                            
                             // Hide cursor after animation
-                            setTimeout(() => setIsBookmarkClicked(false), 600);
+                            setTimeout(() => {
+                              setIsBookmarkClicked(false);
+                              if (cursorRef.current) {
+                                cursorRef.current.style.opacity = '0';
+                                setTimeout(() => {
+                                  if (cursorRef.current) {
+                                    cursorRef.current.style.display = '';
+                                    cursorRef.current.classList.remove('show-on-mobile');
+                                  }
+                                }, 300);
+                              }
+                            }, 600);
                           }
                           
                           // Open Spotify URL if available
