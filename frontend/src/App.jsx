@@ -107,6 +107,8 @@ export default function HumApp() {
   const [isHoveringBookmark, setIsHoveringBookmark] = useState(false);
   const [isHoveringBirdButton, setIsHoveringBirdButton] = useState(false);
   const [isMouseInViewport, setIsMouseInViewport] = useState(true);
+  const [isBookmarkClicked, setIsBookmarkClicked] = useState(false);
+  const [bookmarkClickPosition, setBookmarkClickPosition] = useState({ x: 0, y: 0 });
   const [removingBookmarks, setRemovingBookmarks] = useState(new Set());
   const [showTopBar, setShowTopBar] = useState(true);
   const lastScrollYRef = useRef(0);
@@ -2699,10 +2701,13 @@ export default function HumApp() {
           }
         }
 
-        /* Hide custom cursor on mobile */
+        /* Hide custom cursor on mobile, except when bookmark is clicked */
         @media (max-width: 767px) {
-          .custom-cursor {
+          .custom-cursor:not(.show-on-mobile) {
             display: none !important;
+          }
+          .custom-cursor.show-on-mobile {
+            display: flex !important;
           }
         }
 
@@ -4291,7 +4296,19 @@ export default function HumApp() {
                     {savedSongs.map((song, idx) => (
                       <div 
                         key={idx}
-                        onClick={() => {
+                        onClick={(e) => {
+                          // Show cursor on mobile when bookmark is clicked
+                          const isMobile = window.innerWidth < 768;
+                          if (isMobile) {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            const x = rect.left + rect.width / 2;
+                            const y = rect.top + rect.height / 2;
+                            setBookmarkClickPosition({ x, y });
+                            setIsBookmarkClicked(true);
+                            // Hide cursor after animation
+                            setTimeout(() => setIsBookmarkClicked(false), 600);
+                          }
+                          
                           // Open Spotify URL if available
                           if (song.spotifyUrl) {
                             window.open(song.spotifyUrl, '_blank', 'noopener,noreferrer');
@@ -5585,21 +5602,21 @@ export default function HumApp() {
       {createPortal(
         <div
           ref={cursorRef}
-          className="custom-cursor hidden md:block"
+          className={`custom-cursor ${isBookmarkClicked ? 'show-on-mobile' : 'hidden md:block'}`}
           style={{
             position: 'fixed',
-            left: 0,
-            top: 0,
-            width: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? ((isListening && isButtonClickable) ? '60px' : (isListening ? '16px' : '50px')) : (isHoveringBookmark ? '32px' : '16px'),
-            height: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? ((isListening && isButtonClickable) ? '28px' : (isListening ? '16px' : '28px')) : (isHoveringBookmark ? '32px' : '16px'),
+            left: isBookmarkClicked ? bookmarkClickPosition.x : 0,
+            top: isBookmarkClicked ? bookmarkClickPosition.y : 0,
+            width: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? ((isListening && isButtonClickable) ? '60px' : (isListening ? '16px' : '50px')) : ((isHoveringBookmark || isBookmarkClicked) ? '32px' : '16px'),
+            height: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? ((isListening && isButtonClickable) ? '28px' : (isListening ? '16px' : '28px')) : ((isHoveringBookmark || isBookmarkClicked) ? '32px' : '16px'),
             borderRadius: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? ((isListening && isButtonClickable) ? '100px' : (isListening ? '50%' : '100px')) : '50%',
-            backgroundColor: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? '#D8B5FE' : (isHoveringBookmark ? '#1DB954' : (isHoveringInteractive ? '#D8B5FE' : '#FFFFFF')),
+            backgroundColor: isHoveringBirdButton && !hasResult && !isProcessing && !isSearchingLyrics ? '#D8B5FE' : ((isHoveringBookmark || isBookmarkClicked) ? '#1DB954' : (isHoveringInteractive ? '#D8B5FE' : '#FFFFFF')),
             pointerEvents: 'none',
             transform: 'translate(-50%, -50%)',
             zIndex: 10001,
-            opacity: isMouseInViewport ? 1 : 0,
+            opacity: (isMouseInViewport || isBookmarkClicked) ? 1 : 0,
             transition: 'background-color 0.3s ease, width 0.3s cubic-bezier(0.4, 0, 0.2, 1), height 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-radius 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1), fontSize 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease',
-            mixBlendMode: isHoveringBirdButton || isHoveringBookmark ? 'normal' : 'difference',
+            mixBlendMode: (isHoveringBirdButton || isHoveringBookmark || isBookmarkClicked) ? 'normal' : 'difference',
             willChange: 'left, top',
             display: 'flex',
             alignItems: 'center',
@@ -5640,7 +5657,7 @@ export default function HumApp() {
             fill="white"
             style={{ 
               pointerEvents: 'none',
-              opacity: isHoveringBookmark && !isHoveringBirdButton ? 1 : 0,
+              opacity: (isHoveringBookmark || isBookmarkClicked) && !isHoveringBirdButton ? 1 : 0,
               transition: 'opacity 0.3s ease'
             }}
           >
