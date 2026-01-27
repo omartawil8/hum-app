@@ -4314,6 +4314,12 @@ export default function HumApp() {
                             cursorRef.current.style.height = '32px';
                             cursorRef.current.classList.add('show-on-mobile');
                             
+                            // Show Spotify icon immediately
+                            const svgElement = cursorRef.current.querySelector('svg');
+                            if (svgElement) {
+                              svgElement.style.opacity = '1';
+                            }
+                            
                             setBookmarkClickPosition({ x, y });
                             setIsBookmarkClicked(true);
                             
@@ -4322,6 +4328,10 @@ export default function HumApp() {
                               setIsBookmarkClicked(false);
                               if (cursorRef.current) {
                                 cursorRef.current.style.opacity = '0';
+                                const svgElement = cursorRef.current.querySelector('svg');
+                                if (svgElement) {
+                                  svgElement.style.opacity = '0';
+                                }
                                 setTimeout(() => {
                                   if (cursorRef.current) {
                                     cursorRef.current.style.display = '';
