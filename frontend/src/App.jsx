@@ -113,6 +113,7 @@ export default function HumApp() {
   const [showTopBar, setShowTopBar] = useState(true);
   const lastScrollYRef = useRef(0);
   const cursorRef = useRef(null);
+  const spotifyIconRef = useRef(null);
   const [particleOffsets, setParticleOffsets] = useState([
     { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
     { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 },
@@ -4304,6 +4305,10 @@ export default function HumApp() {
                             const x = rect.left + rect.width / 2;
                             const y = rect.top + rect.height / 2;
                             
+                            // Set state first so React can update
+                            setBookmarkClickPosition({ x, y });
+                            setIsBookmarkClicked(true);
+                            
                             // Immediately update cursor position and show it
                             cursorRef.current.style.left = `${x}px`;
                             cursorRef.current.style.top = `${y}px`;
@@ -4314,23 +4319,49 @@ export default function HumApp() {
                             cursorRef.current.style.height = '32px';
                             cursorRef.current.classList.add('show-on-mobile');
                             
-                            // Show Spotify icon immediately
-                            const svgElement = cursorRef.current.querySelector('svg');
-                            if (svgElement) {
-                              svgElement.style.opacity = '1';
-                            }
+                            // Show Spotify icon immediately - remove transition and set opacity directly
+                            const showSpotifyIcon = () => {
+                              if (spotifyIconRef.current) {
+                                spotifyIconRef.current.style.transition = 'none';
+                                spotifyIconRef.current.style.opacity = '1';
+                                // Restore transition after a moment
+                                setTimeout(() => {
+                                  if (spotifyIconRef.current) {
+                                    spotifyIconRef.current.style.transition = '';
+                                  }
+                                }, 50);
+                              } else {
+                                const svgElement = cursorRef.current?.querySelector('svg');
+                                if (svgElement) {
+                                  svgElement.style.transition = 'none';
+                                  svgElement.style.opacity = '1';
+                                  setTimeout(() => {
+                                    if (svgElement) {
+                                      svgElement.style.transition = '';
+                                    }
+                                  }, 50);
+                                }
+                              }
+                            };
                             
-                            setBookmarkClickPosition({ x, y });
-                            setIsBookmarkClicked(true);
+                            // Try immediately and also after React renders
+                            showSpotifyIcon();
+                            requestAnimationFrame(() => {
+                              showSpotifyIcon();
+                            });
                             
                             // Hide cursor after animation
                             setTimeout(() => {
                               setIsBookmarkClicked(false);
                               if (cursorRef.current) {
                                 cursorRef.current.style.opacity = '0';
-                                const svgElement = cursorRef.current.querySelector('svg');
-                                if (svgElement) {
-                                  svgElement.style.opacity = '0';
+                                if (spotifyIconRef.current) {
+                                  spotifyIconRef.current.style.opacity = '0';
+                                } else {
+                                  const svgElement = cursorRef.current.querySelector('svg');
+                                  if (svgElement) {
+                                    svgElement.style.opacity = '0';
+                                  }
                                 }
                                 setTimeout(() => {
                                   if (cursorRef.current) {
@@ -5684,6 +5715,7 @@ export default function HumApp() {
             {(isListening && isButtonClickable) ? 'finish' : 'tap'}
           </span>
           <svg
+            ref={spotifyIconRef}
             width="18"
             height="18"
             viewBox="0 0 24 24"
