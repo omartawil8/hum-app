@@ -137,7 +137,7 @@ export default function HumApp() {
   const timeRef = useRef(0);
   
   const ANONYMOUS_SEARCH_LIMIT = 1; // 1 free search without login
-  const FREE_SEARCH_LIMIT = 5; // Total free searches (1 anonymous + 4 authenticated)
+  const FREE_SEARCH_LIMIT = 4; // Total free searches (1 anonymous + 3 authenticated)
   const AVID_LISTENER_LIMIT = 100; // 100 searches per month for $3 tier
   // Unlimited tier has no limit
   
@@ -258,7 +258,7 @@ export default function HumApp() {
     if (initialSearchesUsed === 'true') {
       setHasUsedInitialSearches(true);
       
-      // If initial searches are used, cap searchCount at 5
+      // If initial searches are used, cap searchCount at 4
       if (parseInt(count) > FREE_SEARCH_LIMIT) {
         setSearchCount(FREE_SEARCH_LIMIT);
         localStorage.setItem('hum-search-count', FREE_SEARCH_LIMIT.toString());
@@ -589,8 +589,8 @@ export default function HumApp() {
         
         // Show welcome message
         const remainingSearches = FREE_SEARCH_LIMIT - (data.user.searchCount || 0);
-        const welcomeMessage = remainingSearches === 5 
-          ? "🎉 Welcome to hüm! You have 5 free searches to discover your favorite songs!"
+        const welcomeMessage = remainingSearches === 4 
+          ? "🎉 Welcome to hüm! You have 4 free searches to discover your favorite songs!"
           : `🎉 Welcome to hüm! You have ${remainingSearches} more free searches to discover your favorite songs!`;
         
         // Create a cute welcome notification
@@ -1409,7 +1409,7 @@ export default function HumApp() {
     
     // Free tier logic
     if (user) {
-      // Authenticated free user: 5 total searches
+      // Authenticated free user: 4 total searches
     if (searchCount >= FREE_SEARCH_LIMIT) {
       setShowUpgradeModal(true);
       return false;
@@ -3575,8 +3575,8 @@ export default function HumApp() {
         {/* Test Button - Exhaust Searches */}
         <button
           onClick={() => {
-            setSearchCount(5);
-            localStorage.setItem('hum-search-count', '5');
+            setSearchCount(4);
+            localStorage.setItem('hum-search-count', '4');
             localStorage.setItem('hum-initial-searches-used', 'true');
             setHasUsedInitialSearches(true);
           }}
@@ -3867,7 +3867,7 @@ export default function HumApp() {
                 <p className="text-lg text-white/60 text-center mb-6">
                   {isLoginMode 
                     ? 'login to continue searching' 
-                    : 'get 4 more free searches (5 total)'}
+                    : 'get 3 more free searches (4 total)'}
                 </p>
 
                 {authError && (
@@ -4079,15 +4079,8 @@ export default function HumApp() {
                       {userTier === 'avid' && billingPeriod === 'monthly' && (
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white border border-white/25 text-[10px] font-semibold uppercase tracking-wide text-gray-900 backdrop-blur-md z-20">
                           current plan
-                        </div>
-                      )}
-                      {/* Star badge */}
-                      <div className={`absolute top-4 left-4 ${
-                        selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-40'
-                      }`}>
-                        <Star className="w-5 h-5 text-[#D8B5FE] fill-[#D8B5FE]" />
                       </div>
-
+                      )}
                       {/* Info icon */}
                       <div 
                         className="absolute top-4 right-4 group/info"
