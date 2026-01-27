@@ -1146,6 +1146,32 @@ export default function HumApp() {
     };
   }, [showBookmarks, isMobileViewport]);
 
+  // Extra guard for iOS: prevent background touchmove when bookmarks are open on mobile
+  useEffect(() => {
+    if (!(showBookmarks && isMobileViewport)) {
+      return;
+    }
+
+    const handleTouchMove = (e) => {
+      const panel = bookmarksScrollRef.current;
+      if (!panel) {
+        e.preventDefault();
+        return;
+      }
+
+      // If touch is outside the bookmarks panel, prevent scrolling entirely
+      if (!panel.contains(e.target)) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+
+    return () => {
+      document.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, [showBookmarks, isMobileViewport]);
+
   // Scroll bookmarks panel to top when it opens (independent of page scroll)
   useEffect(() => {
     if (showBookmarks && !isClosingBookmarks) {
