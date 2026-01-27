@@ -2692,9 +2692,11 @@ export default function HumApp() {
           opacity: 0 !important;
         }
 
-        /* Hide default cursor */
-        * {
-          cursor: none !important;
+        /* Hide default cursor - desktop only */
+        @media (min-width: 768px) {
+          * {
+            cursor: none !important;
+          }
         }
 
         /* Custom cursor smooth animation */
@@ -5576,7 +5578,7 @@ export default function HumApp() {
       {createPortal(
         <div
           ref={cursorRef}
-          className="custom-cursor"
+          className="custom-cursor hidden md:block"
           style={{
             position: 'fixed',
             left: 0,
