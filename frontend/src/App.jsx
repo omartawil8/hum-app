@@ -1115,24 +1115,34 @@ export default function HumApp() {
       // Ensure scroll is restored if viewport changes from mobile to desktop
       document.body.style.overflow = '';
       document.body.style.touchAction = '';
+      document.documentElement.style.overflow = '';
+      document.documentElement.style.overscrollBehavior = '';
       return;
     }
 
     if (!showBookmarks) {
       document.body.style.overflow = '';
       document.body.style.touchAction = '';
+      document.documentElement.style.overflow = '';
+      document.documentElement.style.overscrollBehavior = '';
       return;
     }
 
     const previousOverflow = document.body.style.overflow;
     const previousTouchAction = document.body.style.touchAction;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousHtmlOverscroll = document.documentElement.style.overscrollBehavior;
 
     document.body.style.overflow = 'hidden';
     document.body.style.touchAction = 'none';
+    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.overscrollBehavior = 'none';
 
     return () => {
       document.body.style.overflow = previousOverflow;
       document.body.style.touchAction = previousTouchAction;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.documentElement.style.overscrollBehavior = previousHtmlOverscroll;
     };
   }, [showBookmarks, isMobileViewport]);
 
