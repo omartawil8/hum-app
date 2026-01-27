@@ -856,34 +856,6 @@ export default function HumApp() {
     }
   };
 
-  const handleRemoveNickname = async () => {
-    if (!user) return;
-    
-    try {
-      const token = localStorage.getItem('hum-auth-token');
-      const response = await fetch(`${API_BASE_URL}/api/user/nickname`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ nickname: null })
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        setNickname('');
-        setNicknameInput('');
-        setPreviewNickname('');
-      } else {
-        alert('Failed to remove nickname. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error removing nickname:', error);
-      alert('Failed to remove nickname. Please try again.');
-    }
-  };
-
   const handleUpdateIcon = async (icon) => {
     if (!user) return;
     
@@ -4784,17 +4756,6 @@ export default function HumApp() {
                       )}
                     </div>
                   </div>
-                  {nickname && (
-                    <button
-                      onClick={async () => {
-                        await handleRemoveNickname();
-                        setNicknameInput('');
-                      }}
-                      className="mt-2 text-xs text-white/50 hover:text-white/70 transition-colors"
-                    >
-                      remove nickname
-                    </button>
-                  )}
                 </div>
 
                 {/* Icon Selection */}
