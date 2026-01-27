@@ -4325,9 +4325,13 @@ export default function HumApp() {
                             cursorRef.current.classList.add('show-on-mobile');
                             
                             // Add class directly to SVG element immediately so CSS can show it
+                            // Also set opacity directly as backup
                             const svgElement = spotifyIconRef.current || cursorRef.current?.querySelector('svg');
                             if (svgElement) {
                               svgElement.classList.add('spotify-icon-mobile-show');
+                              // Remove inline opacity style so CSS can control it
+                              svgElement.style.removeProperty('opacity');
+                              svgElement.style.removeProperty('transition');
                             }
                             
                             // Hide cursor after animation
@@ -5699,8 +5703,12 @@ export default function HumApp() {
             fill="white"
             style={{ 
               pointerEvents: 'none',
-              opacity: (isHoveringBookmark || isBookmarkClicked) && !isHoveringBirdButton ? 1 : 0,
-              transition: 'opacity 0.3s ease'
+              // When bookmark is clicked on mobile, CSS handles opacity via class
+              // Otherwise use React state for desktop hover
+              ...(!isBookmarkClicked && {
+                opacity: isHoveringBookmark && !isHoveringBirdButton ? 1 : 0,
+                transition: 'opacity 0.3s ease'
+              })
             }}
             className={isBookmarkClicked ? 'spotify-icon-mobile-show' : ''}
           >
