@@ -138,7 +138,7 @@ export default function HumApp() {
   
   const ANONYMOUS_SEARCH_LIMIT = 1; // 1 free search without login
   const FREE_SEARCH_LIMIT = 5; // Total free searches (1 anonymous + 4 authenticated)
-  const AVID_LISTENER_LIMIT = 100; // 100 searches per month for $2 tier
+  const AVID_LISTENER_LIMIT = 100; // 100 searches per month for $3 tier
   // Unlimited tier has no limit
   
   const defaultSearches = [
@@ -3936,7 +3936,7 @@ export default function HumApp() {
                           </svg>
                         )}
                       </button>
-                    </div>
+          </div>
                   </div>
 
                   <button
@@ -4115,16 +4115,16 @@ export default function HumApp() {
                         selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-60'
                       }`}>
                         {billingPeriod === 'monthly' ? (
-                          <div className="text-4xl font-bold mb-1">$2<span className="text-xl text-white/60">/month</span></div>
+                          <div className="text-4xl font-bold mb-1">$3<span className="text-xl text-white/60">/month</span></div>
                         ) : (
                           <div>
                             <div className="text-4xl font-bold mb-1">
-                              $1.67<span className="text-xl text-white/60">/month</span>
+                              $2.50<span className="text-xl text-white/60">/month</span>
                             </div>
-                            <div className="text-xs text-white/40 mt-1">billed as $20/year</div>
+                            <div className="text-xs text-white/40 mt-1">billed as $30/year</div>
                             <div className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 bg-green-500/20 border border-green-500/30 rounded-full">
                               <span className="text-[10px] font-semibold text-green-400">
-                                Save $4/year
+                                Save $6/year
                               </span>
                             </div>
                           </div>
@@ -4182,7 +4182,7 @@ export default function HumApp() {
                       <div className="flex-1 h-px bg-white/20"></div>
                       <h3 className="text-lg font-semibold text-white/90 whitespace-nowrap">ready to upgrade?</h3>
                       <div className="flex-1 h-px bg-white/20"></div>
-                    </div>
+                        </div>
                     <p className="text-center text-white/60 mb-4 text-xs">confirm your plan and continue to secure checkout</p>
                     
                     {/* Checkout button */}
@@ -4215,19 +4215,19 @@ export default function HumApp() {
                     </button>
                         );
                       })()}
-                  </div>
-                    
+                      </div>
+
                     {/* Trust indicator */}
                     <div className="mt-4 flex items-center justify-center gap-2 text-xs text-white/40">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                       </svg>
                       <span>Secure payment processing</span>
-              </div>
-            </div>
-          </div>
-              </div>
-            </div>
+                      </div>
+                        </div>
+                      </div>
+                      </div>
+                    </div>
           </div>,
           document.body
         )}

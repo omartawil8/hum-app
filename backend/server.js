@@ -2253,8 +2253,8 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
     const planDetails = {
       avid: {
         name: 'Avid Listener',
-        monthlyPrice: 200, // $2.00 in cents
-        yearlyPrice: 2000, // $20.00 in cents
+        monthlyPrice: 300, // $3.00 in cents
+        yearlyPrice: 3000, // $30.00 in cents
         description: '100 searches per month'
       }
     };
