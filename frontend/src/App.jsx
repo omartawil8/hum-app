@@ -4774,8 +4774,6 @@ export default function HumApp() {
                       <XCircle className="w-5 h-5" />
                     </button>
                     {[
-                      { id: 'crown', icon: crownIcon },
-                      { id: 'potion', icon: potionIcon },
                       { id: 'shiba', icon: shibaIcon },
                       { id: 'crying-cat', icon: cryingCatIcon },
                       { id: 'ghost', icon: ghostIcon }
