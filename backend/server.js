@@ -2240,20 +2240,55 @@ app.post('/api/general-feedback', authenticateToken, async (req, res) => {
     });
 
     // Send feedback email. Prefer Resend (HTTPS, no SMTP timeout on Render).
-    // FEEDBACK_EMAIL_TO defaults to hummmteam@gmail.com. Until you verify a domain in Resend, set it to
-    // your Resend account email (e.g. omar.tawil10@gmail.com) so Resend allows sending.
+    // If feedback contains a Spotify track link, fetch track and show album art thumbnail in email.
     const sendFeedbackEmail = async () => {
+      const to = process.env.FEEDBACK_EMAIL_TO || 'hummmteam@gmail.com';
+      const subject = `hüm App Feedback - ${new Date().toLocaleDateString()}`;
+
+      let thumbnailHtml = '';
+      const spotifyTrackMatch = feedback.match(/open\.spotify\.com\/track\/([a-zA-Z0-9]+)/);
+      if (spotifyTrackMatch) {
+        try {
+          const token = await getSpotifyToken();
+          if (token) {
+            const trackRes = await axios.get(
+              `https://api.spotify.com/v1/tracks/${spotifyTrackMatch[1]}`,
+              { headers: { 'Authorization': `Bearer ${token}` }, timeout: 5000 }
+            );
+            const t = trackRes.data;
+            const art = t.album?.images?.[0]?.url;
+            const name = (t.name || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            const artist = (t.artists?.[0]?.name || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            const url = t.external_urls?.spotify || `https://open.spotify.com/track/${spotifyTrackMatch[1]}`;
+            if (art) {
+              thumbnailHtml = `
+                <div style="margin:16px 0; padding:12px; background:#f5f5f5; border-radius:12px; max-width:320px;">
+                  <a href="${url}" style="text-decoration:none; color:inherit;">
+                    <img src="${art}" alt="" width="120" height="120" style="border-radius:8px; display:block; margin-bottom:8px;" />
+                    <p style="margin:0; font-weight:600; font-size:14px;">${name}</p>
+                    <p style="margin:4px 0 0 0; font-size:13px; color:#666;">${artist}</p>
+                    <p style="margin:8px 0 0 0; font-size:12px; color:#1DB954;">Open in Spotify →</p>
+                  </a>
+                </div>
+              `;
+            }
+          }
+        } catch (e) {
+          // ignore; email still sends without thumbnail
+        }
+      }
+
+      const escape = (s) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
       const html = `
         <h2>New Feedback from hüm App</h2>
-        <p><strong>From:</strong> ${fromEmail}</p>
+        <p><strong>From:</strong> ${escape(fromEmail)}</p>
         <p><strong>Feedback:</strong></p>
-        <p>${feedback}</p>
+        <p>${escape(feedback)}</p>
+        ${thumbnailHtml}
         <hr>
-        <p><strong>Song Context:</strong> ${songTitle} - ${songArtist}</p>
+        <p><strong>Song Context:</strong> ${escape(songTitle)} - ${escape(songArtist)}</p>
         <p><strong>Timestamp:</strong> ${new Date(timestamp).toLocaleString()}</p>
       `;
-      const subject = `hüm App Feedback - ${new Date().toLocaleDateString()}`;
-      const to = process.env.FEEDBACK_EMAIL_TO || 'hummmteam@gmail.com';
 
       if (process.env.RESEND_API_KEY) {
         try {
