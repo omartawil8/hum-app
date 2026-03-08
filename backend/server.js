@@ -2205,10 +2205,14 @@ app.post('/api/feedback', upload.single('audio'), async (req, res) => {
 });
 
 // =========================
-// GENERAL FEEDBACK ENDPOINT
+// GENERAL FEEDBACK ENDPOINT (requires sign-in; sends to hummmteam@gmail.com from registered user)
 // =========================
-app.post('/api/general-feedback', async (req, res) => {
+app.post('/api/general-feedback', authenticateToken, async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: 'You must sign in to give feedback' });
+    }
+
     const { feedback, songTitle, songArtist, timestamp } = req.body;
     
     if (!feedback || feedback.length > 500) {
@@ -2218,50 +2222,57 @@ app.post('/api/general-feedback', async (req, res) => {
       });
     }
 
-    console.log(`📝 General feedback received:`);
+    const user = await User.findById(req.user.userId);
+    if (!user || !user.email) {
+      return res.status(401).json({ success: false, error: 'You must sign in to give feedback' });
+    }
+
+    const fromEmail = user.email;
+    console.log(`📝 General feedback from ${fromEmail}:`);
     console.log(`   Feedback: ${feedback}`);
     console.log(`   Song: ${songTitle} - ${songArtist}`);
     console.log(`   Time: ${timestamp}`);
 
-    // Try to send email using nodemailer if configured
-    try {
-      const nodemailer = require('nodemailer');
-      
-      // Create transporter - using Gmail as an example
-      // User needs to set up app password in Gmail settings
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.FEEDBACK_EMAIL_USER,
-          pass: process.env.FEEDBACK_EMAIL_PASSWORD
-        }
-      });
-
-      const mailOptions = {
-        from: process.env.FEEDBACK_EMAIL_USER,
-        to: 'omar.tawil10@gmail.com',
-        subject: `hüm App Feedback - ${new Date().toLocaleDateString()}`,
-        html: `
-          <h2>New Feedback from hüm App</h2>
-          <p><strong>Feedback:</strong></p>
-          <p>${feedback}</p>
-          <hr>
-          <p><strong>Song Context:</strong> ${songTitle} - ${songArtist}</p>
-          <p><strong>Timestamp:</strong> ${new Date(timestamp).toLocaleString()}</p>
-        `
-      };
-
-      await transporter.sendMail(mailOptions);
-      console.log('   ✅ Email sent successfully');
-    } catch (emailError) {
-      console.log('   ⚠️  Email not configured or failed:', emailError.message);
-      console.log('   💡 To enable emails, set FEEDBACK_EMAIL_USER and FEEDBACK_EMAIL_PASSWORD in .env');
-    }
-
-    res.json({ 
-      success: true, 
-      message: 'Feedback received!' 
+    // Respond immediately so the client doesn't hang; send email in background
+    res.json({
+      success: true,
+      message: 'Feedback received!'
     });
+
+    // Send email to hummmteam@gmail.com in background (Reply-To = sender so team can reply)
+    const sendFeedbackEmail = async () => {
+      try {
+        const nodemailer = require('nodemailer');
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.FEEDBACK_EMAIL_USER,
+            pass: process.env.FEEDBACK_EMAIL_PASSWORD
+          }
+        });
+        const mailOptions = {
+          from: process.env.FEEDBACK_EMAIL_USER,
+          to: 'hummmteam@gmail.com',
+          replyTo: fromEmail,
+          subject: `hüm App Feedback - ${new Date().toLocaleDateString()}`,
+          html: `
+            <h2>New Feedback from hüm App</h2>
+            <p><strong>From:</strong> ${fromEmail}</p>
+            <p><strong>Feedback:</strong></p>
+            <p>${feedback}</p>
+            <hr>
+            <p><strong>Song Context:</strong> ${songTitle} - ${songArtist}</p>
+            <p><strong>Timestamp:</strong> ${new Date(timestamp).toLocaleString()}</p>
+          `
+        };
+        await transporter.sendMail(mailOptions);
+        console.log('   ✅ Email sent to hummmteam@gmail.com');
+      } catch (emailError) {
+        console.log('   ⚠️  Email not configured or failed:', emailError.message);
+        console.log('   💡 To enable emails, set FEEDBACK_EMAIL_USER and FEEDBACK_EMAIL_PASSWORD in .env');
+      }
+    };
+    sendFeedbackEmail().catch((e) => console.error('Feedback email error:', e.message));
     
   } catch (error) {
     console.error('❌ General feedback error:', error);

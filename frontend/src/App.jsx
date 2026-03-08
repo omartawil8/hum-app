@@ -2161,8 +2161,12 @@ export default function HumApp() {
     try {
       setIsSendingGeneralFeedback(true);
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s so cold-start backends can respond
+
       const response = await fetch(`${API_BASE_URL}/api/general-feedback`, {
         method: 'POST',
+        signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
@@ -2174,6 +2178,8 @@ export default function HumApp() {
           timestamp: new Date().toISOString()
         })
       });
+
+      clearTimeout(timeoutId);
       
       const data = await response.json().catch(() => ({}));
       
@@ -2191,7 +2197,10 @@ export default function HumApp() {
       }
     } catch (err) {
       console.error('Error sending general feedback:', err);
-      const msg = err.message || 'Network error. Check your connection.';
+      const isAbort = err.name === 'AbortError';
+      const msg = isAbort
+        ? 'Request timed out. If your backend is on Render free tier, it may be waking up — try again in a moment.'
+        : (err.message || 'Network error. Check your connection.');
       alert(`❌ Error sending feedback. ${msg}`);
     } finally {
       setIsSendingGeneralFeedback(false);
