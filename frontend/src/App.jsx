@@ -2186,11 +2186,13 @@ export default function HumApp() {
         setShowAuthModal(true);
         alert('You must sign in to give feedback.');
       } else {
-        alert('❌ Failed to send feedback. Please try again.');
+        const msg = data.error || data.message || 'Please try again.';
+        alert(`❌ Failed to send feedback. ${msg}`);
       }
     } catch (err) {
       console.error('Error sending general feedback:', err);
-      alert('❌ Error sending feedback.');
+      const msg = err.message || 'Network error. Check your connection.';
+      alert(`❌ Error sending feedback. ${msg}`);
     } finally {
       setIsSendingGeneralFeedback(false);
     }
@@ -4607,7 +4609,8 @@ export default function HumApp() {
               
               {/* Modal - Super Glassmorphic */}
               <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-8 max-w-md w-full border border-white/20 shadow-2xl z-10">
-                <button 
+                <button
+                  type="button"
                   onClick={handleCloseFeedback}
                   className="absolute top-4 right-4 p-2 bg-white/5 hover:bg-white/10 rounded-full transition-all backdrop-blur-sm"
                 >
@@ -4617,29 +4620,38 @@ export default function HumApp() {
                 <h3 className="text-2xl font-bold mb-4">Send us feedback</h3>
                 <p className="text-white/70 mb-6">Tell us what happened or how we can improve</p>
 
-                <textarea
-                  value={feedbackText}
-                  onChange={(e) => setFeedbackText(e.target.value)}
-                  placeholder="Type your feedback here..."
-                  maxLength={500}
-                  className="w-full h-32 bg-white/[0.08] backdrop-blur-xl border border-white/20 rounded-2xl p-4 text-white placeholder-white/50 focus:outline-none focus:border-white/40 focus:bg-white/[0.12] transition-all resize-none mb-3 shadow-inner"
-                />
-                
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-white/50">
-                    {feedbackText.length}/500 characters
-                  </span>
-                  
-                  <button
-                    type="button"
-                    onClick={sendGeneralFeedback}
-                    disabled={isSendingGeneralFeedback || !feedbackText.trim()}
-                    className="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl rounded-full border border-white/30 transition-all disabled:opacity-50 disabled:md:cursor-not-allowed shadow-lg hover:scale-105"
-                    title="Send feedback"
-                  >
-                    <Send className="w-5 h-5" strokeWidth={1.5} />
-                  </button>
-                </div>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    sendGeneralFeedback();
+                  }}
+                  className="contents"
+                >
+                  <textarea
+                    value={feedbackText}
+                    onChange={(e) => setFeedbackText(e.target.value)}
+                    placeholder="Type your feedback here..."
+                    maxLength={500}
+                    className="w-full h-32 bg-white/[0.08] backdrop-blur-xl border border-white/20 rounded-2xl p-4 text-white placeholder-white/50 focus:outline-none focus:border-white/40 focus:bg-white/[0.12] transition-all resize-none mb-3 shadow-inner"
+                  />
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-white/50">
+                      {feedbackText.length}/500 characters
+                    </span>
+                    <button
+                      type="submit"
+                      disabled={isSendingGeneralFeedback || !feedbackText.trim()}
+                      className="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl rounded-full border border-white/30 transition-all disabled:opacity-50 disabled:md:cursor-not-allowed shadow-lg hover:scale-105 flex items-center justify-center gap-2 min-w-[100px]"
+                      title="Send feedback"
+                    >
+                      {isSendingGeneralFeedback ? (
+                        <span className="text-sm">Sending…</span>
+                      ) : (
+                        <Send className="w-5 h-5" strokeWidth={1.5} />
+                      )}
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>,
