@@ -240,6 +240,36 @@ export default function HumApp() {
       alert('Payment was canceled. No charges were made.');
     }
 
+    // Share link: open exact results page for ?track=SPOTIFY_ID
+    const trackId = urlParams.get('track');
+    if (trackId) {
+      fetch(`${API_BASE_URL}/api/track/${encodeURIComponent(trackId)}`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => {
+          if (data?.id) {
+            setMatchData([{
+              title: data.title,
+              artist: data.artist,
+              confidence: 100,
+              spotify: {
+                id: data.id,
+                title: data.title,
+                artist: data.artist,
+                album: data.album,
+                popularity: data.popularity,
+                preview_url: data.preview_url,
+                external_url: data.external_url,
+                album_art: data.album_art,
+              },
+              externalIds: { spotify: data.id },
+            }]);
+            setHasResult(true);
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+        })
+        .catch(() => {});
+    }
+
     // Load authentication token and user
     // (token already declared above, reuse it)
     if (token) {
@@ -2350,17 +2380,20 @@ export default function HumApp() {
   const handleShare = async () => {
     const song = matchData?.[0];
     if (!song?.title || !song?.artist) return;
-    const appUrl = window.location.origin;
-    const spotifyUrl = song.spotify?.external_url || (song.externalIds?.spotify ? `https://open.spotify.com/track/${song.externalIds.spotify}` : null);
+    const spotifyId = song.spotify?.id || song.externalIds?.spotify;
+    const resultsUrl = spotifyId
+      ? `${window.location.origin}${window.location.pathname || '/'}?track=${encodeURIComponent(spotifyId)}`
+      : window.location.origin;
+    const spotifyUrl = song.spotify?.external_url || (spotifyId ? `https://open.spotify.com/track/${spotifyId}` : null);
     const text = spotifyUrl
-      ? `I found "${song.title}" by ${song.artist} with hüm\n${spotifyUrl}\nTry it: ${appUrl}`
-      : `I found "${song.title}" by ${song.artist} with hüm\nTry it: ${appUrl}`;
+      ? `I found "${song.title}" by ${song.artist} with hüm\n${resultsUrl}`
+      : `I found "${song.title}" by ${song.artist} with hüm\n${resultsUrl}`;
     try {
       if (typeof navigator !== 'undefined' && navigator.share) {
         await navigator.share({
           title: 'hüm',
           text: `I found "${song.title}" by ${song.artist} with hüm`,
-          url: spotifyUrl || appUrl,
+          url: resultsUrl,
         });
       } else {
         await navigator.clipboard.writeText(text);

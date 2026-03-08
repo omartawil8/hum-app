@@ -2276,6 +2276,41 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+// Public: get track by Spotify ID (for share links - no auth required)
+app.get('/api/track/:spotifyTrackId', async (req, res) => {
+  try {
+    const { spotifyTrackId } = req.params;
+    if (!spotifyTrackId || !/^[a-zA-Z0-9]+$/.test(spotifyTrackId)) {
+      return res.status(400).json({ error: 'Invalid track ID' });
+    }
+    const token = await getSpotifyToken();
+    if (!token) {
+      return res.status(503).json({ error: 'Spotify not configured' });
+    }
+    const response = await axios.get(
+      `https://api.spotify.com/v1/tracks/${spotifyTrackId}`,
+      { headers: { 'Authorization': `Bearer ${token}` } }
+    );
+    const track = response.data;
+    res.json({
+      id: track.id,
+      title: track.name,
+      artist: track.artists?.[0]?.name || 'Unknown',
+      album: track.album?.name || '',
+      popularity: track.popularity ?? 0,
+      preview_url: track.preview_url || null,
+      external_url: track.external_urls?.spotify || null,
+      album_art: track.album?.images?.[0]?.url || null,
+    });
+  } catch (err) {
+    if (err.response?.status === 404) {
+      return res.status(404).json({ error: 'Track not found' });
+    }
+    console.error('Track lookup error:', err.message);
+    res.status(500).json({ error: 'Failed to fetch track' });
+  }
+});
+
 // =========================
 // PAYMENT ENDPOINTS
 // =========================
