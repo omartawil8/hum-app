@@ -3745,17 +3745,19 @@ export default function HumApp() {
                   }
                 }}
                 className={`flex items-center gap-2 px-4 py-3 backdrop-blur-sm border rounded-full transition-all duration-300 ease-in-out group ${
-                  showBookmarks
+                  bookmarkAnimating
+                    ? 'bg-[#D8B5FE]/20 border-[#D8B5FE]/60'
+                    : showBookmarks
                     ? 'bg-gradient-to-br from-purple-500/20 to-blue-500/20 border-white/10 hover:border-[#D8B5FE]'
                     : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-[#D8B5FE]'
                 }`}
               >
                 <Bookmark 
-                  className={`w-5 h-5 transition-all duration-200 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse fill-purple-400/90 text-purple-400' : ''}`} 
+                  className={`w-5 h-5 transition-all duration-200 ease-out ${bookmarkAnimating ? 'animate-bookmark-pulse' : ''}`} 
                   strokeWidth={1.5}
                   style={{
-                    color: showBookmarks ? '#D8B5FE' : 'currentColor',
-                    fill: showBookmarks ? '#D8B5FE' : 'none',
+                    color: (bookmarkAnimating || showBookmarks) ? '#D8B5FE' : 'currentColor',
+                    fill: (bookmarkAnimating || showBookmarks) ? '#D8B5FE' : 'none',
                     transition: 'color 0.3s ease-in-out, fill 0.3s ease-in-out'
                   }}
                 />
