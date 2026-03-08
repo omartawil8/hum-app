@@ -4580,7 +4580,7 @@ export default function HumApp() {
         )}
 
         {/* General Feedback Modal */}
-        {showGeneralFeedback && (
+        {showGeneralFeedback && createPortal(
           <div 
             className={`fixed inset-0 bg-black/60 backdrop-blur-lg flex items-center justify-center z-50 p-4 ${isClosingFeedback ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'}`}
             onClick={handleCloseFeedback}
