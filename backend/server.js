@@ -2239,42 +2239,65 @@ app.post('/api/general-feedback', authenticateToken, async (req, res) => {
       message: 'Feedback received!'
     });
 
-    // Send email to hummmteam@gmail.com in background (Reply-To = sender so team can reply)
+    // Send email to hummmteam@gmail.com in background. Prefer Resend (HTTPS, no SMTP timeout on Render).
     const sendFeedbackEmail = async () => {
+      const html = `
+        <h2>New Feedback from hüm App</h2>
+        <p><strong>From:</strong> ${fromEmail}</p>
+        <p><strong>Feedback:</strong></p>
+        <p>${feedback}</p>
+        <hr>
+        <p><strong>Song Context:</strong> ${songTitle} - ${songArtist}</p>
+        <p><strong>Timestamp:</strong> ${new Date(timestamp).toLocaleString()}</p>
+      `;
+      const subject = `hüm App Feedback - ${new Date().toLocaleDateString()}`;
+      const to = 'hummmteam@gmail.com';
+
+      if (process.env.RESEND_API_KEY) {
+        try {
+          const { Resend } = require('resend');
+          const resend = new Resend(process.env.RESEND_API_KEY);
+          const from = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+          const { data, error } = await resend.emails.send({
+            from: `hüm feedback <${from}>`,
+            to,
+            replyTo: fromEmail,
+            subject,
+            html
+          });
+          if (error) throw new Error(error.message);
+          console.log('   ✅ Feedback email sent to hummmteam@gmail.com (Resend)');
+        } catch (err) {
+          console.log('   ❌ Resend feedback email failed:', err.message);
+        }
+        return;
+      }
+
       const emailUser = process.env.FEEDBACK_EMAIL_USER;
       const emailPass = process.env.FEEDBACK_EMAIL_PASSWORD;
       if (!emailUser || !emailPass) {
-        console.log('   ⚠️  Feedback email NOT SENT: FEEDBACK_EMAIL_USER or FEEDBACK_EMAIL_PASSWORD is not set on Render.');
-        console.log('   💡 In Render Dashboard → your service → Environment: add both (use Gmail address + Gmail App Password).');
+        console.log('   ⚠️  Feedback email NOT SENT: set RESEND_API_KEY (recommended) or FEEDBACK_EMAIL_USER + FEEDBACK_EMAIL_PASSWORD. Resend avoids SMTP timeouts on Render.');
         return;
       }
       try {
         const nodemailer = require('nodemailer');
         const transporter = nodemailer.createTransport({
           service: 'gmail',
-          auth: { user: emailUser, pass: emailPass }
+          auth: { user: emailUser, pass: emailPass },
+          connectionTimeout: 10000
         });
-        const mailOptions = {
+        await transporter.sendMail({
           from: emailUser,
-          to: 'hummmteam@gmail.com',
+          to,
           replyTo: fromEmail,
-          subject: `hüm App Feedback - ${new Date().toLocaleDateString()}`,
-          html: `
-            <h2>New Feedback from hüm App</h2>
-            <p><strong>From:</strong> ${fromEmail}</p>
-            <p><strong>Feedback:</strong></p>
-            <p>${feedback}</p>
-            <hr>
-            <p><strong>Song Context:</strong> ${songTitle} - ${songArtist}</p>
-            <p><strong>Timestamp:</strong> ${new Date(timestamp).toLocaleString()}</p>
-          `
-        };
-        await transporter.sendMail(mailOptions);
-        console.log('   ✅ Email sent to hummmteam@gmail.com');
+          subject,
+          html
+        });
+        console.log('   ✅ Email sent to hummmteam@gmail.com (Gmail SMTP)');
       } catch (emailError) {
         console.log('   ❌ Feedback email FAILED:', emailError.message);
-        if (emailError.message && (emailError.message.includes('Invalid login') || emailError.message.includes('Username and Password not accepted'))) {
-          console.log('   💡 Use a Gmail App Password, not your normal password: Google Account → Security → 2-Step Verification → App passwords.');
+        if (emailError.message && emailError.message.includes('timeout')) {
+          console.log('   💡 Gmail SMTP often times out on Render. Add RESEND_API_KEY and use Resend for feedback emails instead.');
         }
       }
     };
@@ -2286,6 +2309,53 @@ app.post('/api/general-feedback', authenticateToken, async (req, res) => {
       success: false, 
       error: 'Failed to send feedback' 
     });
+  }
+});
+
+// Test feedback email config (requires sign-in). Uses Resend if set, else Gmail SMTP.
+app.post('/api/feedback-email-test', authenticateToken, async (req, res) => {
+  const to = 'hummmteam@gmail.com';
+  if (process.env.RESEND_API_KEY) {
+    try {
+      const { Resend } = require('resend');
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      const from = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+      const { error } = await resend.emails.send({
+        from: `hüm feedback <${from}>`,
+        to,
+        subject: 'hüm feedback email test',
+        text: 'If you got this, feedback emails are working.'
+      });
+      if (error) throw new Error(error.message);
+      return res.json({ success: true, message: 'Test email sent via Resend to hummmteam@gmail.com — check inbox and spam.' });
+    } catch (err) {
+      return res.json({ success: false, error: err.message });
+    }
+  }
+  const emailUser = process.env.FEEDBACK_EMAIL_USER;
+  const emailPass = process.env.FEEDBACK_EMAIL_PASSWORD;
+  if (!emailUser || !emailPass) {
+    return res.json({ success: false, error: 'Set RESEND_API_KEY (recommended) or FEEDBACK_EMAIL_USER + FEEDBACK_EMAIL_PASSWORD' });
+  }
+  try {
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: emailUser, pass: emailPass },
+      connectionTimeout: 10000
+    });
+    await transporter.sendMail({
+      from: emailUser,
+      to,
+      subject: 'hüm feedback email test',
+      text: 'If you got this, feedback emails are working.'
+    });
+    res.json({ success: true, message: 'Test email sent via Gmail to hummmteam@gmail.com.' });
+  } catch (err) {
+    const hint = err.message && err.message.includes('timeout')
+      ? ' Gmail SMTP often times out on Render. Add RESEND_API_KEY and use Resend instead.'
+      : (err.message && (err.message.includes('Invalid login') || err.message.includes('Username and Password not accepted')) ? ' Use a Gmail App Password.' : '');
+    res.json({ success: false, error: err.message + hint });
   }
 });
 
@@ -2887,10 +2957,12 @@ const PORT = process.env.PORT || 3001;
   console.log(`   ✅ Humming: ACRCloud + Spotify enrichment`);
       console.log(`   📡 CORS enabled for all origins`);
       console.log(`   💾 Using MongoDB for persistent storage`);
-      if (process.env.FEEDBACK_EMAIL_USER && process.env.FEEDBACK_EMAIL_PASSWORD) {
-        console.log(`   📧 Feedback emails: enabled (→ hummmteam@gmail.com)`);
+      if (process.env.RESEND_API_KEY) {
+        console.log(`   📧 Feedback emails: via Resend → hummmteam@gmail.com`);
+      } else if (process.env.FEEDBACK_EMAIL_USER && process.env.FEEDBACK_EMAIL_PASSWORD) {
+        console.log(`   📧 Feedback emails: via Gmail SMTP → hummmteam@gmail.com`);
       } else {
-        console.log(`   ⚠️  Feedback emails: disabled (set FEEDBACK_EMAIL_USER + FEEDBACK_EMAIL_PASSWORD in Render to enable)`);
+        console.log(`   ⚠️  Feedback emails: disabled (set RESEND_API_KEY in Render to enable; avoids SMTP timeout)`);
       }
       validateStripeAvidPrices().catch(() => {});
     });
