@@ -52,6 +52,7 @@ export default function HumApp() {
   const [isClosingBookmarks, setIsClosingBookmarks] = useState(false);
   const [bookmarkAnimating, setBookmarkAnimating] = useState(false);
   const [isClosingResults, setIsClosingResults] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
   const [isHomepageAnimating, setIsHomepageAnimating] = useState(false);
   const [birdButtonProximity, setBirdButtonProximity] = useState(0);
   const [recordingStartTime, setRecordingStartTime] = useState(null);
@@ -2344,6 +2345,38 @@ export default function HumApp() {
         setTimeout(() => setIsHomepageAnimating(false), 450);
       });
     }, 450);
+  };
+
+  const handleShare = async () => {
+    const song = matchData?.[0];
+    if (!song?.title || !song?.artist) return;
+    const appUrl = window.location.origin;
+    const spotifyUrl = song.spotify?.external_url || (song.externalIds?.spotify ? `https://open.spotify.com/track/${song.externalIds.spotify}` : null);
+    const text = spotifyUrl
+      ? `I found "${song.title}" by ${song.artist} with hüm\n${spotifyUrl}\nTry it: ${appUrl}`
+      : `I found "${song.title}" by ${song.artist} with hüm\nTry it: ${appUrl}`;
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share({
+          title: 'hüm',
+          text: `I found "${song.title}" by ${song.artist} with hüm`,
+          url: spotifyUrl || appUrl,
+        });
+      } else {
+        await navigator.clipboard.writeText(text);
+        setShareCopied(true);
+        setTimeout(() => setShareCopied(false), 2000);
+      }
+    } catch (err) {
+      if (err?.name === 'AbortError') return;
+      try {
+        await navigator.clipboard.writeText(text);
+        setShareCopied(true);
+        setTimeout(() => setShareCopied(false), 2000);
+      } catch (e) {
+        console.error('Share failed:', e);
+      }
+    }
   };
 
   const handleCloseTips = () => {
@@ -5658,9 +5691,12 @@ export default function HumApp() {
                       Spotify Unavailable
                     </button>
                   )}
-                  <button className="bg-white/[0.02] backdrop-blur-sm hover:bg-white/5 transition-all py-5 rounded-2xl font-bold tracking-wide border border-white/5 flex items-center justify-center gap-2">
+                  <button
+                    onClick={handleShare}
+                    className="bg-white/[0.02] backdrop-blur-sm hover:bg-white/5 transition-all py-5 rounded-2xl font-bold tracking-wide border border-white/5 flex items-center justify-center gap-2"
+                  >
                     <Share2 className="w-4 h-4" strokeWidth={1.5} />
-                    share
+                    {shareCopied ? 'copied!' : 'share'}
                   </button>
                 </div>
 
