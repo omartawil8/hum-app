@@ -4761,7 +4761,7 @@ export default function HumApp() {
                 {/* Icon Selection */}
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-white/80 mb-3">choose your icon</label>
-                  <div className="flex gap-2 flex-wrap min-h-[88px]">
+                  <div className="flex gap-2 flex-wrap">
                     <button
                       onClick={() => {
                         setIconInput(null);
@@ -4776,21 +4776,32 @@ export default function HumApp() {
                     {[
                       { id: 'shiba', icon: shibaIcon },
                       { id: 'crying-cat', icon: cryingCatIcon },
-                      { id: 'ghost', icon: ghostIcon }
+                      { id: 'ghost', icon: ghostIcon },
+                      { id: 'placeholder-1', icon: null },
+                      { id: 'placeholder-2', icon: null }
                     ].map((item, idx) => (
                       <button
                         key={item.id}
-                        onClick={() => setIconInput(item.id)}
+                        onClick={() => {
+                          if (!item.icon) return; // placeholders are non-interactive
+                          setIconInput(item.id);
+                        }}
                         className={`w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 transition-all ${
                           iconInput === item.id ? 'bg-[#D8B5FE]/30 border-2 border-[#D8B5FE]' : 'border border-transparent'
-                        }`}
+                        } ${!item.icon ? 'invisible pointer-events-none' : ''}`}
                         style={{ aspectRatio: '1' }}
                       >
-                        <img 
-                          src={item.icon} 
-                          alt={item.id} 
-                          className={`object-contain flex-shrink-0 ${item.id === 'shiba' || item.id === 'ghost' ? 'w-9 h-9' : 'w-8 h-8'}`}
-                        />
+                        {item.icon ? (
+                          <img 
+                            src={item.icon} 
+                            alt={item.id} 
+                            className={`object-contain flex-shrink-0 ${item.id === 'shiba' || item.id === 'ghost' ? 'w-9 h-9' : 'w-8 h-8'}`}
+                          />
+                        ) : (
+                          <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-[10px] uppercase tracking-wide text-white/40">
+                            soon
+                          </div>
+                        )}
                       </button>
                     ))}
                   </div>
