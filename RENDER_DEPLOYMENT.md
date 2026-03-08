@@ -36,8 +36,8 @@
    - `JWT_SECRET` = generate with: `openssl rand -base64 32`
    - `STRIPE_SECRET_KEY` = your Stripe secret key
    - `STRIPE_WEBHOOK_SECRET` = (set after webhook setup)
-   - `FEEDBACK_EMAIL_USER` = your email
-   - `FEEDBACK_EMAIL_PASSWORD` = your email app password
+   - `FEEDBACK_EMAIL_USER` = Gmail address used to send (e.g. hummmteam@gmail.com)
+   - `FEEDBACK_EMAIL_PASSWORD` = Gmail **App Password** (not your normal password: Google Account → Security → 2-Step Verification → App passwords). Feedback is sent to hummmteam@gmail.com.
    - `FRONTEND_URL` = (set after deploying frontend)
 
 5. **Create Web Service:**

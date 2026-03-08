@@ -2241,17 +2241,21 @@ app.post('/api/general-feedback', authenticateToken, async (req, res) => {
 
     // Send email to hummmteam@gmail.com in background (Reply-To = sender so team can reply)
     const sendFeedbackEmail = async () => {
+      const emailUser = process.env.FEEDBACK_EMAIL_USER;
+      const emailPass = process.env.FEEDBACK_EMAIL_PASSWORD;
+      if (!emailUser || !emailPass) {
+        console.log('   ⚠️  Feedback email NOT SENT: FEEDBACK_EMAIL_USER or FEEDBACK_EMAIL_PASSWORD is not set on Render.');
+        console.log('   💡 In Render Dashboard → your service → Environment: add both (use Gmail address + Gmail App Password).');
+        return;
+      }
       try {
         const nodemailer = require('nodemailer');
         const transporter = nodemailer.createTransport({
           service: 'gmail',
-          auth: {
-            user: process.env.FEEDBACK_EMAIL_USER,
-            pass: process.env.FEEDBACK_EMAIL_PASSWORD
-          }
+          auth: { user: emailUser, pass: emailPass }
         });
         const mailOptions = {
-          from: process.env.FEEDBACK_EMAIL_USER,
+          from: emailUser,
           to: 'hummmteam@gmail.com',
           replyTo: fromEmail,
           subject: `hüm App Feedback - ${new Date().toLocaleDateString()}`,
@@ -2268,8 +2272,10 @@ app.post('/api/general-feedback', authenticateToken, async (req, res) => {
         await transporter.sendMail(mailOptions);
         console.log('   ✅ Email sent to hummmteam@gmail.com');
       } catch (emailError) {
-        console.log('   ⚠️  Email not configured or failed:', emailError.message);
-        console.log('   💡 To enable emails, set FEEDBACK_EMAIL_USER and FEEDBACK_EMAIL_PASSWORD in .env');
+        console.log('   ❌ Feedback email FAILED:', emailError.message);
+        if (emailError.message && (emailError.message.includes('Invalid login') || emailError.message.includes('Username and Password not accepted'))) {
+          console.log('   💡 Use a Gmail App Password, not your normal password: Google Account → Security → 2-Step Verification → App passwords.');
+        }
       }
     };
     sendFeedbackEmail().catch((e) => console.error('Feedback email error:', e.message));
@@ -2881,6 +2887,11 @@ const PORT = process.env.PORT || 3001;
   console.log(`   ✅ Humming: ACRCloud + Spotify enrichment`);
       console.log(`   📡 CORS enabled for all origins`);
       console.log(`   💾 Using MongoDB for persistent storage`);
+      if (process.env.FEEDBACK_EMAIL_USER && process.env.FEEDBACK_EMAIL_PASSWORD) {
+        console.log(`   📧 Feedback emails: enabled (→ hummmteam@gmail.com)`);
+      } else {
+        console.log(`   ⚠️  Feedback emails: disabled (set FEEDBACK_EMAIL_USER + FEEDBACK_EMAIL_PASSWORD in Render to enable)`);
+      }
       validateStripeAvidPrices().catch(() => {});
     });
   })
@@ -2894,5 +2905,8 @@ const PORT = process.env.PORT || 3001;
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`🎵 hüm backend running on port ${PORT} (file-based storage - NOT PERSISTENT)`);
       console.log(`   ⚠️  WARNING: Users will be lost on restart without MongoDB!`);
+      if (!process.env.FEEDBACK_EMAIL_USER || !process.env.FEEDBACK_EMAIL_PASSWORD) {
+        console.log(`   ⚠️  Feedback emails disabled. Set FEEDBACK_EMAIL_USER + FEEDBACK_EMAIL_PASSWORD in Render.`);
+      }
     });
 });
