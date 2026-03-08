@@ -2239,7 +2239,9 @@ app.post('/api/general-feedback', authenticateToken, async (req, res) => {
       message: 'Feedback received!'
     });
 
-    // Send email to hummmteam@gmail.com in background. Prefer Resend (HTTPS, no SMTP timeout on Render).
+    // Send feedback email. Prefer Resend (HTTPS, no SMTP timeout on Render).
+    // FEEDBACK_EMAIL_TO defaults to hummmteam@gmail.com. Until you verify a domain in Resend, set it to
+    // your Resend account email (e.g. omar.tawil10@gmail.com) so Resend allows sending.
     const sendFeedbackEmail = async () => {
       const html = `
         <h2>New Feedback from hüm App</h2>
@@ -2251,7 +2253,7 @@ app.post('/api/general-feedback', authenticateToken, async (req, res) => {
         <p><strong>Timestamp:</strong> ${new Date(timestamp).toLocaleString()}</p>
       `;
       const subject = `hüm App Feedback - ${new Date().toLocaleDateString()}`;
-      const to = 'hummmteam@gmail.com';
+      const to = process.env.FEEDBACK_EMAIL_TO || 'hummmteam@gmail.com';
 
       if (process.env.RESEND_API_KEY) {
         try {
@@ -2266,7 +2268,7 @@ app.post('/api/general-feedback', authenticateToken, async (req, res) => {
             html
           });
           if (error) throw new Error(error.message);
-          console.log('   ✅ Feedback email sent to hummmteam@gmail.com (Resend)');
+          console.log('   ✅ Feedback email sent to', to, '(Resend)');
         } catch (err) {
           console.log('   ❌ Resend feedback email failed:', err.message);
         }
@@ -2293,7 +2295,7 @@ app.post('/api/general-feedback', authenticateToken, async (req, res) => {
           subject,
           html
         });
-        console.log('   ✅ Email sent to hummmteam@gmail.com (Gmail SMTP)');
+        console.log('   ✅ Email sent to', to, '(Gmail SMTP)');
       } catch (emailError) {
         console.log('   ❌ Feedback email FAILED:', emailError.message);
         if (emailError.message && emailError.message.includes('timeout')) {
@@ -2314,7 +2316,7 @@ app.post('/api/general-feedback', authenticateToken, async (req, res) => {
 
 // Test feedback email config (requires sign-in). Uses Resend if set, else Gmail SMTP.
 app.post('/api/feedback-email-test', authenticateToken, async (req, res) => {
-  const to = 'hummmteam@gmail.com';
+  const to = process.env.FEEDBACK_EMAIL_TO || 'hummmteam@gmail.com';
   if (process.env.RESEND_API_KEY) {
     try {
       const { Resend } = require('resend');
@@ -2327,7 +2329,7 @@ app.post('/api/feedback-email-test', authenticateToken, async (req, res) => {
         text: 'If you got this, feedback emails are working.'
       });
       if (error) throw new Error(error.message);
-      return res.json({ success: true, message: 'Test email sent via Resend to hummmteam@gmail.com — check inbox and spam.' });
+      return res.json({ success: true, message: `Test email sent via Resend to ${to} — check inbox and spam.` });
     } catch (err) {
       return res.json({ success: false, error: err.message });
     }
@@ -2350,7 +2352,7 @@ app.post('/api/feedback-email-test', authenticateToken, async (req, res) => {
       subject: 'hüm feedback email test',
       text: 'If you got this, feedback emails are working.'
     });
-    res.json({ success: true, message: 'Test email sent via Gmail to hummmteam@gmail.com.' });
+    res.json({ success: true, message: `Test email sent via Gmail to ${to}.` });
   } catch (err) {
     const hint = err.message && err.message.includes('timeout')
       ? ' Gmail SMTP often times out on Render. Add RESEND_API_KEY and use Resend instead.'
@@ -2957,10 +2959,11 @@ const PORT = process.env.PORT || 3001;
   console.log(`   ✅ Humming: ACRCloud + Spotify enrichment`);
       console.log(`   📡 CORS enabled for all origins`);
       console.log(`   💾 Using MongoDB for persistent storage`);
+      const feedbackTo = process.env.FEEDBACK_EMAIL_TO || 'hummmteam@gmail.com';
       if (process.env.RESEND_API_KEY) {
-        console.log(`   📧 Feedback emails: via Resend → hummmteam@gmail.com`);
+        console.log(`   📧 Feedback emails: via Resend → ${feedbackTo}`);
       } else if (process.env.FEEDBACK_EMAIL_USER && process.env.FEEDBACK_EMAIL_PASSWORD) {
-        console.log(`   📧 Feedback emails: via Gmail SMTP → hummmteam@gmail.com`);
+        console.log(`   📧 Feedback emails: via Gmail SMTP → ${feedbackTo}`);
       } else {
         console.log(`   ⚠️  Feedback emails: disabled (set RESEND_API_KEY in Render to enable; avoids SMTP timeout)`);
       }
