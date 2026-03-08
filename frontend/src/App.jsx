@@ -2441,7 +2441,8 @@ export default function HumApp() {
         }
 
         if (data.success && data.url) {
-          // New subscription via Stripe Checkout
+          // Backend sends amountCents/displayPrice so we can verify correct $3/$30 before redirect
+          if (data.displayPrice) console.log('💳 Checkout amount:', data.displayPrice, data.amountCents ? `(${data.amountCents} cents)` : '');
           window.location.href = data.url;
         } else if (data.success && data.upgraded) {
           // Existing subscription was upgraded in place (no Checkout redirect)

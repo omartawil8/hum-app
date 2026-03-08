@@ -55,13 +55,64 @@ if (process.env.STRIPE_SECRET_KEY) {
   console.log('⚠️  Stripe not configured - payment features disabled');
 }
 
-// Stripe Price IDs for subscriptions (from Stripe Dashboard)
-// Avid Listener
-const STRIPE_PRICE_AVID_MONTHLY = 'price_1Srsq3ImpMKWmAgdgibsqCvl';
-const STRIPE_PRICE_AVID_YEARLY  = 'price_1SrsuZImpMKWmAgdKDuftnOV';
-// Eat, Breath, Music (Unlimited)
-const STRIPE_PRICE_UNLIMITED_MONTHLY = 'price_1Srss2ImpMKWmAgd5XUPpJhc';
-const STRIPE_PRICE_UNLIMITED_YEARLY  = 'price_1SrsvCImpMKWmAgdpBrILeVj';
+// Stripe Price IDs for subscriptions (must match UI: $3/month, $30/year for Avid Listener)
+// Set in Stripe Dashboard or override via env so checkout and subscription updates charge the correct amount.
+const STRIPE_PRICE_AVID_MONTHLY = process.env.STRIPE_PRICE_AVID_MONTHLY || 'price_1Srsq3ImpMKWmAgdgibsqCvl';
+const STRIPE_PRICE_AVID_YEARLY  = process.env.STRIPE_PRICE_AVID_YEARLY || 'price_1SrsuZImpMKWmAgdKDuftnOV';
+const STRIPE_PRICE_UNLIMITED_MONTHLY = process.env.STRIPE_PRICE_UNLIMITED_MONTHLY || 'price_1Srss2ImpMKWmAgd5XUPpJhc';
+const STRIPE_PRICE_UNLIMITED_YEARLY  = process.env.STRIPE_PRICE_UNLIMITED_YEARLY || 'price_1SrsvCImpMKWmAgdpBrILeVj';
+
+// Cached Stripe product + prices for Avid Listener ($3/mo, $30/yr) — used for subscription updates so existing accounts get correct pricing
+let _cachedAvidProductId = null;
+let _cachedAvidPriceMonthlyId = null;
+let _cachedAvidPriceYearlyId = null;
+
+/** Get or create a Stripe Price for Avid Listener with the given amount and interval. Returns price id. */
+async function getOrCreateAvidPriceId(interval, unitAmount) {
+  if (!stripe) throw new Error('Stripe not configured');
+  if (interval === 'month' && _cachedAvidPriceMonthlyId) return _cachedAvidPriceMonthlyId;
+  if (interval === 'year' && _cachedAvidPriceYearlyId) return _cachedAvidPriceYearlyId;
+
+  if (!_cachedAvidProductId) {
+    const product = await stripe.products.create({
+      name: 'Avid Listener',
+      description: '100 searches per month',
+    });
+    _cachedAvidProductId = product.id;
+    console.log(`✅ Created Stripe product for Avid Listener: ${_cachedAvidProductId}`);
+  }
+
+  const price = await stripe.prices.create({
+    product: _cachedAvidProductId,
+    currency: 'usd',
+    unit_amount: unitAmount,
+    recurring: { interval },
+  });
+  if (interval === 'month') _cachedAvidPriceMonthlyId = price.id;
+  else _cachedAvidPriceYearlyId = price.id;
+  console.log(`✅ Created Stripe price: $${(unitAmount / 100).toFixed(2)}/${interval} → ${price.id}`);
+  return price.id;
+}
+
+async function validateStripeAvidPrices() {
+  if (!stripe) return;
+  try {
+    const [monthly, yearly] = await Promise.all([
+      stripe.prices.retrieve(STRIPE_PRICE_AVID_MONTHLY),
+      stripe.prices.retrieve(STRIPE_PRICE_AVID_YEARLY),
+    ]);
+    const okMonthly = monthly.unit_amount === 300 && monthly.recurring?.interval === 'month';
+    const okYearly = yearly.unit_amount === 3000 && yearly.recurring?.interval === 'year';
+    if (!okMonthly) {
+      console.warn(`⚠️  Stripe Avid monthly price (${STRIPE_PRICE_AVID_MONTHLY}) is not $3/month (current: ${monthly.unit_amount} cents). Subscription updates now use API-created $3 price.`);
+    }
+    if (!okYearly) {
+      console.warn(`⚠️  Stripe Avid yearly price (${STRIPE_PRICE_AVID_YEARLY}) is not $30/year (current: ${yearly.unit_amount} cents). Subscription updates now use API-created $30 price.`);
+    }
+  } catch (e) {
+    console.warn('⚠️  Could not validate Stripe Avid prices:', e.message);
+  }
+}
 
 // =========================
 // AUTHENTICATION & USER STORAGE
@@ -2272,21 +2323,13 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Map plan + billingPeriod to a Stripe Price ID
-    let targetPriceId;
-    if (plan === 'avid' && billingPeriod === 'monthly') {
-      targetPriceId = STRIPE_PRICE_AVID_MONTHLY;
-    } else if (plan === 'avid' && billingPeriod === 'yearly') {
-      targetPriceId = STRIPE_PRICE_AVID_YEARLY;
-    }
-
-    if (!targetPriceId) {
+    if (plan !== 'avid') {
       return res.status(400).json({ error: 'Pricing configuration not found for this plan' });
     }
 
-    // If user already has an active Stripe subscription, handle as a proration-based upgrade
+    // If user already has an active Stripe subscription, update it to the correct $3/$30 price (same as UI)
     if (user.stripeSubscriptionId) {
-      console.log(`🔄 Updating existing subscription for user ${user.email} to plan ${plan} (${billingPeriod})`);
+      console.log(`🔄 Updating existing subscription for user ${user.email} to plan ${plan} (${billingPeriod}) — using $3/$30 pricing`);
 
       const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
       if (!subscription || !subscription.items || !subscription.items.data.length) {
@@ -2305,6 +2348,10 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
           (currentInterval === 'year' && billingPeriod === 'monthly')) {
         return res.status(400).json({ error: 'Switching between monthly and yearly plans is not supported yet.' });
       }
+
+      // Use get-or-create price so existing accounts get $3/month or $30/year, not Dashboard prices
+      const unitAmount = billingPeriod === 'yearly' ? selectedPlan.yearlyPrice : selectedPlan.monthlyPrice;
+      const targetPriceId = await getOrCreateAvidPriceId(interval, unitAmount);
 
       const updated = await stripe.subscriptions.update(user.stripeSubscriptionId, {
         cancel_at_period_end: false,
@@ -2334,12 +2381,25 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       });
     }
 
-    // No existing subscription: create a new one via Checkout
+    // No existing subscription: create checkout with price_data so amount always matches UI ($3/month, $30/year)
+    const unitAmount = parseInt(billingPeriod === 'yearly' ? selectedPlan.yearlyPrice : selectedPlan.monthlyPrice, 10);
+    const displayPrice = (unitAmount / 100).toFixed(2);
+    const displayLabel = interval === 'year' ? `$${displayPrice}/year` : `$${displayPrice}/month`;
+    console.log(`💳 Creating Checkout with price_data: ${displayLabel} (${unitAmount} cents)`);
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
-          price: targetPriceId,
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `${selectedPlan.name} — ${displayLabel}`,
+              description: selectedPlan.description || undefined,
+              metadata: { plan: 'avid', amount_cents: String(unitAmount) },
+            },
+            unit_amount: unitAmount,
+            recurring: { interval },
+          },
           quantity: 1,
         },
       ],
@@ -2358,7 +2418,9 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
     res.json({ 
       success: true, 
       sessionId: session.id,
-      url: session.url 
+      url: session.url,
+      amountCents: unitAmount,
+      displayPrice: displayLabel,
     });
   } catch (error) {
     console.error('Stripe checkout error:', error);
@@ -2448,13 +2510,16 @@ app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), asy
       try {
         const user = await User.findOne({ stripeSubscriptionId: subscription.id });
         if (user && subscription.items && subscription.items.data.length) {
-          const priceId = subscription.items.data[0].price.id;
+          const priceObj = subscription.items.data[0].price;
+          const priceId = priceObj.id;
           let plan = user.tier;
-          if (priceId === STRIPE_PRICE_AVID_MONTHLY || priceId === STRIPE_PRICE_AVID_YEARLY) {
-            plan = 'avid';
-          }
+          // Avid = $3/mo (300) or $30/yr (3000), including API-created prices
+          const amount = priceObj.unit_amount;
+          const isAvidPrice = priceId === STRIPE_PRICE_AVID_MONTHLY || priceId === STRIPE_PRICE_AVID_YEARLY ||
+            priceId === _cachedAvidPriceMonthlyId || priceId === _cachedAvidPriceYearlyId ||
+            amount === 300 || amount === 3000;
+          if (isAvidPrice) plan = 'avid';
           user.tier = plan;
-          // Use Stripe's current_period_start as the new subscription start
           if (subscription.current_period_start) {
             user.subscriptionStartedAt = new Date(subscription.current_period_start * 1000);
           }
@@ -2486,7 +2551,7 @@ app.post('/api/payments/create-paypal-order', authenticateToken, async (req, res
     const planDetails = {
       avid: {
         name: 'Avid Listener',
-        price: '2.00',
+        price: '3.00',
         description: '100 searches per month'
       }
     };
@@ -2770,6 +2835,7 @@ const PORT = process.env.PORT || 3001;
   console.log(`   ✅ Humming: ACRCloud + Spotify enrichment`);
       console.log(`   📡 CORS enabled for all origins`);
       console.log(`   💾 Using MongoDB for persistent storage`);
+      validateStripeAvidPrices().catch(() => {});
     });
   })
   .catch((error) => {
