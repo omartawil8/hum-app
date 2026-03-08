@@ -2140,6 +2140,14 @@ export default function HumApp() {
   };
 
   const sendGeneralFeedback = async () => {
+    const token = localStorage.getItem('hum-auth-token');
+    if (!token) {
+      setShowGeneralFeedback(false);
+      setShowAuthModal(true);
+      alert('You must sign in to give feedback.');
+      return;
+    }
+
     if (!feedbackText.trim()) {
       alert('Please enter some feedback');
       return;
@@ -2157,6 +2165,7 @@ export default function HumApp() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           feedback: feedbackText,
@@ -2166,12 +2175,16 @@ export default function HumApp() {
         })
       });
       
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
       
       if (data.success) {
         alert('✅ Thank you for your feedback!');
         setShowGeneralFeedback(false);
         setFeedbackText('');
+      } else if (response.status === 401) {
+        setShowGeneralFeedback(false);
+        setShowAuthModal(true);
+        alert('You must sign in to give feedback.');
       } else {
         alert('❌ Failed to send feedback. Please try again.');
       }
@@ -4589,11 +4602,11 @@ export default function HumApp() {
               className={`relative ${isClosingFeedback ? 'animate-modal-content-out' : 'animate-modal-content'}`}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Glow effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-3xl blur-3xl"></div>
+              {/* Glow effect - pointer-events-none so it doesn't block the send button */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-3xl blur-3xl pointer-events-none" aria-hidden="true"></div>
               
               {/* Modal - Super Glassmorphic */}
-              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-8 max-w-md w-full border border-white/20 shadow-2xl">
+              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-8 max-w-md w-full border border-white/20 shadow-2xl z-10">
                 <button 
                   onClick={handleCloseFeedback}
                   className="absolute top-4 right-4 p-2 bg-white/5 hover:bg-white/10 rounded-full transition-all backdrop-blur-sm"
@@ -4618,6 +4631,7 @@ export default function HumApp() {
                   </span>
                   
                   <button
+                    type="button"
                     onClick={sendGeneralFeedback}
                     disabled={isSendingGeneralFeedback || !feedbackText.trim()}
                     className="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl rounded-full border border-white/30 transition-all disabled:opacity-50 disabled:md:cursor-not-allowed shadow-lg hover:scale-105"
@@ -5594,7 +5608,14 @@ export default function HumApp() {
                     )}
                     
                     <button
-                      onClick={() => setShowGeneralFeedback(true)}
+                      onClick={() => {
+                        if (!user) {
+                          setShowAuthModal(true);
+                          alert('You must sign in to give feedback.');
+                          return;
+                        }
+                        setShowGeneralFeedback(true);
+                      }}
                       className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-full text-sm transition-all border border-white/10"
                     >
                       <ThumbsDown className="w-4 h-4" strokeWidth={1.5} />
