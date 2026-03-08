@@ -106,7 +106,7 @@ export default function HumApp() {
   const [isHoveringInteractive, setIsHoveringInteractive] = useState(false);
   const [isHoveringBookmark, setIsHoveringBookmark] = useState(false);
   const [isHoveringBirdButton, setIsHoveringBirdButton] = useState(false);
-  const [isMouseInViewport, setIsMouseInViewport] = useState(true);
+  const [isMouseInViewport, setIsMouseInViewport] = useState(false);
   const [isBookmarkClicked, setIsBookmarkClicked] = useState(false);
   const [bookmarkClickPosition, setBookmarkClickPosition] = useState({ x: 0, y: 0 });
   const [selectedBookmarkId, setSelectedBookmarkId] = useState(null);
