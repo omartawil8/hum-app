@@ -3880,8 +3880,8 @@ export default function HumApp() {
       <div className="relative z-10">
         {/* Welcome Notification */}
         {showWelcome && welcomeMessage && (
-          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 animate-fade-in-up">
-            <div className="relative">
+          <div className="fixed top-20 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+            <div className="relative animate-fade-in-up pointer-events-auto">
               {/* Glow effect */}
               <div className="absolute inset-0 bg-[#D8B5FE]/15 rounded-2xl blur-xl"></div>
               {/* Notification card */}
@@ -4244,10 +4244,10 @@ export default function HumApp() {
               e.stopPropagation();
               setShowUpgradeModal(true);
             }}
-            className="px-4 py-2 bg-teal-500/20 hover:bg-teal-500/30 backdrop-blur-sm border border-teal-500/30 hover:border-teal-500/50 rounded-full transition-all duration-300 hover:scale-105 group md:cursor-pointer"
+            className="px-4 py-2 bg-[#D8B5FE]/10 hover:bg-[#D8B5FE]/20 backdrop-blur-sm border border-[#D8B5FE]/30 hover:border-[#D8B5FE]/50 rounded-full transition-all duration-300 hover:scale-105 group md:cursor-pointer"
           >
-            <span className="text-sm text-teal-300 font-semibold group-hover:hidden">
-              🎧 avid listener — {searchCount}/{AVID_LISTENER_LIMIT} this month
+            <span className="text-sm text-[#D8B5FE] font-semibold group-hover:hidden whitespace-nowrap">
+              🎧 <span className="hidden sm:inline">avid listener — </span>{searchCount}/{AVID_LISTENER_LIMIT}<span className="hidden sm:inline"> this month</span>
             </span>
             <span className="text-sm text-purple-300 font-semibold hidden group-hover:inline-flex items-center gap-1">
               <Star className="w-3.5 h-3.5 fill-purple-300" />
@@ -4257,9 +4257,9 @@ export default function HumApp() {
           </button>
         ) : userTier === 'unlimited' ? (
           <div className="px-4 py-2 bg-[#D8B5FE]/10 backdrop-blur-sm border border-[#D8B5FE]/30 rounded-full">
-            <span className="text-sm text-[#D8B5FE] font-semibold inline-flex items-center gap-1.5">
+            <span className="text-sm text-[#D8B5FE] font-semibold inline-flex items-center gap-1.5 whitespace-nowrap">
               <span className="select-none" aria-hidden="true">✦</span>
-              eat, breath, music — unlimited
+              <span className="hidden sm:inline">eat, breath, music — </span>unlimited
             </span>
           </div>
         ) : null}
@@ -4281,7 +4281,7 @@ export default function HumApp() {
               {/* Close button */}
               <button
                 onClick={handleCloseAuth}
-                className="absolute -top-4 -right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20"
+                className="absolute -top-3 -right-1 sm:-top-4 sm:-right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20"
                 aria-label="Close"
               >
                 <X className="w-5 h-5" />
@@ -4430,7 +4430,7 @@ export default function HumApp() {
               {/* Close button */}
               <button
                 onClick={handleCloseUpgrade}
-                className="absolute -top-4 -right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20"
+                className="absolute -top-3 -right-1 sm:-top-4 sm:-right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20"
                 aria-label="Close"
               >
                 <X className="w-5 h-5" />
@@ -4783,7 +4783,7 @@ export default function HumApp() {
             ></div>
             
             {/* Panel */}
-            <div className={`fixed top-0 left-0 h-full w-96 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f15] to-[#0a0a0f] backdrop-blur-2xl border-r border-white/[0.08] z-[10001] md:z-50 overflow-hidden flex flex-col rounded-tr-2xl rounded-br-2xl ${isClosingBookmarks ? 'animate-slide-out' : 'animate-slide-in'}`} style={{
+            <div className={`fixed top-0 left-0 h-full w-full sm:w-96 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f15] to-[#0a0a0f] backdrop-blur-2xl border-r border-white/[0.08] z-[10001] md:z-50 overflow-hidden flex flex-col sm:rounded-tr-2xl sm:rounded-br-2xl ${isClosingBookmarks ? 'animate-slide-out' : 'animate-slide-in'}`} style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E")`,
               backgroundSize: '200px 200px'
             }}>
@@ -5136,7 +5136,7 @@ export default function HumApp() {
               {/* Close button */}
               <button
                 onClick={handleCloseProfile}
-                className="absolute -top-4 -right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20"
+                className="absolute -top-3 -right-1 sm:-top-4 sm:-right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20"
                 aria-label="Close"
               >
                 <X className="w-5 h-5" />
@@ -5990,7 +5990,7 @@ export default function HumApp() {
               >
                 <div className="text-center mb-12">
                   <div className="flex items-center justify-center gap-4 mb-4">
-                    <h2 className="font-display text-5xl md:text-6xl tracking-tight">
+                    <h2 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-tight break-words min-w-0">
                       {matchData?.[0]?.title || 'Unknown Song'}
                     </h2>
                     <button
