@@ -2993,12 +2993,48 @@ export default function HumApp() {
           box-shadow: 0 0 0 1px rgba(216, 181, 254, 0.35), 0 0 28px rgba(216, 181, 254, 0.12);
         }
 
+        /* Profile avatar showcase: gentle float, breathing glow, twinkling sparks */
+        .avatar-stage {
+          animation: avatarFloat 5s ease-in-out infinite;
+        }
+        @keyframes avatarFloat {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
+        .avatar-glow {
+          animation: avatarGlow 4s ease-in-out infinite;
+        }
+        @keyframes avatarGlow {
+          0%, 100% { opacity: 0.45; }
+          50% { opacity: 1; }
+        }
+        .avatar-spark {
+          animation: starTwinkle 2.6s ease-in-out infinite;
+        }
+
+        /* Profile icon picker: icons pop and tip toward you on hover */
+        .icon-pick img {
+          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .icon-pick:hover img {
+          transform: scale(1.18) rotate(-8deg);
+        }
+
+        /* Album art tilts in 3D toward the cursor */
+        .tilt-card {
+          transition: transform 0.18s ease-out;
+          will-change: transform;
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .bg-particle,
           .squiggle-draw,
           .blob-animate-1,
           .blob-animate-2,
-          .blob-animate-3 {
+          .blob-animate-3,
+          .avatar-stage,
+          .avatar-glow,
+          .avatar-spark {
             animation: none !important;
           }
           .squiggle-draw {
@@ -4019,7 +4055,7 @@ export default function HumApp() {
           {/* Help Dropdown */}
           {showTips && (
               <div className={`absolute top-full right-0 mt-2 w-80 bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-6 border border-[#D8B5FE] shadow-2xl z-50 ${isClosingTips ? 'animate-slide-up' : 'animate-slide-down'}`}>
-                <h3 className="font-bold text-lg mb-2.5">welcome to hüm! 🎶</h3>
+                <h3 className="font-display italic text-2xl mb-2.5">welcome to hüm! 🎶</h3>
               <p className="text-sm text-white/70 mb-3.5 leading-relaxed">
                   you can hum, sing, or play a melody to search for the song name.
               </p>
@@ -4163,7 +4199,7 @@ export default function HumApp() {
 
               {/* Modal */}
               <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-8 max-w-md w-full border border-white/20 shadow-2xl">
-                <h2 className="text-3xl font-bold text-center mb-2">
+                <h2 className="font-display italic text-4xl text-center mb-2">
                   {isLoginMode ? 'welcome back!' : 'create an account'}
                 </h2>
                 <p className="text-lg text-white/60 text-center mb-6">
@@ -4555,7 +4591,7 @@ export default function HumApp() {
               <div className="p-6 border-b border-white/[0.06]">
                 <div className="flex items-center justify-between mb-3">
                   <div className="pl-20">
-                    <h2 className="text-2xl font-semibold tracking-tight">bookmarks</h2>
+                    <h2 className="font-display italic text-3xl tracking-tight">bookmarks</h2>
                     <p className="text-sm text-white/40 font-light mt-0.5">
                       {savedSongs.length} {savedSongs.length === 1 ? 'song' : 'songs'}
                     </p>
@@ -4577,7 +4613,7 @@ export default function HumApp() {
                     <div className="w-24 h-24 rounded-full bg-white/5 backdrop-blur-sm flex items-center justify-center mb-5">
                       <Bookmark className="w-12 h-12 text-white/30" strokeWidth={1.5} fill="none" />
                     </div>
-                    <p className="text-xl font-medium mb-2 text-white/70">no bookmarks yet...</p>
+                    <p className="font-display italic text-2xl mb-2 text-white/70">no bookmarks yet...</p>
                     <p className="text-base text-white/40 font-light leading-relaxed">
                       songs you save will appear here
                     </p>
@@ -4668,7 +4704,7 @@ export default function HumApp() {
                 <X className="w-5 h-5" />
               </button>
 
-              <h3 className="text-2xl font-bold mb-4">Help us learn</h3>
+              <h3 className="font-display italic text-3xl mb-4">help us learn</h3>
               <p className="text-white/60 mb-6">Which song were you humming?</p>
 
               {feedbackSuccess ? (
@@ -4719,7 +4755,7 @@ export default function HumApp() {
                   <X className="w-5 h-5" />
                 </button>
 
-                <h3 className="text-2xl font-bold mb-4">Send us feedback</h3>
+                <h3 className="font-display italic text-3xl mb-4">send us feedback</h3>
                 <p className="text-white/70 mb-6">Tell us what happened or how we can improve</p>
 
                 <form
@@ -4908,24 +4944,31 @@ export default function HumApp() {
               
               {/* Modal */}
               <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-6 max-w-sm w-full border border-[#D8B5FE] shadow-2xl">
-                <div className="flex items-center justify-center gap-2 mb-6">
-                  <h2 className="text-2xl font-bold text-center">
+                <div className="flex flex-col items-center mb-6">
+                  <div className="relative avatar-stage mb-3">
+                    <div className="absolute -inset-3 rounded-full bg-[#D8B5FE]/20 blur-xl avatar-glow"></div>
+                    <div className="relative w-20 h-20 rounded-full bg-white/[0.04] border border-[#D8B5FE]/50 flex items-center justify-center">
+                      {(iconInput !== null ? iconInput : userIcon) && getIconImage(iconInput !== null ? iconInput : userIcon) ? (
+                        <img
+                          src={getIconImage(iconInput !== null ? iconInput : userIcon)}
+                          alt={iconInput !== null ? iconInput : userIcon}
+                          className="w-12 h-12 object-contain"
+                        />
+                      ) : (
+                        <User className="w-8 h-8 text-white/30" strokeWidth={1.5} />
+                      )}
+                    </div>
+                    <span className="avatar-spark absolute -top-1 -right-2 text-[#D8B5FE] text-sm select-none" aria-hidden="true">✦</span>
+                    <span className="avatar-spark absolute -bottom-1 -left-2 text-[#D8B5FE]/70 text-xs select-none" style={{ animationDelay: '1.3s' }} aria-hidden="true">✦</span>
+                  </div>
+                  <h2 className="font-display italic text-3xl text-center">
                     hi, {previewNickname || 'there'}
                   </h2>
-                  <div className="w-9 h-9 flex items-center justify-center flex-shrink-0">
-                    {(iconInput !== null ? iconInput : userIcon) && getIconImage(iconInput !== null ? iconInput : userIcon) && (
-                      <img 
-                        src={getIconImage(iconInput !== null ? iconInput : userIcon)} 
-                        alt={iconInput !== null ? iconInput : userIcon} 
-                        className={`object-contain ${(iconInput !== null ? iconInput : userIcon) === 'shiba' || (iconInput !== null ? iconInput : userIcon) === 'ghost' ? 'w-9 h-9' : 'w-8 h-8'}`}
-                      />
-                    )}
-                  </div>
                 </div>
 
                 {/* Nickname Section - Moved to top */}
                 <div className="mb-6">
-                  <label className="block text-sm font-semibold text-white/80 mb-2">nickname</label>
+                  <label className="block font-display italic text-base text-white/70 mb-2">nickname</label>
                   <div className="flex items-center gap-2">
                     <div className="flex-1 relative">
                       <input
@@ -4958,7 +5001,7 @@ export default function HumApp() {
 
                 {/* Icon Selection */}
                 <div className="mb-6">
-                  <label className="block text-sm font-semibold text-white/80 mb-3">choose your icon</label>
+                  <label className="block font-display italic text-base text-white/70 mb-3">choose your icon</label>
                   <div className="flex gap-2 flex-wrap">
                     <button
                       onClick={() => {
@@ -4986,7 +5029,7 @@ export default function HumApp() {
                           if (!item.icon) return; // placeholders are non-interactive
                           setIconInput(item.id);
                         }}
-                        className={`w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 transition-all ${
+                        className={`icon-pick w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/15 transition-all ${
                           iconInput === item.id ? 'bg-[#D8B5FE]/30 border-2 border-[#D8B5FE]' : 'border border-transparent'
                         } ${!item.icon ? 'invisible pointer-events-none' : ''}`}
                         style={{ aspectRatio: '1' }}
@@ -5009,7 +5052,7 @@ export default function HumApp() {
 
                 {/* Email Display */}
                 <div className="mb-6">
-                  <label className="block text-sm font-semibold text-white/80 mb-2">email</label>
+                  <label className="block font-display italic text-base text-white/70 mb-2">email</label>
                   <div className="px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-white/40 text-sm">
                     {user?.email}
                   </div>
@@ -5019,7 +5062,7 @@ export default function HumApp() {
                 <div className="mb-6 p-4 bg-white/[0.05] border border-white/10 rounded-xl">
                   <div className="flex items-center justify-between mb-3">
                     <div>
-                      <label className="block text-sm font-semibold text-white/80 mb-1">manage subscriptions</label>
+                      <label className="block font-display italic text-base text-white/70 mb-1">manage subscriptions</label>
                       <div className="text-sm text-white/60 capitalize">
                         {userTier === 'avid' ? 'Avid Listener' : 'Free'}
                       </div>
@@ -5658,7 +5701,15 @@ export default function HumApp() {
                       : 'md:cursor-pointer'
                   }`}
                 >
-                  <div className="absolute -inset-8 rounded-full blur-3xl animate-pulse" style={{ background: 'rgba(168, 85, 247, 0.3)', opacity: 0.6 }}></div>
+                  <div
+                    className="absolute -inset-8 rounded-full blur-3xl"
+                    style={{
+                      background: 'rgba(168, 85, 247, 0.35)',
+                      opacity: 0.35 + Math.min(audioLevel, 100) / 180,
+                      transform: `scale(${1 + Math.min(audioLevel, 100) / 220})`,
+                      transition: 'transform 0.08s ease-out, opacity 0.08s ease-out'
+                    }}
+                  ></div>
                   <div className="relative w-48 h-48 rounded-full backdrop-blur-sm flex items-center justify-center" style={{ 
                     background: 'linear-gradient(to right, rgba(168, 85, 247, 0.09), rgba(59, 130, 246, 0.09))',
                     border: '2px solid rgba(168, 85, 247, 0.47)'
@@ -5709,7 +5760,7 @@ export default function HumApp() {
                   ></div>
                 </div>
                 
-                <h2 className="text-3xl font-bold mb-4 text-center">
+                <h2 className="font-display italic text-4xl mb-4 text-center">
                   {isSearchingLyrics ? 'searching...' : 'identifying...'}
                 </h2>
                 <p className="text-white/60 text-center">
@@ -5780,7 +5831,18 @@ export default function HumApp() {
 
                 <div className="relative mb-12 group">
                   <div className="absolute inset-0 rounded-3xl blur-2xl opacity-50 group-hover:opacity-70 transition-opacity" style={{ background: 'rgba(216, 181, 254, 0.3)' }}></div>
-                  <div className="relative bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm rounded-3xl aspect-square flex items-center justify-center border border-white/10 overflow-hidden">
+                  <div
+                    className="relative bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm rounded-3xl aspect-square flex items-center justify-center border border-white/10 overflow-hidden tilt-card"
+                    onMouseMove={(e) => {
+                      const r = e.currentTarget.getBoundingClientRect();
+                      const x = (e.clientX - r.left) / r.width - 0.5;
+                      const y = (e.clientY - r.top) / r.height - 0.5;
+                      e.currentTarget.style.transform = `perspective(900px) rotateY(${x * 8}deg) rotateX(${y * -8}deg) scale(1.012)`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'perspective(900px) rotateY(0deg) rotateX(0deg) scale(1)';
+                    }}
+                  >
                     {matchData?.[0]?.spotify?.album_art ? (
                       <img 
                         src={matchData[0].spotify.album_art} 
