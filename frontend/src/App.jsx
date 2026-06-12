@@ -2997,6 +2997,20 @@ export default function HumApp() {
           transition: scale 0.12s ease;
         }
 
+        /* Replace the browser's blue focus ring with a cohesive lavender one,
+           shown only for keyboard navigation */
+        button:focus,
+        input:focus,
+        a:focus {
+          outline: none;
+        }
+        button:focus-visible,
+        input:focus-visible,
+        a:focus-visible {
+          outline: 2px solid rgba(216, 181, 254, 0.7);
+          outline-offset: 2px;
+        }
+
         /* Hand-drawn squiggle underline draws itself in under the headline */
         .squiggle-draw {
           stroke-dasharray: 100;
@@ -4475,24 +4489,24 @@ export default function HumApp() {
                   {/* Avid Listener Plan */}
                   <button
                     onClick={() => handleSelectPlan('Avid Listener')}
-                    className={`relative group rounded-2xl overflow-visible transition-transform duration-300 w-full ${
-                      selectedPlan === 'Avid Listener' 
-                        ? 'scale-[1.025]' 
+                    className={`relative group rounded-2xl overflow-visible transition-all duration-300 w-full ${
+                      selectedPlan === 'Avid Listener'
+                        ? 'scale-[1.025]'
                         : 'hover:scale-[1.025] opacity-60'
                     }`}
                   >
                     {/* Card background */}
-                    <div className={`absolute inset-0 bg-gradient-to-br from-black/30 via-gray-900/20 to-black/25 backdrop-blur-sm rounded-2xl ${
+                    <div className={`absolute inset-0 bg-gradient-to-br from-black/30 via-gray-900/20 to-black/25 backdrop-blur-sm rounded-2xl transition-opacity duration-300 ${
                       selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-50'
                     }`}></div>
-                    <div className={`relative rounded-2xl p-4 border-2 transition-all duration-300 ${
+                    <div className={`relative h-full flex flex-col rounded-2xl p-4 border-2 transition-all duration-300 ${
                       selectedPlan === 'Avid Listener' 
                         ? 'border-[#D8B5FE] shadow-[0_0_0_2px_rgba(216,181,254,0.5)]' 
                         : 'border-[#D8B5FE]/20 hover:border-[#D8B5FE]/40'
                     }`}>
                       {/* Current plan badge - only for Avid monthly when viewing monthly billing */}
                       {userTier === 'avid' && billingPeriod === 'monthly' && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white border border-white/25 text-[10px] font-semibold uppercase tracking-wide text-gray-900 backdrop-blur-md z-20">
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white border border-white/25 text-[10px] font-semibold uppercase tracking-wide text-gray-900 backdrop-blur-md z-20 whitespace-nowrap">
                           current plan
                       </div>
                       )}
@@ -4567,7 +4581,7 @@ export default function HumApp() {
                       </div>
 
                       {/* Plan name */}
-                      <div className={`text-center ${
+                      <div className={`text-center mt-auto ${
                         selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-60'
                       }`}>
                         <h3 className="font-display italic text-xl">avid listener</h3>
@@ -4587,24 +4601,24 @@ export default function HumApp() {
                   {/* Eat, Breath, Music Plan */}
                   <button
                     onClick={() => handleSelectPlan('Eat, Breath, Music')}
-                    className={`relative group rounded-2xl overflow-visible transition-transform duration-300 w-full ${
+                    className={`relative group rounded-2xl overflow-visible transition-all duration-300 w-full ${
                       selectedPlan === 'Eat, Breath, Music'
                         ? 'scale-[1.025]'
                         : 'hover:scale-[1.025] opacity-60'
                     }`}
                   >
                     {/* Card background */}
-                    <div className={`absolute inset-0 bg-gradient-to-br from-black/30 via-gray-900/20 to-black/25 backdrop-blur-sm rounded-2xl ${
+                    <div className={`absolute inset-0 bg-gradient-to-br from-black/30 via-gray-900/20 to-black/25 backdrop-blur-sm rounded-2xl transition-opacity duration-300 ${
                       selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-50'
                     }`}></div>
-                    <div className={`relative rounded-2xl p-4 border-2 transition-all duration-300 ${
+                    <div className={`relative h-full flex flex-col rounded-2xl p-4 border-2 transition-all duration-300 ${
                       selectedPlan === 'Eat, Breath, Music'
                         ? 'border-[#D8B5FE] shadow-[0_0_0_2px_rgba(216,181,254,0.5)]'
                         : 'border-[#D8B5FE]/20 hover:border-[#D8B5FE]/40'
                     }`}>
                       {/* Current plan badge */}
                       {userTier === 'unlimited' && billingPeriod === 'monthly' && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white border border-white/25 text-[10px] font-semibold uppercase tracking-wide text-gray-900 backdrop-blur-md z-20">
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white border border-white/25 text-[10px] font-semibold uppercase tracking-wide text-gray-900 backdrop-blur-md z-20 whitespace-nowrap">
                           current plan
                       </div>
                       )}
@@ -4679,7 +4693,7 @@ export default function HumApp() {
                       </div>
 
                       {/* Plan name */}
-                      <div className={`text-center ${
+                      <div className={`text-center mt-auto ${
                         selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-60'
                       }`}>
                         <h3 className="font-display italic text-xl">eat, breath, music</h3>
