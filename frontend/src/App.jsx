@@ -43,6 +43,7 @@ export default function HumApp() {
   const [isSaved, setIsSaved] = useState(false);
   const [matchData, setMatchData] = useState(null);
   const [error, setError] = useState(null);
+  const [toast, setToast] = useState(null); // { message, type: 'success' | 'error' | 'info' }
   const [isProcessing, setIsProcessing] = useState(false);
   const [savedSongs, setSavedSongs] = useState([]);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -257,7 +258,7 @@ export default function HumApp() {
     } else if (paymentStatus === 'canceled') {
       // Clean up URL
       window.history.replaceState({}, document.title, window.location.pathname);
-      alert('Payment was canceled. No charges were made.');
+      showToast('payment was canceled — no charges were made', 'info');
     }
 
     // Share link: open exact results page for ?track=SPOTIFY_ID
@@ -478,7 +479,7 @@ export default function HumApp() {
         const tierName = 'Avid Listener';
         const limit = '100 searches/month';
         
-        alert(`🎉 Welcome to ${tierName}! You now have ${limit}.`);
+        showToast(`welcome to ${tierName}! you now have ${limit}`, 'success');
       } else {
         // Fallback: check payment status
         const response = await fetch(`${API_BASE_URL}/api/payments/status`, {
@@ -493,7 +494,7 @@ export default function HumApp() {
           await checkAuthStatus(token);
           const tierName = 'Avid Listener';
           const limit = '100 searches/month';
-          alert(`🎉 Welcome to ${tierName}! You now have ${limit}.`);
+          showToast(`welcome to ${tierName}! you now have ${limit}`, 'success');
         }
       }
     } catch (error) {
@@ -528,11 +529,11 @@ export default function HumApp() {
         // Redirect to PayPal
         window.location.href = data.approvalUrl;
       } else {
-        alert('Failed to start PayPal payment. Please try again.');
+        showToast('failed to start paypal payment — please try again', 'error');
       }
     } catch (error) {
       console.error('PayPal payment error:', error);
-      alert('Failed to process PayPal payment. Please try again.');
+      showToast('failed to process paypal payment — please try again', 'error');
     }
   };
 
@@ -875,11 +876,11 @@ export default function HumApp() {
           setPreviewNickname(data.nickname || '');
         }
       } else {
-        alert('Failed to save nickname. Please try again.');
+        showToast('failed to save nickname — please try again', 'error');
       }
     } catch (error) {
       console.error('Error saving nickname:', error);
-      alert('Failed to save nickname. Please try again.');
+      showToast('failed to save nickname — please try again', 'error');
     }
   };
 
@@ -901,11 +902,11 @@ export default function HumApp() {
       if (data.success) {
         setUserIcon(data.icon);
       } else {
-        alert('Failed to update icon. Please try again.');
+        showToast('failed to update icon — please try again', 'error');
       }
     } catch (error) {
       console.error('Error updating icon:', error);
-      alert('Failed to update icon. Please try again.');
+      showToast('failed to update icon — please try again', 'error');
     }
   };
 
@@ -949,7 +950,7 @@ export default function HumApp() {
     try {
       const token = localStorage.getItem('hum-auth-token');
       if (!token) {
-        alert('Please log in to cancel your subscription');
+        showToast('please log in to cancel your subscription', 'error');
         return;
       }
 
@@ -967,15 +968,15 @@ export default function HumApp() {
         setHasActiveSubscription(false);
         setUserTier('free');
         localStorage.setItem('hum-user-tier', 'free');
-        alert('Subscription canceled successfully. You have been downgraded to the free tier.');
+        showToast('subscription canceled — you are back on the free tier', 'success');
         // Refresh user data
         await checkAuthStatus(token);
       } else {
-        alert(data.error || 'Failed to cancel subscription. Please try again.');
+        showToast(data.error || 'failed to cancel subscription — please try again', 'error');
       }
     } catch (error) {
       console.error('Error canceling subscription:', error);
-      alert('Failed to cancel subscription. Please try again.');
+      showToast('failed to cancel subscription — please try again', 'error');
     } finally {
       setIsCancelingSubscription(false);
     }
@@ -1521,6 +1522,17 @@ export default function HumApp() {
     const timeout = setTimeout(() => setError(null), 8000);
     return () => clearTimeout(timeout);
   }, [error]);
+
+  // In-app toast notifications (replaces native alert popups)
+  const showToast = (message, type = 'info') => {
+    setToast({ message, type, id: Date.now() });
+  };
+
+  useEffect(() => {
+    if (!toast) return;
+    const timeout = setTimeout(() => setToast(null), 4500);
+    return () => clearTimeout(timeout);
+  }, [toast]);
 
   // Drives the live mic level meter from the real input signal (set up in startRecording)
   const startLevelMeter = (stream) => {
@@ -2109,7 +2121,7 @@ export default function HumApp() {
   const sendFeedback = async (correctSong) => {
     try {
       if (!audioBlob) {
-        alert('No audio available. Please record again.');
+        showToast('no audio available — please record again', 'error');
         return;
       }
 
@@ -2138,11 +2150,11 @@ export default function HumApp() {
           setFeedbackSuccess(false);
         }, 2000);
       } else {
-        alert('❌ Failed to record feedback. Please try again.');
+        showToast('failed to record feedback — please try again', 'error');
       }
     } catch (err) {
       console.error('Error sending feedback:', err);
-      alert('❌ Error sending feedback.');
+      showToast('error sending feedback', 'error');
     } finally {
       setIsSendingFeedback(false);
     }
@@ -2153,17 +2165,17 @@ export default function HumApp() {
     if (!token) {
       setShowGeneralFeedback(false);
       setShowAuthModal(true);
-      alert('You must sign in to give feedback.');
+      showToast('sign in to give feedback', 'info');
       return;
     }
 
     if (!feedbackText.trim()) {
-      alert('Please enter some feedback');
+      showToast('please enter some feedback', 'error');
       return;
     }
 
     if (feedbackText.length > 500) {
-      alert('Feedback must be under 500 characters');
+      showToast('feedback must be under 500 characters', 'error');
       return;
     }
 
@@ -2193,16 +2205,16 @@ export default function HumApp() {
       const data = await response.json().catch(() => ({}));
       
       if (data.success) {
-        alert('✅ Thank you for your feedback!');
+        showToast('thank you for your feedback!', 'success');
         setShowGeneralFeedback(false);
         setFeedbackText('');
       } else if (response.status === 401) {
         setShowGeneralFeedback(false);
         setShowAuthModal(true);
-        alert('You must sign in to give feedback.');
+        showToast('sign in to give feedback', 'info');
       } else {
         const msg = data.error || data.message || 'Please try again.';
-        alert(`❌ Failed to send feedback. ${msg}`);
+        showToast(`failed to send feedback. ${msg}`, 'error');
       }
     } catch (err) {
       console.error('Error sending general feedback:', err);
@@ -2210,7 +2222,7 @@ export default function HumApp() {
       const msg = isAbort
         ? 'Request timed out. If your backend is on Render free tier, it may be waking up — try again in a moment.'
         : (err.message || 'Network error. Check your connection.');
-      alert(`❌ Error sending feedback. ${msg}`);
+      showToast(`error sending feedback. ${msg}`, 'error');
     } finally {
       setIsSendingGeneralFeedback(false);
     }
@@ -2535,7 +2547,7 @@ export default function HumApp() {
 
         if (!response.ok) {
           console.error('Payment API error:', data);
-          alert(`Failed to start payment: ${data.error || 'Unknown error'}. Please try again.`);
+          showToast(`failed to start payment: ${data.error || 'unknown error'} — please try again`, 'error');
           return;
         }
 
@@ -2545,16 +2557,16 @@ export default function HumApp() {
           window.location.href = data.url;
         } else if (data.success && data.upgraded) {
           // Existing subscription was upgraded in place (no Checkout redirect)
-          alert(`🎉 Your subscription has been upgraded to Avid Listener.`);
+          showToast('your subscription has been upgraded to avid listener', 'success');
           await checkAuthStatus(token);
           handleCloseUpgrade();
         } else {
           console.error('Payment response error:', data);
-          alert(`Failed to start payment: ${data.error || 'Unknown error'}. Please try again.`);
+          showToast(`failed to start payment: ${data.error || 'unknown error'} — please try again`, 'error');
         }
       } catch (error) {
         console.error('Payment error:', error);
-        alert(`Failed to process payment: ${error.message || 'Network error'}. Please try again.`);
+        showToast(`failed to process payment: ${error.message || 'network error'} — please try again`, 'error');
       }
     }
   };
@@ -3024,6 +3036,22 @@ export default function HumApp() {
         .tilt-card {
           transition: transform 0.18s ease-out;
           will-change: transform;
+        }
+
+        /* Cards cascade in one after another (backwards fill so hover transforms
+           still apply once the entrance finishes) */
+        .card-enter {
+          animation: cardEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+        }
+        @keyframes cardEnter {
+          from {
+            opacity: 0;
+            transform: translateY(14px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -3834,17 +3862,17 @@ export default function HumApp() {
           <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 animate-fade-in-up">
             <div className="relative">
               {/* Glow effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/30 to-blue-500/30 rounded-2xl blur-xl"></div>
+              <div className="absolute inset-0 bg-[#D8B5FE]/15 rounded-2xl blur-xl"></div>
               {/* Notification card */}
-              <div className="relative bg-gradient-to-br from-purple-500/20 via-blue-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-6 border-2 border-white/20 shadow-2xl max-w-md">
+              <div className="relative bg-[#16121c]/95 backdrop-blur-2xl rounded-2xl p-6 border border-[#D8B5FE]/40 shadow-2xl max-w-md">
                 <div className="flex items-start gap-4">
-                  <div className="text-4xl animate-bounce">🎵</div>
+                  <Music className="w-7 h-7 text-[#D8B5FE] flex-shrink-0 mt-1" strokeWidth={1.5} />
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold text-white mb-1">Welcome to hüm!</h3>
-                    <p className="text-white/90 text-sm leading-relaxed">{welcomeMessage}</p>
-      </div>
-        <button
-          onClick={() => {
+                    <h3 className="font-display italic text-2xl text-white mb-1">welcome to hüm!</h3>
+                    <p className="text-white/80 text-sm leading-relaxed">{welcomeMessage}</p>
+                  </div>
+                  <button
+                    onClick={() => {
                       setShowWelcome(false);
                       setTimeout(() => setWelcomeMessage(null), 300);
                     }}
@@ -3855,14 +3883,15 @@ export default function HumApp() {
                   </button>
                 </div>
                 {/* Sparkle decorations */}
-                <div className="absolute top-2 right-2 text-yellow-300 text-lg animate-pulse">✨</div>
-                <div className="absolute bottom-2 left-2 text-yellow-300 text-sm animate-pulse" style={{ animationDelay: '0.5s' }}>⭐</div>
+                <div className="absolute top-2 right-3 text-[#D8B5FE] text-sm avatar-spark select-none" aria-hidden="true">✦</div>
+                <div className="absolute bottom-2 left-3 text-[#D8B5FE]/70 text-xs avatar-spark select-none" style={{ animationDelay: '1.2s' }} aria-hidden="true">✦</div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Debug Reset Button - Remove this later */}
+        {/* Dev-only test buttons — hidden in production builds */}
+        {import.meta.env.DEV && (<>
         <button
           onClick={async () => {
             localStorage.removeItem('hum-pro-status');
@@ -3890,16 +3919,16 @@ export default function HumApp() {
                 if (response.ok) {
                   // Reload user data to get updated searchCount
                   await checkAuthStatus(token);
-                  alert('Reset complete! Search count has been reset.');
+                  showToast('reset complete! search count has been reset', 'success');
                 } else {
-                  alert('Error resetting search count. Please refresh the page.');
+                  showToast('error resetting search count — please refresh the page', 'error');
                 }
               } catch (error) {
                 console.error('Error resetting backend search count:', error);
-                alert('Error resetting search count. Please refresh the page.');
+                showToast('error resetting search count — please refresh the page', 'error');
               }
             } else {
-            alert('Reset! Refresh the page.');
+            showToast('reset! refresh the page', 'success');
             }
           }}
           className="fixed bottom-6 left-6 z-50 px-3 py-2 bg-red-500/20 hover:bg-red-500/30 backdrop-blur-sm border border-red-500/30 rounded-full text-xs transition-all"
@@ -3919,6 +3948,39 @@ export default function HumApp() {
         >
           ⚡ Exhaust Searches
         </button>
+        </>)}
+
+        {/* Toast notification - floats above everything, click to dismiss */}
+        {toast && createPortal(
+          <div
+            className="fixed bottom-8 left-0 right-0 z-[11000] flex justify-center px-4 pointer-events-none"
+            role="status"
+            aria-live="polite"
+          >
+          <div className="animate-fade-in-up pointer-events-auto">
+            <button
+              onClick={() => setToast(null)}
+              className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl backdrop-blur-2xl border shadow-2xl text-sm text-left max-w-md ${
+                toast.type === 'success'
+                  ? 'bg-[#16121c]/95 border-[#D8B5FE]/50 text-white'
+                  : toast.type === 'error'
+                  ? 'bg-[#1c1214]/95 border-red-500/40 text-red-200'
+                  : 'bg-[#16121c]/95 border-white/20 text-white/90'
+              }`}
+            >
+              {toast.type === 'success' ? (
+                <span className="text-[#D8B5FE] text-base select-none" aria-hidden="true">✦</span>
+              ) : toast.type === 'error' ? (
+                <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+              ) : (
+                <Info className="w-4 h-4 text-white/60 flex-shrink-0" />
+              )}
+              <span>{toast.message}</span>
+            </button>
+          </div>
+          </div>,
+          document.body
+        )}
 
         {/* Bookmarks Button - Top Left - Rendered via portal for true fixed positioning */}
         {createPortal(
@@ -4108,7 +4170,7 @@ export default function HumApp() {
             >
               <div className="flex flex-col items-center gap-0.5">
                 <span className="text-sm text-white/70 group-hover:hidden transition-opacity">
-                  Login for more searches
+                  login for more searches
                 </span>
                 <span className="text-sm text-purple-300 font-semibold hidden group-hover:inline-flex items-center gap-1 transition-opacity">
                   <Star className="w-3.5 h-3.5 fill-purple-300" />
@@ -4150,7 +4212,7 @@ export default function HumApp() {
               </span>
               <span className="text-sm text-purple-300 font-semibold hidden group-hover:inline-flex items-center gap-1 transition-opacity">
                 <Star className="w-3.5 h-3.5 fill-purple-300" />
-                Upgrade to Hüm Pro
+                upgrade to hüm pro
                 <Star className="w-3.5 h-3.5 fill-purple-300" />
               </span>
             </div>
@@ -4164,11 +4226,11 @@ export default function HumApp() {
             className="px-4 py-2 bg-teal-500/20 hover:bg-teal-500/30 backdrop-blur-sm border border-teal-500/30 hover:border-teal-500/50 rounded-full transition-all duration-300 hover:scale-105 group md:cursor-pointer"
           >
             <span className="text-sm text-teal-300 font-semibold group-hover:hidden">
-              🎧 Avid Listener - {searchCount}/{AVID_LISTENER_LIMIT} this month
+              🎧 avid listener — {searchCount}/{AVID_LISTENER_LIMIT} this month
             </span>
             <span className="text-sm text-purple-300 font-semibold hidden group-hover:inline-flex items-center gap-1">
               <Star className="w-3.5 h-3.5 fill-purple-300" />
-              Upgrade to Avid Listener
+              upgrade to avid listener
               <Star className="w-3.5 h-3.5 fill-purple-300" />
             </span>
           </button>
@@ -4563,7 +4625,7 @@ export default function HumApp() {
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                       </svg>
-                      <span>Secure payment processing</span>
+                      <span>secure payment processing</span>
                       </div>
                         </div>
                       </div>
@@ -5063,8 +5125,9 @@ export default function HumApp() {
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <label className="block font-display italic text-base text-white/70 mb-1">manage subscriptions</label>
-                      <div className="text-sm text-white/60 capitalize">
-                        {userTier === 'avid' ? 'Avid Listener' : 'Free'}
+                      <div className="inline-flex items-center gap-1.5 mt-0.5 px-2.5 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-xs text-white/70">
+                        {userTier === 'avid' && <Star className="w-3 h-3 text-[#D8B5FE] fill-[#D8B5FE]" />}
+                        {userTier === 'avid' ? 'avid listener' : 'free tier'}
                       </div>
                     </div>
                   </div>
@@ -5296,10 +5359,10 @@ export default function HumApp() {
                       <div className="relative bg-gradient-to-br from-rose-500/10 to-orange-500/10 backdrop-blur-xl rounded-2xl p-6 border border-rose-500/30">
                         <div className="flex items-center gap-3 mb-2">
                           <span className="text-3xl">😔</span>
-                          <h3 className="text-xl font-bold text-rose-300">Out of searches</h3>
+                          <h3 className="font-display italic text-2xl text-rose-300">out of searches</h3>
                         </div>
                         <p className="text-white/70 text-sm">
-                          Upgrade to keep humming!
+                          upgrade to keep humming!
                         </p>
                       </div>
                     </div>
@@ -5565,7 +5628,8 @@ export default function HumApp() {
                               window.open(spotifyUrl, '_blank', 'noopener,noreferrer');
                             }
                           }}
-                          className="recent-search-item group relative bg-white/5 backdrop-blur-sm rounded-2xl p-4 hover:bg-white/10 transition-all md:cursor-pointer border border-white/10 flex items-center justify-between"
+                          className="recent-search-item card-enter group relative bg-white/5 backdrop-blur-sm rounded-2xl p-4 hover:bg-white/10 transition-all md:cursor-pointer border border-white/10 flex items-center justify-between"
+                          style={{ animationDelay: `${idx * 70}ms` }}
                         >
                           <div className="flex items-center gap-4">
                             <div className="w-14 h-14 bg-white/10 rounded-lg overflow-hidden flex-shrink-0">
@@ -5816,7 +5880,7 @@ export default function HumApp() {
                       onClick={() => {
                         if (!user) {
                           setShowAuthModal(true);
-                          alert('You must sign in to give feedback.');
+                          showToast('sign in to give feedback', 'info');
                           return;
                         }
                         setShowGeneralFeedback(true);
@@ -5963,7 +6027,7 @@ export default function HumApp() {
                     </a>
                   ) : (
                     <button className="bg-white/[0.02] backdrop-blur-sm py-5 rounded-2xl font-bold tracking-wide border border-white/5 opacity-50 md:cursor-not-allowed">
-                      Spotify Unavailable
+                      spotify unavailable
                     </button>
                   )}
                   <button
