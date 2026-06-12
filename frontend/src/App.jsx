@@ -138,6 +138,7 @@ export default function HumApp() {
   
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
+  const helpButtonRef = useRef(null);
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
   const levelMeterFrameRef = useRef(null);
@@ -2472,6 +2473,18 @@ export default function HumApp() {
     }, 200);
   };
 
+  // While the tips dropdown is open, any tap/click anywhere closes it.
+  // Taps on the help button itself are skipped so its own toggle handles them.
+  useEffect(() => {
+    if (!showTips || isClosingTips) return;
+    const closeOnAnyPress = (e) => {
+      if (helpButtonRef.current && helpButtonRef.current.contains(e.target)) return;
+      handleCloseTips();
+    };
+    document.addEventListener('pointerdown', closeOnAnyPress);
+    return () => document.removeEventListener('pointerdown', closeOnAnyPress);
+  }, [showTips, isClosingTips]);
+
   const getDaysUntilReset = () => {
     // If we know when the subscription (or account) started, reset each month on that day.
     // Example: bought on the 12th → resets on the 12th of each month.
@@ -4123,12 +4136,20 @@ export default function HumApp() {
           )}
 
           {/* Help Button */}
-        <div 
+        <div
             className="relative"
           onMouseEnter={() => setShowTips(true)}
           onMouseLeave={handleCloseTips}
         >
           <button
+            ref={helpButtonRef}
+            onClick={() => {
+              if (showTips) {
+                handleCloseTips();
+              } else {
+                setShowTips(true);
+              }
+            }}
             className={`flex items-center justify-center gap-2 px-2 py-2 h-9 w-9 sm:justify-start sm:px-4 sm:py-2 sm:h-auto sm:w-auto bg-white/5 backdrop-blur-sm border rounded-full hover:bg-white/10 hover:border-[#D8B5FE] transition-all ${showTips ? 'border-[#D8B5FE]' : 'border-white/10'}`}
           >
               <span className="text-sm font-bold hidden sm:inline">help!</span>
@@ -4281,14 +4302,14 @@ export default function HumApp() {
               {/* Close button */}
               <button
                 onClick={handleCloseAuth}
-                className="absolute -top-3 -right-1 sm:-top-4 sm:-right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20"
+                className="absolute top-2 right-2 sm:-top-4 sm:-right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20"
                 aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
 
               {/* Modal */}
-              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-8 max-w-md w-full border border-white/20 shadow-2xl">
+              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-8 max-w-md w-full border border-white/20 shadow-2xl max-h-[90vh] overflow-y-auto" style={{ maxHeight: '85dvh', scrollbarGutter: 'stable' }}>
                 <h2 className="font-display italic text-4xl text-center mb-2">
                   {isLoginMode ? 'welcome back!' : 'create an account'}
                 </h2>
@@ -4430,14 +4451,14 @@ export default function HumApp() {
               {/* Close button */}
               <button
                 onClick={handleCloseUpgrade}
-                className="absolute -top-3 -right-1 sm:-top-4 sm:-right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20"
+                className="absolute top-2 right-2 sm:-top-4 sm:-right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20"
                 aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
               
               {/* Modal */}
-              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-6 max-w-xl w-full max-h-[90vh] border border-white/20 shadow-2xl overflow-y-auto" style={{ scrollbarGutter: 'stable' }}>
+              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-6 max-w-xl w-full max-h-[90vh] border border-white/20 shadow-2xl overflow-y-auto" style={{ maxHeight: '85dvh', scrollbarGutter: 'stable' }}>
                 <h2 className="font-display italic text-4xl text-center mb-6">wanna keep humming?</h2>
 
                 {/* Billing Period Toggle - Subtle with savings indicator */}
@@ -5136,14 +5157,14 @@ export default function HumApp() {
               {/* Close button */}
               <button
                 onClick={handleCloseProfile}
-                className="absolute -top-3 -right-1 sm:-top-4 sm:-right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20"
+                className="absolute top-2 right-2 sm:-top-4 sm:-right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20"
                 aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
               
               {/* Modal */}
-              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-6 max-w-sm w-full border border-[#D8B5FE] shadow-2xl">
+              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-6 max-w-sm w-full border border-[#D8B5FE] shadow-2xl max-h-[90vh] overflow-y-auto" style={{ maxHeight: '85dvh', scrollbarGutter: 'stable' }}>
                 <div className="flex flex-col items-center mb-6">
                   <div className="relative avatar-stage mb-3">
                     <div className="absolute -inset-3 rounded-full bg-[#D8B5FE]/20 blur-xl avatar-glow"></div>
