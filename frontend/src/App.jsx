@@ -10,6 +10,9 @@ import potionIcon from './assets/potion.png';
 import shibaIcon from './assets/keyboard-cat.png';
 import cryingCatIcon from './assets/crying-cat.png';
 import ghostIcon from './assets/bongo-cat.png';
+import headphonesIcon from './assets/headphones.svg';
+import vinylRecordIcon from './assets/vinyl-record.svg';
+import musicNoteIcon from './assets/music-note.svg';
 
 // API base URL - use environment variable or default to localhost for development
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -20,7 +23,10 @@ const iconMap = {
   'potion': potionIcon,
   'shiba': shibaIcon,
   'crying-cat': cryingCatIcon,
-  'ghost': ghostIcon
+  'ghost': ghostIcon,
+  'headphones': headphonesIcon,
+  'vinyl-record': vinylRecordIcon,
+  'music-note': musicNoteIcon
 };
 
 const getIconImage = (iconId) => {
@@ -4833,8 +4839,9 @@ export default function HumApp() {
                       { id: 'shiba', icon: shibaIcon },
                       { id: 'crying-cat', icon: cryingCatIcon },
                       { id: 'ghost', icon: ghostIcon },
-                      { id: 'placeholder-1', icon: null },
-                      { id: 'placeholder-2', icon: null }
+                      { id: 'headphones', icon: headphonesIcon },
+                      { id: 'vinyl-record', icon: vinylRecordIcon },
+                      { id: 'music-note', icon: musicNoteIcon }
                     ].map((item, idx) => (
                       <button
                         key={item.id}
