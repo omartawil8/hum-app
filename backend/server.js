@@ -1628,17 +1628,17 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       const unitAmount = billingPeriod === 'yearly' ? selectedPlan.yearlyPrice : selectedPlan.monthlyPrice;
       const targetPriceId = await getOrCreatePlanPriceId(plan, interval, unitAmount);
 
+      // 'always_invoice' charges the prorated difference immediately: Stripe credits
+      // the unused time on the old plan and bills only the gap, so upgrading mid-cycle
+      // never double-charges.
       const updated = await stripe.subscriptions.update(user.stripeSubscriptionId, {
         cancel_at_period_end: false,
-        proration_behavior: 'create_prorations',
+        proration_behavior: 'always_invoice',
         items: [{
           id: currentItem.id,
           price: targetPriceId,
         }],
       });
-
-      // Optionally, you could immediately invoice the prorated amount here.
-      // For now, we let Stripe include it on the next invoice.
 
       user.tier = plan;
       if (updated.current_period_start) {

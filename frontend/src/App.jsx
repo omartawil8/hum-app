@@ -1511,12 +1511,13 @@ export default function HumApp() {
     }
   }, [matchData, savedSongs]);
 
-  // Auto-select Avid Listener plan when upgrade modal opens
+  // Auto-select a plan when the upgrade modal opens: subscribers see the next
+  // tier up, everyone else starts on Avid Listener
   useEffect(() => {
     if (showUpgradeModal && !selectedPlan) {
-      setSelectedPlan('Avid Listener');
+      setSelectedPlan(userTier === 'avid' ? 'Eat, Breath, Music' : 'Avid Listener');
     }
-  }, [showUpgradeModal, selectedPlan]);
+  }, [showUpgradeModal, selectedPlan, userTier]);
 
   // Auto-dismiss the global error banner so it doesn't linger forever
   useEffect(() => {
@@ -2563,7 +2564,7 @@ export default function HumApp() {
           window.location.href = data.url;
         } else if (data.success && data.upgraded) {
           // Existing subscription was upgraded in place (no Checkout redirect)
-          showToast(`your subscription has been upgraded to ${tier === 'unlimited' ? 'eat, breath, music' : 'avid listener'}`, 'success');
+          showToast(`upgraded to ${tier === 'unlimited' ? 'eat, breath, music' : 'avid listener'} — you were only charged the prorated difference`, 'success');
           await checkAuthStatus(token);
           handleCloseUpgrade();
         } else {
@@ -4703,13 +4704,18 @@ export default function HumApp() {
                       <h3 className="text-lg font-semibold text-white/90 whitespace-nowrap">ready to upgrade?</h3>
                       <div className="flex-1 h-px bg-white/20"></div>
                         </div>
-                    <p className="text-center text-white/60 mb-4 text-xs">confirm your plan and continue to secure checkout</p>
+                    <p className="text-center text-white/60 mb-4 text-xs">
+                      {userTier === 'avid' && selectedPlan === 'Eat, Breath, Music'
+                        ? "you'll only pay the prorated difference — unused time on your current plan is credited automatically"
+                        : 'confirm your plan and continue to secure checkout'}
+                    </p>
                     
                     {/* Checkout button */}
                     <div className="flex flex-col gap-3 px-1 py-1">
                       {(() => {
                         const selectedTier = selectedPlan === 'Eat, Breath, Music' ? 'unlimited' : 'avid';
                         const disabled = userTier === selectedTier && billingPeriod === 'monthly';
+                        const isPlanChange = userTier === 'avid' && selectedTier === 'unlimited';
 
                         return (
                     <button
@@ -4727,7 +4733,11 @@ export default function HumApp() {
                             )}
                             <ShoppingCart className="w-5 h-5 relative z-10" />
                             <span className="relative z-10">
-                              {disabled ? 'already on this plan' : 'proceed to checkout'}
+                              {disabled
+                                ? 'already on this plan'
+                                : isPlanChange
+                                ? 'upgrade — pay only the difference'
+                                : 'proceed to checkout'}
                             </span>
                     </button>
                         );
@@ -5245,6 +5255,24 @@ export default function HumApp() {
                       </div>
                     </div>
                   </div>
+                  {userTier === 'avid' && (
+                    <button
+                      onClick={() => {
+                        setSelectedPlan('Eat, Breath, Music');
+                        setShowUpgradeModal(true);
+                        handleCloseProfile();
+                      }}
+                      className="w-full px-4 py-2 mb-3 rounded-full border-2 border-[#D8B5FE]/40 hover:bg-[#D8B5FE]/30 hover:border-[#D8B5FE]/60 flex items-center justify-center gap-2 transition-all text-sm text-[#D8B5FE] font-semibold"
+                    >
+                      <span className="select-none" aria-hidden="true">✦</span>
+                      <span>upgrade to eat, breath, music</span>
+                    </button>
+                  )}
+                  {userTier === 'unlimited' && (
+                    <p className="text-xs text-white/40 text-center mb-3">
+                      you're on the top plan <span className="text-[#D8B5FE]" aria-hidden="true">✦</span>
+                    </p>
+                  )}
                   {hasActiveSubscription && userTier !== 'free' ? (
                     <button
                       onClick={handleCancelSubscription}
@@ -5253,7 +5281,7 @@ export default function HumApp() {
                     >
                       {isCancelingSubscription ? 'canceling...' : 'cancel subscription'}
                     </button>
-                  ) : (
+                  ) : userTier === 'free' ? (
                     <button
                       onClick={() => {
                         setShowUpgradeModal(true);
@@ -5263,7 +5291,7 @@ export default function HumApp() {
                     >
                       <span>upgrade</span>
                     </button>
-                  )}
+                  ) : null}
                 </div>
 
                 {/* Save and Logout Buttons */}
