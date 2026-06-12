@@ -4424,7 +4424,7 @@ export default function HumApp() {
             onClick={handleCloseUpgrade}
           >
             <div 
-              className={`relative z-[10000] ${isClosingUpgrade ? 'animate-modal-content-out' : 'animate-modal-content'}`}
+              className={`relative z-[10000] w-full max-w-xl ${isClosingUpgrade ? 'animate-modal-content-out' : 'animate-modal-content'}`}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close button */}
@@ -4437,7 +4437,7 @@ export default function HumApp() {
               </button>
               
               {/* Modal */}
-              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-6 max-w-xl w-full max-h-[90vh] border border-white/20 shadow-2xl overflow-y-auto">
+              <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-6 max-w-xl w-full max-h-[90vh] border border-white/20 shadow-2xl overflow-y-auto" style={{ scrollbarGutter: 'stable' }}>
                 <h2 className="font-display italic text-4xl text-center mb-6">wanna keep humming?</h2>
 
                 {/* Billing Period Toggle - Subtle with savings indicator */}
@@ -4491,8 +4491,8 @@ export default function HumApp() {
                     onClick={() => handleSelectPlan('Avid Listener')}
                     className={`relative group rounded-2xl overflow-visible transition-all duration-300 w-full ${
                       selectedPlan === 'Avid Listener'
-                        ? 'scale-[1.025]'
-                        : 'hover:scale-[1.025] opacity-60'
+                        ? ''
+                        : 'opacity-60 hover:opacity-90'
                     }`}
                   >
                     {/* Card background */}
@@ -4603,8 +4603,8 @@ export default function HumApp() {
                     onClick={() => handleSelectPlan('Eat, Breath, Music')}
                     className={`relative group rounded-2xl overflow-visible transition-all duration-300 w-full ${
                       selectedPlan === 'Eat, Breath, Music'
-                        ? 'scale-[1.025]'
-                        : 'hover:scale-[1.025] opacity-60'
+                        ? ''
+                        : 'opacity-60 hover:opacity-90'
                     }`}
                   >
                     {/* Card background */}
