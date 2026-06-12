@@ -135,6 +135,9 @@ export default function HumApp() {
   
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
+  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null);
+  const levelMeterFrameRef = useRef(null);
   const bookmarksScrollRef = useRef(null);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const userDropdownRef = useRef(null);
@@ -201,6 +204,18 @@ export default function HumApp() {
     { id: 'show_me_love', title: 'Show Me Love', artist: 'WizTheMc' },
   ];
   
+  // First-time visitors: briefly show the tips dropdown so they know how to use the app
+  useEffect(() => {
+    if (localStorage.getItem('hum-has-seen-onboarding')) return;
+    localStorage.setItem('hum-has-seen-onboarding', 'true');
+    const showTimeout = setTimeout(() => setShowTips(true), 600);
+    const hideTimeout = setTimeout(() => handleCloseTips(), 7000);
+    return () => {
+      clearTimeout(showTimeout);
+      clearTimeout(hideTimeout);
+    };
+  }, []);
+
   useEffect(() => {
     const saved = localStorage.getItem('hum-saved-songs');
     if (saved) {
@@ -1500,19 +1515,60 @@ export default function HumApp() {
     }
   }, [showUpgradeModal, selectedPlan]);
 
+  // Auto-dismiss the global error banner so it doesn't linger forever
   useEffect(() => {
-    if (isListening) {
-      let currentLevel = 0;
-      const interval = setInterval(() => {
-        const change = (Math.random() - 0.5) * 20;
-        currentLevel = Math.max(20, Math.min(85, currentLevel + change));
-        setAudioLevel(currentLevel);
-      }, 100);
-      return () => clearInterval(interval);
-    } else {
-      setAudioLevel(0);
+    if (!error) return;
+    const timeout = setTimeout(() => setError(null), 8000);
+    return () => clearTimeout(timeout);
+  }, [error]);
+
+  // Drives the live mic level meter from the real input signal (set up in startRecording)
+  const startLevelMeter = (stream) => {
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      const audioContext = new AudioContextClass();
+      const source = audioContext.createMediaStreamSource(stream);
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 512;
+      analyser.smoothingTimeConstant = 0.6;
+      source.connect(analyser);
+
+      audioContextRef.current = audioContext;
+      analyserRef.current = analyser;
+
+      const data = new Uint8Array(analyser.fftSize);
+      const tick = () => {
+        analyser.getByteTimeDomainData(data);
+        // Compute RMS deviation from the 128 (silence) midpoint
+        let sumSquares = 0;
+        for (let i = 0; i < data.length; i++) {
+          const deviation = (data[i] - 128) / 128;
+          sumSquares += deviation * deviation;
+        }
+        const rms = Math.sqrt(sumSquares / data.length);
+        // Scale up so normal humming volume reads comfortably on the 0-100 meter
+        const level = Math.min(100, rms * 350);
+        setAudioLevel(level);
+        levelMeterFrameRef.current = requestAnimationFrame(tick);
+      };
+      tick();
+    } catch (err) {
+      console.error('Could not start audio level meter:', err);
     }
-  }, [isListening]);
+  };
+
+  const stopLevelMeter = () => {
+    if (levelMeterFrameRef.current) {
+      cancelAnimationFrame(levelMeterFrameRef.current);
+      levelMeterFrameRef.current = null;
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close().catch(() => {});
+      audioContextRef.current = null;
+    }
+    analyserRef.current = null;
+    setAudioLevel(0);
+  };
 
   const checkSearchLimit = () => {
     if (userTier === 'avid') {
@@ -1625,6 +1681,7 @@ export default function HumApp() {
         setIsProcessing(false);
         setIsHoveringBirdButton(false);
         setIsButtonClickable(false);
+        stopLevelMeter();
         stream.getTracks().forEach(track => track.stop());
       };
       
@@ -1640,6 +1697,7 @@ export default function HumApp() {
           stream.getTracks().forEach(track => {
             track.stop();
           });
+          stopLevelMeter();
           setIsListening(false);
           setRecordingStartTime(null);
           setAudioLevel(0);
@@ -1647,17 +1705,18 @@ export default function HumApp() {
           setIsButtonClickable(false);
           return;
         }
-        
+
         // Use the same mimeType that was used for recording
         const blobType = mediaRecorder.mimeType || 'audio/webm';
-        const blob = new Blob(audioChunksRef.current, { 
+        const blob = new Blob(audioChunksRef.current, {
           type: blobType
         });
-        
-        
+
+
         stream.getTracks().forEach(track => {
           track.stop();
         });
+        stopLevelMeter();
         
         // Check actual recording duration (avoid calling API for very short recordings)
         const startTime = mediaRecorder._startTime || recordingStartTime;
@@ -1732,6 +1791,7 @@ export default function HumApp() {
       // Track recording start time (for UI + backend safety)
       const startTime = Date.now();
       mediaRecorder._startTime = startTime;
+      startLevelMeter(stream);
       setIsListening(true);
       setRecordingStartTime(startTime);
       setError(null);
@@ -1755,6 +1815,7 @@ export default function HumApp() {
     } catch (err) {
       console.error('Error accessing microphone:', err);
       setError('Could not access microphone. Please allow microphone permissions.');
+      stopLevelMeter();
       setIsListening(false);
       setRecordingStartTime(null);
       setIsHoveringBirdButton(false);
@@ -5453,10 +5514,17 @@ export default function HumApp() {
 
             {/* Global error banner - always show at top of content */}
                 {error && (
-              <div className="mb-6">
+              <div className="mb-6 animate-fade-in-up">
                 <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center gap-3">
                     <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                    <p className="text-red-200">{error}</p>
+                    <p className="text-red-200 flex-1">{error}</p>
+                    <button
+                      onClick={() => setError(null)}
+                      className="p-1 -m-1 text-red-300/60 hover:text-red-200 transition-colors flex-shrink-0"
+                      aria-label="Dismiss error"
+                    >
+                      <X className="w-4 h-4" strokeWidth={1.5} />
+                    </button>
                   </div>
               </div>
             )}
@@ -5630,11 +5698,16 @@ export default function HumApp() {
                     <span className="text-lg font-bold">{matchData?.[0]?.confidence || 0}%</span>
                   </div>
                   <div className="w-full bg-white/5 rounded-full h-1 overflow-hidden">
-                    <div 
+                    <div
                       className="h-full rounded-full transition-all duration-1000"
                       style={{ width: `${matchData?.[0]?.confidence || 0}%`, background: '#D8B5FE' }}
                     ></div>
                   </div>
+                  {(matchData?.[0]?.confidence || 0) < 60 && matchData && matchData.length > 1 && (
+                    <p className="text-xs text-white/40 mt-3">
+                      not quite right? check the other possible matches below
+                    </p>
+                  )}
                 </div>
 
                 {matchData && matchData.length > 1 && (
