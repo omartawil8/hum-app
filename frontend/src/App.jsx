@@ -3670,6 +3670,7 @@ export default function HumApp() {
                       setTimeout(() => setWelcomeMessage(null), 300);
                     }}
                     className="p-1 hover:bg-white/10 rounded-full transition-all"
+                    aria-label="Close"
                   >
                     <X className="w-4 h-4 text-white/70" />
                   </button>
@@ -3758,6 +3759,7 @@ export default function HumApp() {
         <button
                   onClick={cancelListening}
                   className="flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 transition-all relative"
+                  aria-label="Cancel recording"
         >
                   <X className="w-5 h-5" strokeWidth={1.5} style={{ color: '#D8B5FE' }} />
                 </button>
@@ -4008,9 +4010,10 @@ export default function HumApp() {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close button */}
-              <button 
+              <button
                 onClick={handleCloseAuth}
                 className="absolute -top-4 -right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20"
+                aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -4156,9 +4159,10 @@ export default function HumApp() {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close button */}
-              <button 
+              <button
                 onClick={handleCloseUpgrade}
                 className="absolute -top-4 -right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20"
+                aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -4413,9 +4417,10 @@ export default function HumApp() {
                       {savedSongs.length} {savedSongs.length === 1 ? 'song' : 'songs'}
                     </p>
                   </div>
-                  <button 
+                  <button
                     onClick={handleCloseBookmarks}
                     className="p-2 hover:bg-white/5 rounded-full transition-all hover:scale-105"
+                    aria-label="Close"
                   >
                     <X className="w-5 h-5 text-white/40" />
                   </button>
@@ -4492,6 +4497,7 @@ export default function HumApp() {
                               }}
                               className="p-1.5 hover:bg-red-500/20 rounded-full transition-all hover:scale-110"
                               title="Remove bookmark"
+                              aria-label="Remove bookmark"
                             >
                               <X className="w-4 h-4 text-red-400/70" strokeWidth={1.5} />
                             </button>
@@ -4511,9 +4517,10 @@ export default function HumApp() {
         {showFeedback && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-modal-backdrop">
             <div className="bg-gradient-to-br from-[#1a1d3a] to-[#0A0E27] rounded-3xl p-8 max-w-md w-full border border-white/10 relative animate-modal-content">
-              <button 
+              <button
                 onClick={() => setShowFeedback(false)}
                 className="absolute top-4 right-4 p-2 hover:bg-white/5 rounded-full transition-all"
+                aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -4564,6 +4571,7 @@ export default function HumApp() {
                   type="button"
                   onClick={handleCloseFeedback}
                   className="absolute top-4 right-4 p-2 bg-white/5 hover:bg-white/10 rounded-full transition-all backdrop-blur-sm"
+                  aria-label="Close"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -4594,6 +4602,7 @@ export default function HumApp() {
                       disabled={isSendingGeneralFeedback || !feedbackText.trim()}
                       className="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl rounded-full border border-white/30 transition-all disabled:opacity-50 disabled:md:cursor-not-allowed shadow-lg hover:scale-105 flex items-center justify-center gap-2 min-w-[100px]"
                       title="Send feedback"
+                      aria-label="Send feedback"
                     >
                       {isSendingGeneralFeedback ? (
                         <span className="text-sm">Sending…</span>
@@ -4746,9 +4755,10 @@ export default function HumApp() {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close button */}
-              <button 
+              <button
                 onClick={handleCloseProfile}
                 className="absolute -top-4 -right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm border border-white/20"
+                aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -4794,6 +4804,7 @@ export default function HumApp() {
                           onClick={() => setNicknameInput('')}
                           className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full hover:bg-white/20 transition-all"
                           type="button"
+                          aria-label="Clear nickname"
                         >
                           <X className="w-3 h-3 text-white/60" />
                         </button>
@@ -4814,6 +4825,7 @@ export default function HumApp() {
                         iconInput === null ? 'bg-[#D8B5FE]/30 border-[#D8B5FE]' : 'border-white/20'
                       }`}
                       title="No icon"
+                      aria-label="No icon"
                     >
                       <XCircle className="w-5 h-5" />
                     </button>
@@ -5313,6 +5325,7 @@ export default function HumApp() {
                         onClick={searchByLyrics}
                         className="absolute right-5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 transition-all group"
                         title="Search"
+                        aria-label="Search"
                       >
                         <ArrowRight className="w-4 h-4 text-white/60 group-hover:text-purple-400 transition-colors" strokeWidth={2} />
                       </button>
@@ -5367,6 +5380,7 @@ export default function HumApp() {
                             onClick={(e) => toggleSearchBookmark(search, e)}
                             className="absolute right-20 top-1/2 -translate-y-1/2 p-2 hover:bg-white/10 rounded-full transition-all opacity-0 group-hover:opacity-100 z-10"
                             title="Bookmark"
+                            aria-label="Bookmark this search"
                           >
                             <Bookmark 
                               className={`w-4 h-4 transition-all duration-200 ${bookmarkAnimating ? 'animate-bookmark-pulse' : ''} ${
@@ -5545,9 +5559,10 @@ export default function HumApp() {
                     <h2 className="text-5xl font-bold tracking-wide">
                       {matchData?.[0]?.title || 'Unknown Song'}
                     </h2>
-                    <button 
+                    <button
                       onClick={toggleSave}
                       className="p-3 hover:bg-white/5 rounded-full transition-all group"
+                      aria-label={isSaved ? 'Remove from saved songs' : 'Save song'}
                     >
                       <Bookmark 
                         className={`w-6 h-6 transition-all duration-200 ${bookmarkAnimating ? 'animate-bookmark-pulse' : ''} ${isSaved ? 'text-white/40 group-hover:text-white/60' : 'text-white/40 group-hover:text-white/60'}`}
