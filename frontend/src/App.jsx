@@ -29,7 +29,6 @@ const getIconImage = (iconId) => {
 };
 
 // Log API URL for debugging (remove in production if needed)
-console.log('🌐 API Base URL:', API_BASE_URL);
 
 export default function HumApp() {
   const [isListening, setIsListening] = useState(false);
@@ -314,19 +313,16 @@ export default function HumApp() {
     // Nickname will be loaded from API when user logs in
     
     // Debug log
-    console.log('Pro Status:', proStatus, 'isPro:', isPro, 'searchCount:', searchCount, 'tier:', tier);
   }, []);
 
   const checkAuthStatus = async (token) => {
     try {
-      console.log('🔐 [checkAuthStatus] Starting auth check...');
       const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
       const data = await response.json();
-      console.log('🔐 [checkAuthStatus] Response:', { authenticated: data.authenticated, hasUser: !!data.user, hasRecentSearches: !!(data.user?.recentSearches?.length) });
       
       if (data.authenticated) {
         setUser(data.user);
@@ -357,13 +353,7 @@ export default function HumApp() {
         if (data.user.bookmarks && data.user.bookmarks.length > 0) {
           setSavedSongs(data.user.bookmarks);
         }
-        console.log('📚 [checkAuthStatus] Recent searches check:', { 
-          hasRecentSearches: !!(data.user.recentSearches?.length),
-          count: data.user.recentSearches?.length || 0,
-          raw: data.user.recentSearches 
-        });
         if (data.user.recentSearches && data.user.recentSearches.length > 0) {
-          console.log('📥 Raw recent searches from API:', data.user.recentSearches);
           // Transform database format to UI format
           const transformedSearches = data.user.recentSearches.map(search => {
             // Handle both database format (with result object) and UI format (direct properties)
@@ -391,18 +381,15 @@ export default function HumApp() {
             return hasSong || hasArtist; // Keep if at least one exists
           });
           
-          console.log('✨ Transformed recent searches:', transformedSearches);
           
           if (transformedSearches.length > 0) {
             setRecentSearches(transformedSearches);
             // Also save to localStorage as backup
             localStorage.setItem('hum-recent-searches', JSON.stringify(transformedSearches));
           } else {
-            console.warn('⚠️ All recent searches were filtered out - no valid entries');
             setRecentSearches([]);
           }
         } else {
-          console.log('📭 No recent searches in database');
           // Don't clear localStorage immediately - might have old data to preserve
           // Only set empty if we're sure there's nothing
           setRecentSearches([]);
@@ -582,7 +569,6 @@ export default function HumApp() {
           setSavedSongs(data.user.bookmarks);
         }
         if (data.user.recentSearches && data.user.recentSearches.length > 0) {
-          console.log('📥 Raw recent searches from API:', data.user.recentSearches);
           // Transform database format to UI format
           const transformedSearches = data.user.recentSearches.map(search => {
             // Handle both database format (with result object) and UI format (direct properties)
@@ -610,18 +596,15 @@ export default function HumApp() {
             return hasSong || hasArtist; // Keep if at least one exists
           });
           
-          console.log('✨ Transformed recent searches:', transformedSearches);
           
           if (transformedSearches.length > 0) {
             setRecentSearches(transformedSearches);
             // Also save to localStorage as backup
             localStorage.setItem('hum-recent-searches', JSON.stringify(transformedSearches));
           } else {
-            console.warn('⚠️ All recent searches were filtered out - no valid entries');
             setRecentSearches([]);
           }
         } else {
-          console.log('📭 No recent searches in database');
           // Don't clear localStorage immediately - might have old data to preserve
           // Only set empty if we're sure there's nothing
           setRecentSearches([]);
@@ -698,7 +681,6 @@ export default function HumApp() {
           setSavedSongs(data.user.bookmarks);
         }
         if (data.user.recentSearches && data.user.recentSearches.length > 0) {
-          console.log('📥 Raw recent searches from API:', data.user.recentSearches);
           // Transform database format to UI format
           const transformedSearches = data.user.recentSearches.map(search => {
             // Handle both database format (with result object) and UI format (direct properties)
@@ -726,18 +708,15 @@ export default function HumApp() {
             return hasSong || hasArtist; // Keep if at least one exists
           });
           
-          console.log('✨ Transformed recent searches:', transformedSearches);
           
           if (transformedSearches.length > 0) {
             setRecentSearches(transformedSearches);
             // Also save to localStorage as backup
             localStorage.setItem('hum-recent-searches', JSON.stringify(transformedSearches));
           } else {
-            console.warn('⚠️ All recent searches were filtered out - no valid entries');
             setRecentSearches([]);
           }
         } else {
-          console.log('📭 No recent searches in database');
           // Don't clear localStorage immediately - might have old data to preserve
           // Only set empty if we're sure there's nothing
           setRecentSearches([]);
@@ -794,12 +773,10 @@ export default function HumApp() {
   // Helper function to save recent searches to API
   const saveRecentSearchesToAPI = async (searches) => {
     if (!user) {
-      console.log('💾 [saveRecentSearchesToAPI] Skipping - user not logged in');
       return; // Only save if logged in
     }
     
     try {
-      console.log('💾 [saveRecentSearchesToAPI] Saving searches:', searches);
       const token = localStorage.getItem('hum-auth-token');
       // Convert UI format to database format
       const dbFormatSearches = searches.map(search => ({
@@ -814,7 +791,6 @@ export default function HumApp() {
         timestamp: search.timestamp ? new Date(search.timestamp) : new Date()
       }));
       
-      console.log('💾 [saveRecentSearchesToAPI] Converted to DB format:', dbFormatSearches);
       
       const response = await fetch(`${API_BASE_URL}/api/user/recent-searches`, {
         method: 'PUT',
@@ -826,7 +802,6 @@ export default function HumApp() {
       });
       
       const result = await response.json();
-      console.log('💾 [saveRecentSearchesToAPI] API response:', result);
       
       if (!response.ok) {
         throw new Error(result.error || 'Failed to save recent searches');
@@ -1605,7 +1580,6 @@ export default function HumApp() {
         for (const type of possibleTypes) {
           if (MediaRecorder.isTypeSupported(type)) {
             mimeType = type;
-            console.log('📱 iOS detected, using mimeType:', mimeType);
             break;
           }
         }
@@ -1620,9 +1594,6 @@ export default function HumApp() {
         }
       }
       
-      console.log('🎤 Creating MediaRecorder with mimeType:', mimeType);
-      console.log('   Stream active:', stream.active);
-      console.log('   Audio tracks:', stream.getAudioTracks().length);
       
       // Check if MediaRecorder is supported
       if (!window.MediaRecorder) {
@@ -1637,9 +1608,7 @@ export default function HumApp() {
       } catch (recorderError) {
         console.error('❌ Failed to create MediaRecorder:', recorderError);
         // Try without mimeType specification
-        console.log('   Trying without mimeType specification...');
         mediaRecorder = new MediaRecorder(stream);
-        console.log('   Using default mimeType:', mediaRecorder.mimeType);
       }
       
       mediaRecorder.onerror = (event) => {
@@ -1654,7 +1623,6 @@ export default function HumApp() {
       };
       
       mediaRecorder.ondataavailable = (event) => {
-        console.log('📦 Data available:', event.data.size, 'bytes');
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
         }
@@ -1663,7 +1631,6 @@ export default function HumApp() {
       mediaRecorder.onstop = async () => {
         // Check if recording was cancelled
         if (mediaRecorder._cancelled) {
-          console.log('🎤 Recording cancelled by user');
           stream.getTracks().forEach(track => {
             track.stop();
           });
@@ -1681,27 +1648,18 @@ export default function HumApp() {
           type: blobType
         });
         
-        console.log('🎤 Recording stopped');
-        console.log('   Audio chunks:', audioChunksRef.current.length);
-        console.log('   Total chunks size:', audioChunksRef.current.reduce((sum, chunk) => sum + chunk.size, 0), 'bytes');
-        console.log('   Blob size:', blob.size, 'bytes');
-        console.log('   Blob type:', blob.type);
-        console.log('   MediaRecorder state:', mediaRecorder.state);
         
         stream.getTracks().forEach(track => {
           track.stop();
-          console.log('   Track stopped:', track.kind, track.readyState);
         });
         
         // Check actual recording duration (avoid calling API for very short recordings)
         const startTime = mediaRecorder._startTime || recordingStartTime;
         if (startTime) {
           const recordingDurationMs = Date.now() - startTime;
-          console.log('   Recording duration (ms):', recordingDurationMs);
           
           const minDurationMs = 5000; // Require at least 5 seconds of audio before calling API
           if (recordingDurationMs < minDurationMs) {
-            console.warn('❌ Recording too short, skipping ACRCloud call');
             setError('Recording was too short. Please hum for at least 5 seconds and try again.');
             setIsProcessing(false);
             setIsListening(false);
@@ -1713,11 +1671,9 @@ export default function HumApp() {
           // Also check for near-silence: long duration but almost no actual input
           const durationSeconds = recordingDurationMs / 1000;
           const bytesPerSecond = blob.size / Math.max(durationSeconds, 0.001);
-          console.log('   Approx bytes per second:', bytesPerSecond.toFixed(2));
           
           const MIN_BYTES_PER_SECOND = 1500; // heuristic threshold for "real" audio vs near-silence
           if (bytesPerSecond < MIN_BYTES_PER_SECOND) {
-            console.warn('❌ Recording appears silent/too quiet, skipping ACRCloud call');
             setError("We couldn't hear enough audio to recognize the song. Please hum or sing closer to the mic and try again.");
             setIsProcessing(false);
             setIsListening(false);
@@ -1747,15 +1703,14 @@ export default function HumApp() {
       
       // For iOS, try starting without timeslice first, then request data
       if (isIOS) {
-        console.log('📱 iOS: Starting MediaRecorder without timeslice');
         mediaRecorder.start();
         // Request data periodically for iOS
         dataInterval = setInterval(() => {
           if (mediaRecorder.state === 'recording') {
             try {
               mediaRecorder.requestData();
-            } catch (e) {
-              console.warn('Could not request data:', e);
+            } catch {
+              // ignore - not all browsers support requestData mid-recording
             }
           } else {
             if (dataInterval) clearInterval(dataInterval);
@@ -1804,9 +1759,6 @@ export default function HumApp() {
     setIsProcessing(true);
     setError(null);
     try {
-      console.log('🎤 identifySong called');
-      console.log('   Blob size:', audioBlob.size, 'bytes');
-      console.log('   Blob type:', audioBlob.type);
       
       if (!audioBlob || audioBlob.size < 100) {
         throw new Error('Invalid audio recording. Please try again.');
@@ -1817,19 +1769,13 @@ export default function HumApp() {
       const extension = audioBlob.type.includes('mp4') ? 'mp4' : 
                        audioBlob.type.includes('aac') ? 'aac' : 'webm';
       formData.append('audio', audioBlob, `recording.${extension}`);
-      
-      // Verify FormData
-      console.log('   FormData created, checking audio field...');
-      const audioField = formData.get('audio');
-      console.log('   Audio field in FormData:', audioField ? `${audioField.size} bytes` : 'MISSING');
-      
+
       const token = localStorage.getItem('hum-auth-token');
       const headers = {};
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
       
-      console.log('🎤 Sending request to:', `${API_BASE_URL}/api/identify`);
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
@@ -1851,7 +1797,6 @@ export default function HumApp() {
         throw new Error(`Server error: ${response.status} ${response.statusText}`);
       }
       
-      console.log('✅ Response received:', data);
       
       if (!response.ok) {
         console.error('❌ Response not OK:', response.status, response.statusText, data);
@@ -1948,7 +1893,6 @@ export default function HumApp() {
         headers['Authorization'] = `Bearer ${token}`;
       }
       
-      console.log('🔍 Sending lyrics search to:', `${API_BASE_URL}/api/search-lyrics`);
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
@@ -1970,7 +1914,6 @@ export default function HumApp() {
         throw new Error(`Server error: ${response.status} ${response.statusText}`);
       }
       
-      console.log('✅ Lyrics search response:', data);
       
       if (!response.ok) {
         console.error('❌ Response not OK:', response.status, response.statusText, data);
@@ -2003,7 +1946,6 @@ export default function HumApp() {
       if (data.success && data.songs && data.songs.length > 0) {
         // Check if we have multiple interpretations
         if (data.hasMultipleInterpretations && data.alternativeResults) {
-          console.log('Multiple interpretations available:', data);
           
           // Combine both result sets with labels
           const combinedResults = [
@@ -2532,7 +2474,7 @@ export default function HumApp() {
 
         if (data.success && data.url) {
           // Backend sends amountCents/displayPrice so we can verify correct $3/$30 before redirect
-          if (data.displayPrice) console.log('💳 Checkout amount:', data.displayPrice, data.amountCents ? `(${data.amountCents} cents)` : '');
+          if (data.displayPrice) 
           window.location.href = data.url;
         } else if (data.success && data.upgraded) {
           // Existing subscription was upgraded in place (no Checkout redirect)

@@ -48,6 +48,12 @@ FRONTEND_URL=[update after deploying frontend on Vercel]
 ```
 *Example: `https://hum-app.vercel.app`*
 
+### Admin Endpoints
+```
+ADMIN_SECRET=[generate with: openssl rand -base64 32]
+```
+*Required to call `/api/admin/*` routes. Pass it as the `x-admin-secret` request header.*
+
 ---
 
 ## How to Add in Render
@@ -73,6 +79,7 @@ FRONTEND_URL=[update after deploying frontend on Vercel]
 - [ ] RESEND_API_KEY
 - [ ] RESEND_FROM_EMAIL (optional - for production)
 - [ ] FRONTEND_URL (update after deploying frontend)
+- [ ] ADMIN_SECRET (for /api/admin/* routes)
 
 ## Important Notes
 

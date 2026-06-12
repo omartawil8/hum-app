@@ -82,5 +82,9 @@ const userSchema = new mongoose.Schema({
   }]
 });
 
+userSchema.index({ tier: 1 });
+userSchema.index({ searchCount: 1 });
+userSchema.index({ stripeSubscriptionId: 1 });
+
 module.exports = mongoose.model('User', userSchema);
 

@@ -10,7 +10,10 @@ const fs = require('fs');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const { Resend } = require('resend');
 require('dotenv').config();
+
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 // Import models
 const User = require('./models/User');
@@ -117,7 +120,11 @@ async function validateStripeAvidPrices() {
 // =========================
 // AUTHENTICATION & USER STORAGE
 // =========================
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+if (!process.env.JWT_SECRET) {
+  console.error('❌ JWT_SECRET environment variable is not set. Refusing to start.');
+  process.exit(1);
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Check if MongoDB is connected
 function isMongoConnected() {
@@ -142,6 +149,15 @@ function authenticateToken(req, res, next) {
     req.user = user;
     next();
   });
+}
+
+// Middleware to protect /api/admin/* routes with a shared secret header
+function requireAdminSecret(req, res, next) {
+  const provided = req.headers['x-admin-secret'];
+  if (!process.env.ADMIN_SECRET || provided !== process.env.ADMIN_SECRET) {
+    return res.status(403).json({ success: false, error: 'Forbidden' });
+  }
+  next();
 }
 
 // Track anonymous searches by IP or device ID
@@ -226,9 +242,7 @@ async function checkSearchLimit(req, res, next) {
 // Send welcome email function
 async function sendWelcomeEmail(email, remainingSearches) {
   try {
-    const { Resend } = require('resend');
-    
-    if (!process.env.RESEND_API_KEY) {
+    if (!resend) {
       console.error('   ⚠️  EMAIL NOT CONFIGURED - Welcome email skipped');
       console.error('   📧 Missing: RESEND_API_KEY');
       console.error('   💡 Set this environment variable in your deployment platform (Render)');
@@ -238,8 +252,6 @@ async function sendWelcomeEmail(email, remainingSearches) {
 
     console.log(`   📧 Attempting to send welcome email to: ${email}`);
     console.log(`   📧 Using Resend email service`);
-
-    const resend = new Resend(process.env.RESEND_API_KEY);
 
     const welcomeHtml = `
       <!DOCTYPE html>
@@ -644,6 +656,12 @@ app.get('/api/auth/google/callback', async (req, res) => {
 
       await user.save();
       console.log(`✅ Google OAuth user created: ${user._id}`);
+      // Send welcome email for new Google signups (don't wait)
+      const remainingSearches = 3 - initialSearchCount;
+      console.log(`📧 Triggering welcome email for ${user.email}...`);
+      sendWelcomeEmail(user.email, remainingSearches).catch(err => {
+        console.error('📧 Welcome email promise rejection:', err.message);
+      });
     }
 
     // Generate JWT token
@@ -1882,10 +1900,12 @@ app.post('/api/identify', upload.single('audio'), authenticateToken, checkSearch
         console.log(`     Score: ${match.adjustedScore.toFixed(2)} | ISRC: ${match.external_ids?.isrc || 'none'}`);
       });
       
-      console.log(`\n🎵 Fetching Spotify data for ALL ${rankedMatches.length} matches...`);
-      
-      // Process ALL matches, not just top 5
-      const spotifyPromises = rankedMatches.map(async (match) => {
+      // Cap how many matches we enrich with Spotify lookups to bound API calls/latency
+      const MAX_SPOTIFY_ENRICHMENT_MATCHES = 10;
+      const matchesToEnrich = rankedMatches.slice(0, MAX_SPOTIFY_ENRICHMENT_MATCHES);
+      console.log(`\n🎵 Fetching Spotify data for top ${matchesToEnrich.length} of ${rankedMatches.length} matches...`);
+
+      const spotifyPromises = matchesToEnrich.map(async (match) => {
         let spotifyData = null;
         
         if (match.external_ids?.isrc) {
@@ -2190,7 +2210,7 @@ app.post('/api/feedback', upload.single('audio'), async (req, res) => {
     }
     
     const filepath = path.join(dir, filename);
-    fs.writeFileSync(filepath, req.file.buffer);
+    await fs.promises.writeFile(filepath, req.file.buffer);
     console.log(`💾 Saved feedback audio: ${filename}`);
     
     res.json({ success: true, message: 'Thanks for the feedback!' });
@@ -2241,6 +2261,8 @@ app.post('/api/general-feedback', authenticateToken, async (req, res) => {
 
     // Send feedback email. Prefer Resend (HTTPS, no SMTP timeout on Render).
     // If feedback contains a Spotify track link, fetch track and show album art thumbnail in email.
+    // FEEDBACK_EMAIL_TO defaults to hummmteam@gmail.com. Until you verify a domain in Resend, set it to
+    // your Resend account email (e.g. omar.tawil10@gmail.com) so Resend allows sending.
     const sendFeedbackEmail = async () => {
       const to = process.env.FEEDBACK_EMAIL_TO || 'hummmteam@gmail.com';
       const subject = `hüm App Feedback - ${new Date().toLocaleDateString()}`;
@@ -2290,10 +2312,8 @@ app.post('/api/general-feedback', authenticateToken, async (req, res) => {
         <p><strong>Timestamp:</strong> ${new Date(timestamp).toLocaleString()}</p>
       `;
 
-      if (process.env.RESEND_API_KEY) {
+      if (resend) {
         try {
-          const { Resend } = require('resend');
-          const resend = new Resend(process.env.RESEND_API_KEY);
           const from = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
           const { data, error } = await resend.emails.send({
             from: `hüm feedback <${from}>`,
@@ -2352,10 +2372,8 @@ app.post('/api/general-feedback', authenticateToken, async (req, res) => {
 // Test feedback email config (requires sign-in). Uses Resend if set, else Gmail SMTP.
 app.post('/api/feedback-email-test', authenticateToken, async (req, res) => {
   const to = process.env.FEEDBACK_EMAIL_TO || 'hummmteam@gmail.com';
-  if (process.env.RESEND_API_KEY) {
+  if (resend) {
     try {
-      const { Resend } = require('resend');
-      const resend = new Resend(process.env.RESEND_API_KEY);
       const from = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
       const { error } = await resend.emails.send({
         from: `hüm feedback <${from}>`,
@@ -2881,7 +2899,7 @@ app.post('/api/payments/cancel-subscription', authenticateToken, async (req, res
 });
 
 // Send welcome email to existing user (admin endpoint)
-app.post('/api/admin/send-welcome-email', async (req, res) => {
+app.post('/api/admin/send-welcome-email', requireAdminSecret, async (req, res) => {
   try {
     const { email } = req.body;
     
@@ -2913,7 +2931,7 @@ app.post('/api/admin/send-welcome-email', async (req, res) => {
 });
 
 // Delete user by email (admin endpoint)
-app.post('/api/admin/delete-user', async (req, res) => {
+app.post('/api/admin/delete-user', requireAdminSecret, async (req, res) => {
   try {
     const { email } = req.body;
     
@@ -2945,7 +2963,7 @@ app.post('/api/admin/delete-user', async (req, res) => {
 });
 
 // Test Resend email configuration (admin endpoint)
-app.post('/api/admin/test-email', async (req, res) => {
+app.post('/api/admin/test-email', requireAdminSecret, async (req, res) => {
   try {
     const { email } = req.body;
     
