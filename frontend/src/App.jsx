@@ -2564,12 +2564,17 @@ export default function HumApp() {
     <div
       className={`min-h-screen text-white relative overflow-hidden main-background ${isPageLoaded ? 'page-fade-in' : 'opacity-0'}`}
       style={{
-        // Solid dark background with subtle grey dot grid, no lavender or interaction
-        background: '#000000',
-        backgroundImage: `radial-gradient(circle, rgba(148, 163, 184, 0) 1px, transparent 1px)`,
-        backgroundSize: '32px 32px',
+        // Warm near-black canvas with a soft lavender glow up top, faint amber at the corner,
+        // and a barely-there dot grid for texture
+        backgroundColor: '#0D0B10',
+        backgroundImage: `
+          radial-gradient(ellipse 90% 55% at 50% -12%, rgba(216, 181, 254, 0.09), transparent),
+          radial-gradient(ellipse 60% 45% at 92% 108%, rgba(255, 176, 130, 0.05), transparent),
+          radial-gradient(circle, rgba(216, 181, 254, 0.045) 1px, transparent 1px)
+        `,
+        backgroundSize: '100% 100%, 100% 100%, 32px 32px',
         backgroundPosition: '0 0',
-        backgroundAttachment: 'fixed'
+        backgroundAttachment: 'fixed, fixed, fixed'
       }}
       onMouseMove={(e) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -2951,6 +2956,54 @@ export default function HumApp() {
         .recent-search-item:hover,
         .bookmark-item:hover {
           border-color: #D8B5FE !important;
+        }
+
+        /* Cards gently lift toward the cursor on hover */
+        .song-item,
+        .recent-search-item,
+        .bookmark-item {
+          transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, background-color 0.2s ease;
+        }
+        .song-item:hover,
+        .recent-search-item:hover {
+          transform: translateY(-3px);
+        }
+
+        /* Every button compresses slightly on press — uses the standalone scale
+           property so it composes with existing transforms instead of clobbering them */
+        button:active {
+          scale: 0.97;
+        }
+        button {
+          transition: scale 0.12s ease;
+        }
+
+        /* Hand-drawn squiggle underline draws itself in under the headline */
+        .squiggle-draw {
+          stroke-dasharray: 100;
+          stroke-dashoffset: 100;
+          animation: squiggleDraw 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.6s forwards;
+        }
+        @keyframes squiggleDraw {
+          to { stroke-dashoffset: 0; }
+        }
+
+        /* Lyrics input glows softly when focused */
+        input.lyrics-input-smooth:focus {
+          box-shadow: 0 0 0 1px rgba(216, 181, 254, 0.35), 0 0 28px rgba(216, 181, 254, 0.12);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .bg-particle,
+          .squiggle-draw,
+          .blob-animate-1,
+          .blob-animate-2,
+          .blob-animate-3 {
+            animation: none !important;
+          }
+          .squiggle-draw {
+            stroke-dashoffset: 0;
+          }
         }
 
         /* Animated blob keyframes - organic, large movements with subtle fade */
@@ -3493,6 +3546,29 @@ export default function HumApp() {
         .bg-particle-24 { animation: bgParticleFloat24 28s ease-in-out infinite; }
         .bg-particle-25 { animation: bgParticleFloat25 32s ease-in-out infinite; }
         .bg-particle-26 { animation: bgParticleFloat26 26s ease-in-out infinite; }
+
+        /* A few particles become four-pointed stars that twinkle (still cursor-repelled) */
+        .bg-particle-5,
+        .bg-particle-12,
+        .bg-particle-19,
+        .bg-particle-24 {
+          width: 9px;
+          height: 9px;
+          border-radius: 0;
+          filter: none;
+          box-shadow: none;
+          background: #EDE4FF;
+          clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
+        }
+        .bg-particle-5  { animation: bgParticleFloat5 27s ease-in-out infinite, starTwinkle 3.4s ease-in-out infinite; }
+        .bg-particle-12 { animation: bgParticleFloat12 22s ease-in-out infinite, starTwinkle 4.2s ease-in-out infinite 0.8s; }
+        .bg-particle-19 { animation: bgParticleFloat19 34s ease-in-out infinite, starTwinkle 3.8s ease-in-out infinite 1.6s; }
+        .bg-particle-24 { animation: bgParticleFloat24 28s ease-in-out infinite, starTwinkle 4.6s ease-in-out infinite 2.4s; }
+
+        @keyframes starTwinkle {
+          0%, 100% { opacity: 0.35; }
+          50% { opacity: 1; }
+        }
 
         @keyframes bgParticleFloat1 {
           0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
@@ -4236,7 +4312,7 @@ export default function HumApp() {
               
               {/* Modal */}
               <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-3xl p-6 max-w-xl w-full max-h-[90vh] border border-white/20 shadow-2xl overflow-y-auto">
-                <h2 className="text-3xl font-bold text-center mb-6">wanna keep humming?</h2>
+                <h2 className="font-display italic text-4xl text-center mb-6">wanna keep humming?</h2>
 
                 {/* Billing Period Toggle - Subtle with savings indicator */}
                 <div className="flex items-center justify-center mb-4">
@@ -5048,8 +5124,29 @@ export default function HumApp() {
                   pointerEvents: (!hasResult && !isClosingResults) ? 'auto' : 'none'
                 }}
               >
-                <h1 className="text-5xl font-bold text-white text-center mb-12 mt-20">
-                  tap to <span style={{ color: '#D8B5FE' }}>hüm</span>mm
+                <h1 className="text-4xl sm:text-5xl md:text-6xl text-white text-center mb-12 mt-36 md:mt-20">
+                  <span className="font-bold tracking-tight">tap to</span>{' '}
+                  <span className="relative inline-block font-display italic" style={{ color: '#D8B5FE' }}>
+                    hümmm
+                    <svg
+                      className="absolute left-0 w-full"
+                      style={{ bottom: '-0.18em', height: '0.22em' }}
+                      viewBox="0 0 120 12"
+                      fill="none"
+                      preserveAspectRatio="none"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M3 8 Q 13 3, 26 7 T 50 7 T 74 7 T 98 7 T 117 6"
+                        stroke="#D8B5FE"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        fill="none"
+                        pathLength="100"
+                        className="squiggle-draw"
+                      />
+                    </svg>
+                  </span>
                 </h1>
 
                 <button
@@ -5166,7 +5263,11 @@ export default function HumApp() {
                   </div>
                 )}
 
-                <p className="text-2xl text-white/80 mb-6">or</p>
+                <div className="flex items-center gap-4 mb-6 w-full max-w-[220px]">
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent to-white/25"></div>
+                  <span className="font-display italic text-2xl text-white/70">or</span>
+                  <div className="flex-1 h-px bg-gradient-to-l from-transparent to-white/25"></div>
+                </div>
 
                 <div className="w-full max-w-md mb-16">
                   <div className="relative group">
@@ -5402,7 +5503,7 @@ export default function HumApp() {
                 </div>
 
                 <div className="w-full max-w-md">
-                  <h2 className="text-lg font-bold text-white mb-4">recent searches</h2>
+                  <h2 className="font-display italic text-2xl text-white mb-4">recent searches</h2>
                   <div className="space-y-3">
                     {(() => {
                       // Check if user has a token (might be logged in but user state not set yet)
@@ -5498,7 +5599,7 @@ export default function HumApp() {
 
                 {/* Support Button */}
                 <div className="w-full max-w-md mt-12 text-center">
-                  <p className="text-white/60 mb-4">enjoying <span style={{ color: '#D8B5FE' }}>hüm</span>?</p>
+                  <p className="font-display italic text-xl text-white/60 mb-4">enjoying <span style={{ color: '#D8B5FE' }}>hüm</span>?</p>
                   <a
                     href="https://ko-fi.com/otizzle"
                     target="_blank"
@@ -5578,7 +5679,7 @@ export default function HumApp() {
                   </div>
                 </button>
                 
-                <h2 className="text-3xl font-bold mb-4 text-center">listening...</h2>
+                <h2 className="font-display italic text-4xl mb-4 text-center">listening...</h2>
                 <p className="text-white/60 text-center mb-8">hum, sing, or play a melody clearly</p>
                 
                 <div className="w-64 bg-white/5 rounded-full h-2 overflow-hidden">
@@ -5631,7 +5732,7 @@ export default function HumApp() {
               >
                 <div className="text-center mb-12">
                   <div className="flex items-center justify-center gap-4 mb-4">
-                    <h2 className="text-5xl font-bold tracking-wide">
+                    <h2 className="font-display text-5xl md:text-6xl tracking-tight">
                       {matchData?.[0]?.title || 'Unknown Song'}
                     </h2>
                     <button
@@ -5837,7 +5938,7 @@ export default function HumApp() {
 
                 {/* Support Button - Results Page */}
                 <div className="w-full mt-8 text-center">
-                  <p className="text-white/60 mb-4">enjoying <span style={{ color: '#D8B5FE' }}>hüm</span>?</p>
+                  <p className="font-display italic text-xl text-white/60 mb-4">enjoying <span style={{ color: '#D8B5FE' }}>hüm</span>?</p>
                   <a
                     href="https://ko-fi.com/otizzle"
                     target="_blank"

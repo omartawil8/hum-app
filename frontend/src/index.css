@@ -31,11 +31,42 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #000000;
+  background: #0D0B10;
   background-attachment: fixed;
   color: #fff;
   position: relative;
   overflow-x: hidden;
+}
+
+/* Editorial serif for display moments (headlines, song titles) */
+.font-display {
+  font-family: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+}
+
+/* Warm lavender text selection */
+::selection {
+  background: rgba(216, 181, 254, 0.35);
+  color: #fff;
+}
+
+/* Slim, quiet scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(216, 181, 254, 0.2) transparent;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(216, 181, 254, 0.18);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(216, 181, 254, 0.32);
 }
 
 #root {
