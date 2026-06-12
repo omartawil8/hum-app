@@ -4,6 +4,7 @@ import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, 
 import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
 import avidListenerIcon from './assets/Avid_Listener.png';
+import eatBreathMusicIcon from './assets/eat-breath-music.png';
 // Import pixel art icons - make sure these files exist in frontend/src/assets/
 import crownIcon from './assets/crown.png';
 import potionIcon from './assets/potion.png';
@@ -74,6 +75,7 @@ export default function HumApp() {
   const [isPro, setIsPro] = useState(false);
   const [userTier, setUserTier] = useState('free'); // 'free', 'avid'
   const [showAvidInfo, setShowAvidInfo] = useState(false);
+  const [showUnlimitedInfo, setShowUnlimitedInfo] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [isCancelingSubscription, setIsCancelingSubscription] = useState(false);
   const [billingPeriod, setBillingPeriod] = useState('monthly'); // 'monthly' or 'yearly'
@@ -475,10 +477,10 @@ export default function HumApp() {
       if (verifyData.success) {
         // Refresh user data
         await checkAuthStatus(token);
-        
-        const tierName = 'Avid Listener';
-        const limit = '100 searches/month';
-        
+
+        const tierName = verifyData.tier === 'unlimited' ? 'eat, breath, music' : 'avid listener';
+        const limit = verifyData.tier === 'unlimited' ? 'unlimited searches' : '100 searches/month';
+
         showToast(`welcome to ${tierName}! you now have ${limit}`, 'success');
       } else {
         // Fallback: check payment status
@@ -492,8 +494,8 @@ export default function HumApp() {
         
         if (data.hasActiveSubscription) {
           await checkAuthStatus(token);
-          const tierName = 'Avid Listener';
-          const limit = '100 searches/month';
+          const tierName = data.tier === 'unlimited' ? 'eat, breath, music' : 'avid listener';
+          const limit = data.tier === 'unlimited' ? 'unlimited searches' : '100 searches/month';
           showToast(`welcome to ${tierName}! you now have ${limit}`, 'success');
         }
       }
@@ -1583,6 +1585,10 @@ export default function HumApp() {
   };
 
   const checkSearchLimit = () => {
+    if (userTier === 'unlimited') {
+      // Eat, Breath, Music: no limits
+      return true;
+    }
     if (userTier === 'avid') {
       // Avid Listener: 100 searches per month
       if (searchCount >= AVID_LISTENER_LIMIT) {
@@ -2523,8 +2529,8 @@ export default function HumApp() {
   const handleContinueUpgrade = async () => {
     // This is where the actual payment happens
     if (selectedPlan) {
-      const tier = 'avid'; // Only Avid Listener tier available
-      
+      const tier = selectedPlan === 'Eat, Breath, Music' ? 'unlimited' : 'avid';
+
       try {
         const token = localStorage.getItem('hum-auth-token');
         if (!token) {
@@ -2557,7 +2563,7 @@ export default function HumApp() {
           window.location.href = data.url;
         } else if (data.success && data.upgraded) {
           // Existing subscription was upgraded in place (no Checkout redirect)
-          showToast('your subscription has been upgraded to avid listener', 'success');
+          showToast(`your subscription has been upgraded to ${tier === 'unlimited' ? 'eat, breath, music' : 'avid listener'}`, 'success');
           await checkAuthStatus(token);
           handleCloseUpgrade();
         } else {
@@ -4230,10 +4236,17 @@ export default function HumApp() {
             </span>
             <span className="text-sm text-purple-300 font-semibold hidden group-hover:inline-flex items-center gap-1">
               <Star className="w-3.5 h-3.5 fill-purple-300" />
-              upgrade to avid listener
+              upgrade your plan
               <Star className="w-3.5 h-3.5 fill-purple-300" />
             </span>
           </button>
+        ) : userTier === 'unlimited' ? (
+          <div className="px-4 py-2 bg-[#D8B5FE]/10 backdrop-blur-sm border border-[#D8B5FE]/30 rounded-full">
+            <span className="text-sm text-[#D8B5FE] font-semibold inline-flex items-center gap-1.5">
+              <span className="select-none" aria-hidden="true">✦</span>
+              eat, breath, music — unlimited
+            </span>
+          </div>
         ) : null}
           </div>,
           document.body
@@ -4457,7 +4470,7 @@ export default function HumApp() {
                   {billingPeriod === 'yearly' ? 'billed annually' : 'billed monthly'}
                 </p>
 
-                <div className="flex justify-center max-w-md mx-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
                   {/* Avid Listener Plan */}
                   <button
                     onClick={() => handleSelectPlan('Avid Listener')}
@@ -4535,20 +4548,20 @@ export default function HumApp() {
                       </div>
 
                       {/* Character illustration */}
-                      <div className={`relative h-52 flex items-center justify-center mb-4 ${
+                      <div className={`relative h-40 flex items-center justify-center mb-4 ${
                         selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-50'
                       }`}>
-                        <img 
-                          src={avidListenerIcon} 
-                          alt="avid listener" 
+                        <img
+                          src={avidListenerIcon}
+                          alt="avid listener"
                           className="w-full h-full object-contain drop-shadow-2xl relative z-10"
                         />
                         {/* Stars decoration */}
                         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                          <Star className="absolute top-2 left-4 w-5 h-5 text-yellow-400 fill-yellow-400 opacity-80" style={{ zIndex: 1 }} />
-                          <Star className="absolute top-6 right-8 w-4 h-4 text-yellow-400 fill-yellow-400 opacity-60" style={{ zIndex: 1 }} />
-                          <Star className="absolute bottom-8 left-4 w-4 h-4 text-yellow-400 fill-yellow-400 opacity-70" style={{ zIndex: 1 }} />
-                          <Star className="absolute top-12 right-4 w-3 h-3 text-yellow-400 fill-yellow-400 opacity-50" style={{ zIndex: 1 }} />
+                          <Star className="absolute top-2 left-4 w-5 h-5 text-[#D8B5FE] fill-[#D8B5FE] opacity-80" style={{ zIndex: 1 }} />
+                          <Star className="absolute top-6 right-8 w-4 h-4 text-[#D8B5FE] fill-[#D8B5FE] opacity-60" style={{ zIndex: 1 }} />
+                          <Star className="absolute bottom-8 left-4 w-4 h-4 text-[#D8B5FE] fill-[#D8B5FE] opacity-70" style={{ zIndex: 1 }} />
+                          <Star className="absolute top-12 right-4 w-3 h-3 text-[#D8B5FE] fill-[#D8B5FE] opacity-50" style={{ zIndex: 1 }} />
                         </div>
                       </div>
 
@@ -4556,7 +4569,7 @@ export default function HumApp() {
                       <div className={`text-center ${
                         selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-60'
                       }`}>
-                        <h3 className="text-lg font-bold">avid listener</h3>
+                        <h3 className="font-display italic text-xl">avid listener</h3>
                         <p className="text-xs text-[#D8B5FE]/80 mt-1">100 searches per month</p>
                         {userTier === 'avid' && (
                           <p className="text-xs text-white/50 mt-2 flex items-center justify-center gap-1">
@@ -4566,6 +4579,110 @@ export default function HumApp() {
                             </span>
                           </p>
                         )}
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* Eat, Breath, Music Plan */}
+                  <button
+                    onClick={() => handleSelectPlan('Eat, Breath, Music')}
+                    className={`relative group rounded-2xl overflow-visible transition-transform duration-300 w-full ${
+                      selectedPlan === 'Eat, Breath, Music'
+                        ? 'scale-[1.025]'
+                        : 'hover:scale-[1.025] opacity-60'
+                    }`}
+                  >
+                    {/* Card background */}
+                    <div className={`absolute inset-0 bg-gradient-to-br from-black/30 via-gray-900/20 to-black/25 backdrop-blur-sm rounded-2xl ${
+                      selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-50'
+                    }`}></div>
+                    <div className={`relative rounded-2xl p-4 border-2 transition-all duration-300 ${
+                      selectedPlan === 'Eat, Breath, Music'
+                        ? 'border-[#D8B5FE] shadow-[0_0_0_2px_rgba(216,181,254,0.5)]'
+                        : 'border-[#D8B5FE]/20 hover:border-[#D8B5FE]/40'
+                    }`}>
+                      {/* Current plan badge */}
+                      {userTier === 'unlimited' && billingPeriod === 'monthly' && (
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white border border-white/25 text-[10px] font-semibold uppercase tracking-wide text-gray-900 backdrop-blur-md z-20">
+                          current plan
+                      </div>
+                      )}
+                      {/* Star badge - only show for yearly */}
+                      {billingPeriod === 'yearly' && (
+                        <div className={`absolute top-4 left-4 ${
+                          selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-40'
+                        }`}>
+                          <Star className="w-5 h-5 text-[#D8B5FE] fill-[#D8B5FE]" />
+                        </div>
+                      )}
+
+                      {/* Info icon */}
+                      <div
+                        className="absolute top-4 right-4 group/info"
+                        onMouseEnter={() => setShowUnlimitedInfo(true)}
+                        onMouseLeave={() => setShowUnlimitedInfo(false)}
+                      >
+                        <div className="w-5 h-5 rounded-full border border-white/30 flex items-center justify-center cursor-help hover:border-white/50 transition-colors">
+                          <Info className="w-3.5 h-3.5 text-white/60" />
+                        </div>
+
+                        {/* Tooltip */}
+                        <div className={`absolute top-6 right-0 w-48 bg-black/95 backdrop-blur-xl rounded-xl p-3 border border-[#D8B5FE]/40 shadow-2xl z-30 transition-all duration-300 ${
+                          showUnlimitedInfo
+                            ? 'opacity-100 translate-y-0 pointer-events-auto'
+                            : 'opacity-0 -translate-y-2 pointer-events-none'
+                        }`}>
+                          <p className="text-sm text-white/90 leading-relaxed">
+                            <span className="text-[#D8B5FE] font-semibold">unlimited searches,</span> for those who live and breathe music!
+                            </p>
+                          </div>
+                      </div>
+
+                      {/* Price */}
+                      <div className={`text-center mt-2 mb-4 ${
+                        selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-60'
+                      }`}>
+                        {billingPeriod === 'monthly' ? (
+                          <div className="text-4xl font-bold mb-1">$5<span className="text-xl text-white/60">/month</span></div>
+                        ) : (
+                          <div>
+                            <div className="text-4xl font-bold mb-1">
+                              $4.17<span className="text-xl text-white/60">/month</span>
+                            </div>
+                            <div className="text-xs text-white/40 mt-1">billed as $50/year</div>
+                            <div className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 bg-green-500/20 border border-green-500/30 rounded-full">
+                              <span className="text-[10px] font-semibold text-green-400">
+                                Save $10/year
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Character illustration */}
+                      <div className={`relative h-40 flex items-center justify-center mb-4 ${
+                        selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-50'
+                      }`}>
+                        <img
+                          src={eatBreathMusicIcon}
+                          alt="eat, breath, music"
+                          className="w-full h-full object-contain drop-shadow-2xl relative z-10"
+                        />
+                        {/* Stars decoration */}
+                        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                          <Star className="absolute top-2 right-4 w-5 h-5 text-[#D8B5FE] fill-[#D8B5FE] opacity-80" style={{ zIndex: 1 }} />
+                          <Star className="absolute top-8 left-6 w-4 h-4 text-[#D8B5FE] fill-[#D8B5FE] opacity-60" style={{ zIndex: 1 }} />
+                          <Star className="absolute bottom-6 right-6 w-4 h-4 text-[#D8B5FE] fill-[#D8B5FE] opacity-70" style={{ zIndex: 1 }} />
+                          <Star className="absolute top-14 left-3 w-3 h-3 text-[#D8B5FE] fill-[#D8B5FE] opacity-50" style={{ zIndex: 1 }} />
+                        </div>
+                      </div>
+
+                      {/* Plan name */}
+                      <div className={`text-center ${
+                        selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-60'
+                      }`}>
+                        <h3 className="font-display italic text-xl">eat, breath, music</h3>
+                        <p className="text-xs text-[#D8B5FE]/80 mt-1">unlimited searches</p>
                       </div>
                     </div>
                   </button>
@@ -4591,11 +4708,8 @@ export default function HumApp() {
                     {/* Checkout button */}
                     <div className="flex flex-col gap-3 px-1 py-1">
                       {(() => {
-                        const isAvidMonthlyCurrent =
-                          userTier === 'avid' &&
-                          billingPeriod === 'monthly' &&
-                          selectedPlan === 'Avid Listener';
-                        const disabled = isAvidMonthlyCurrent;
+                        const selectedTier = selectedPlan === 'Eat, Breath, Music' ? 'unlimited' : 'avid';
+                        const disabled = userTier === selectedTier && billingPeriod === 'monthly';
 
                         return (
                     <button
@@ -4650,8 +4764,8 @@ export default function HumApp() {
               backgroundSize: '200px 200px'
             }}>
               {/* Header */}
-              <div className="p-6 border-b border-white/[0.06]">
-                <div className="flex items-center justify-between mb-3">
+              <div className="px-6 pt-5 pb-4 border-b border-white/[0.06]">
+                <div className="flex items-center justify-between">
                   <div className="pl-20">
                     <h2 className="font-display italic text-3xl tracking-tight">bookmarks</h2>
                     <p className="text-sm text-white/40 font-light mt-0.5">
@@ -4669,7 +4783,7 @@ export default function HumApp() {
               </div>
 
               {/* Bookmarks List */}
-              <div ref={bookmarksScrollRef} className="flex-1 overflow-y-auto p-5">
+              <div ref={bookmarksScrollRef} className="flex-1 overflow-y-auto px-5 pt-3 pb-5">
                 {savedSongs.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center px-8">
                     <div className="w-24 h-24 rounded-full bg-white/5 backdrop-blur-sm flex items-center justify-center mb-5">
@@ -5126,8 +5240,8 @@ export default function HumApp() {
                     <div>
                       <label className="block font-display italic text-base text-white/70 mb-1">manage subscriptions</label>
                       <div className="inline-flex items-center gap-1.5 mt-0.5 px-2.5 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-xs text-white/70">
-                        {userTier === 'avid' && <Star className="w-3 h-3 text-[#D8B5FE] fill-[#D8B5FE]" />}
-                        {userTier === 'avid' ? 'avid listener' : 'free tier'}
+                        {userTier !== 'free' && <Star className="w-3 h-3 text-[#D8B5FE] fill-[#D8B5FE]" />}
+                        {userTier === 'unlimited' ? 'eat, breath, music' : userTier === 'avid' ? 'avid listener' : 'free tier'}
                       </div>
                     </div>
                   </div>
@@ -5135,17 +5249,9 @@ export default function HumApp() {
                     <button
                       onClick={handleCancelSubscription}
                       disabled={isCancelingSubscription}
-                      className="w-full px-4 py-2 rounded-full border-2 border-red-500/40 hover:bg-red-500/30 hover:border-red-500/60 flex items-center justify-center gap-2 transition-all text-sm text-red-300 font-semibold disabled:opacity-50 disabled:md:cursor-not-allowed"
+                      className="block mx-auto text-sm text-red-300/70 hover:text-red-300 underline underline-offset-4 decoration-red-500/30 hover:decoration-red-400/60 transition-colors disabled:opacity-50 disabled:md:cursor-not-allowed"
                     >
-                      {isCancelingSubscription ? (
-                        <>
-                          <span>canceling...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>cancel subscription</span>
-                        </>
-                      )}
+                      {isCancelingSubscription ? 'canceling...' : 'cancel subscription'}
                     </button>
                   ) : (
                     <button
@@ -5767,12 +5873,7 @@ export default function HumApp() {
                 >
                   <div
                     className="absolute -inset-8 rounded-full blur-3xl"
-                    style={{
-                      background: 'rgba(168, 85, 247, 0.35)',
-                      opacity: 0.35 + Math.min(audioLevel, 100) / 180,
-                      transform: `scale(${1 + Math.min(audioLevel, 100) / 220})`,
-                      transition: 'transform 0.08s ease-out, opacity 0.08s ease-out'
-                    }}
+                    style={{ background: 'rgba(168, 85, 247, 0.3)', opacity: 0.55 }}
                   ></div>
                   <div className="relative w-48 h-48 rounded-full backdrop-blur-sm flex items-center justify-center" style={{ 
                     background: 'linear-gradient(to right, rgba(168, 85, 247, 0.09), rgba(59, 130, 246, 0.09))',
@@ -5798,9 +5899,9 @@ export default function HumApp() {
                 <p className="text-white/60 text-center mb-8">hum, sing, or play a melody clearly</p>
                 
                 <div className="w-64 bg-white/5 rounded-full h-2 overflow-hidden">
-                  <div 
-                    className="h-full rounded-full transition-all duration-300 ease-out"
-                    style={{ background: '#D8B5FE', width: `${audioLevel}%` }}
+                  <div
+                    className="h-full rounded-full transition-all duration-100 ease-out"
+                    style={{ background: 'linear-gradient(90deg, #D8B5FE, #EDE4FF)', width: `${audioLevel}%` }}
                   ></div>
                 </div>
               </div>

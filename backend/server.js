@@ -79,62 +79,99 @@ if (process.env.STRIPE_SECRET_KEY) {
   console.log('⚠️  Stripe not configured - payment features disabled');
 }
 
-// Stripe Price IDs for subscriptions (must match UI: $3/month, $30/year for Avid Listener)
+// Stripe Price IDs for subscriptions (must match UI pricing below).
 // Set in Stripe Dashboard or override via env so checkout and subscription updates charge the correct amount.
 const STRIPE_PRICE_AVID_MONTHLY = process.env.STRIPE_PRICE_AVID_MONTHLY || 'price_1Srsq3ImpMKWmAgdgibsqCvl';
 const STRIPE_PRICE_AVID_YEARLY  = process.env.STRIPE_PRICE_AVID_YEARLY || 'price_1SrsuZImpMKWmAgdKDuftnOV';
 const STRIPE_PRICE_UNLIMITED_MONTHLY = process.env.STRIPE_PRICE_UNLIMITED_MONTHLY || 'price_1Srss2ImpMKWmAgd5XUPpJhc';
 const STRIPE_PRICE_UNLIMITED_YEARLY  = process.env.STRIPE_PRICE_UNLIMITED_YEARLY || 'price_1SrsvCImpMKWmAgdpBrILeVj';
 
-// Cached Stripe product + prices for Avid Listener ($3/mo, $30/yr) — used for subscription updates so existing accounts get correct pricing
-let _cachedAvidProductId = null;
-let _cachedAvidPriceMonthlyId = null;
-let _cachedAvidPriceYearlyId = null;
+// Subscription plan definitions, keyed by user tier. Single source of truth for
+// pricing used in checkout, subscription updates, and webhook plan detection.
+const SUBSCRIPTION_PLANS = {
+  avid: {
+    name: 'Avid Listener',
+    description: '100 searches per month',
+    monthlyPrice: 300, // $3.00 in cents
+    yearlyPrice: 3000, // $30.00 in cents
+    monthlyPriceId: STRIPE_PRICE_AVID_MONTHLY,
+    yearlyPriceId: STRIPE_PRICE_AVID_YEARLY,
+  },
+  unlimited: {
+    name: 'Eat, Breath, Music',
+    description: 'Unlimited searches',
+    monthlyPrice: 500, // $5.00 in cents
+    yearlyPrice: 5000, // $50.00 in cents
+    monthlyPriceId: STRIPE_PRICE_UNLIMITED_MONTHLY,
+    yearlyPriceId: STRIPE_PRICE_UNLIMITED_YEARLY,
+  },
+};
 
-/** Get or create a Stripe Price for Avid Listener with the given amount and interval. Returns price id. */
-async function getOrCreateAvidPriceId(interval, unitAmount) {
+// Cached Stripe product + price ids per plan — used for subscription updates so existing accounts get correct pricing
+const _cachedPlanProductIds = {};
+const _cachedPlanPriceIds = { avid: {}, unlimited: {} };
+
+/** Get or create a Stripe Price for the given plan/interval/amount. Returns price id. */
+async function getOrCreatePlanPriceId(plan, interval, unitAmount) {
   if (!stripe) throw new Error('Stripe not configured');
-  if (interval === 'month' && _cachedAvidPriceMonthlyId) return _cachedAvidPriceMonthlyId;
-  if (interval === 'year' && _cachedAvidPriceYearlyId) return _cachedAvidPriceYearlyId;
+  const planConfig = SUBSCRIPTION_PLANS[plan];
+  if (!planConfig) throw new Error(`Unknown plan: ${plan}`);
 
-  if (!_cachedAvidProductId) {
+  if (_cachedPlanPriceIds[plan][interval]) return _cachedPlanPriceIds[plan][interval];
+
+  if (!_cachedPlanProductIds[plan]) {
     const product = await stripe.products.create({
-      name: 'Avid Listener',
-      description: '100 searches per month',
+      name: planConfig.name,
+      description: planConfig.description,
     });
-    _cachedAvidProductId = product.id;
-    console.log(`✅ Created Stripe product for Avid Listener: ${_cachedAvidProductId}`);
+    _cachedPlanProductIds[plan] = product.id;
+    console.log(`✅ Created Stripe product for ${planConfig.name}: ${_cachedPlanProductIds[plan]}`);
   }
 
   const price = await stripe.prices.create({
-    product: _cachedAvidProductId,
+    product: _cachedPlanProductIds[plan],
     currency: 'usd',
     unit_amount: unitAmount,
     recurring: { interval },
   });
-  if (interval === 'month') _cachedAvidPriceMonthlyId = price.id;
-  else _cachedAvidPriceYearlyId = price.id;
-  console.log(`✅ Created Stripe price: $${(unitAmount / 100).toFixed(2)}/${interval} → ${price.id}`);
+  _cachedPlanPriceIds[plan][interval] = price.id;
+  console.log(`✅ Created Stripe price: $${(unitAmount / 100).toFixed(2)}/${interval} (${planConfig.name}) → ${price.id}`);
   return price.id;
 }
 
-async function validateStripeAvidPrices() {
+/** Returns the tier ('avid' | 'unlimited' | null) matching a given Stripe price, by id or amount. */
+function planForStripePrice(priceId, unitAmount) {
+  for (const [tier, plan] of Object.entries(SUBSCRIPTION_PLANS)) {
+    if (
+      priceId === plan.monthlyPriceId || priceId === plan.yearlyPriceId ||
+      priceId === _cachedPlanPriceIds[tier]?.month || priceId === _cachedPlanPriceIds[tier]?.year ||
+      unitAmount === plan.monthlyPrice || unitAmount === plan.yearlyPrice
+    ) {
+      return tier;
+    }
+  }
+  return null;
+}
+
+async function validateStripePlanPrices() {
   if (!stripe) return;
-  try {
-    const [monthly, yearly] = await Promise.all([
-      stripe.prices.retrieve(STRIPE_PRICE_AVID_MONTHLY),
-      stripe.prices.retrieve(STRIPE_PRICE_AVID_YEARLY),
-    ]);
-    const okMonthly = monthly.unit_amount === 300 && monthly.recurring?.interval === 'month';
-    const okYearly = yearly.unit_amount === 3000 && yearly.recurring?.interval === 'year';
-    if (!okMonthly) {
-      console.warn(`⚠️  Stripe Avid monthly price (${STRIPE_PRICE_AVID_MONTHLY}) is not $3/month (current: ${monthly.unit_amount} cents). Subscription updates now use API-created $3 price.`);
+  for (const [tier, plan] of Object.entries(SUBSCRIPTION_PLANS)) {
+    try {
+      const [monthly, yearly] = await Promise.all([
+        stripe.prices.retrieve(plan.monthlyPriceId),
+        stripe.prices.retrieve(plan.yearlyPriceId),
+      ]);
+      const okMonthly = monthly.unit_amount === plan.monthlyPrice && monthly.recurring?.interval === 'month';
+      const okYearly = yearly.unit_amount === plan.yearlyPrice && yearly.recurring?.interval === 'year';
+      if (!okMonthly) {
+        console.warn(`⚠️  Stripe ${plan.name} monthly price (${plan.monthlyPriceId}) is not $${(plan.monthlyPrice / 100).toFixed(2)}/month (current: ${monthly.unit_amount} cents). Subscription updates now use API-created price.`);
+      }
+      if (!okYearly) {
+        console.warn(`⚠️  Stripe ${plan.name} yearly price (${plan.yearlyPriceId}) is not $${(plan.yearlyPrice / 100).toFixed(2)}/year (current: ${yearly.unit_amount} cents). Subscription updates now use API-created price.`);
+      }
+    } catch (e) {
+      console.warn(`⚠️  Could not validate Stripe ${tier} prices:`, e.message);
     }
-    if (!okYearly) {
-      console.warn(`⚠️  Stripe Avid yearly price (${STRIPE_PRICE_AVID_YEARLY}) is not $30/year (current: ${yearly.unit_amount} cents). Subscription updates now use API-created $30 price.`);
-    }
-  } catch (e) {
-    console.warn('⚠️  Could not validate Stripe Avid prices:', e.message);
   }
 }
 
@@ -1542,9 +1579,9 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    const { plan, billingPeriod = 'monthly' } = req.body; // 'avid', 'monthly' or 'yearly'
-    
-    if (!plan || plan !== 'avid') {
+    const { plan, billingPeriod = 'monthly' } = req.body; // 'avid' | 'unlimited', 'monthly' or 'yearly'
+
+    if (!plan || !SUBSCRIPTION_PLANS[plan]) {
       return res.status(400).json({ error: 'Invalid plan' });
     }
 
@@ -1552,35 +1589,22 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       return res.status(400).json({ error: 'Invalid billing period' });
     }
 
-    const planDetails = {
-      avid: {
-        name: 'Avid Listener',
-        monthlyPrice: 300, // $3.00 in cents
-        yearlyPrice: 3000, // $30.00 in cents
-        description: '100 searches per month'
-      }
-    };
-
-    const selectedPlan = planDetails[plan];
+    const selectedPlan = SUBSCRIPTION_PLANS[plan];
     const interval = billingPeriod === 'yearly' ? 'year' : 'month';
-    
+
     if (!isMongoConnected()) {
       return res.status(503).json({ error: 'Database not available' });
     }
-    
+
     const user = await User.findById(req.user.userId);
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    if (plan !== 'avid') {
-      return res.status(400).json({ error: 'Pricing configuration not found for this plan' });
-    }
-
-    // If user already has an active Stripe subscription, update it to the correct $3/$30 price (same as UI)
+    // If user already has an active Stripe subscription, update it to the correct price for the selected plan/period
     if (user.stripeSubscriptionId) {
-      console.log(`🔄 Updating existing subscription for user ${user.email} to plan ${plan} (${billingPeriod}) — using $3/$30 pricing`);
+      console.log(`🔄 Updating existing subscription for user ${user.email} to plan ${plan} (${billingPeriod})`);
 
       const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
       if (!subscription || !subscription.items || !subscription.items.data.length) {
@@ -1600,9 +1624,9 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
         return res.status(400).json({ error: 'Switching between monthly and yearly plans is not supported yet.' });
       }
 
-      // Use get-or-create price so existing accounts get $3/month or $30/year, not Dashboard prices
+      // Use get-or-create price so existing accounts get the correct plan pricing, not Dashboard prices
       const unitAmount = billingPeriod === 'yearly' ? selectedPlan.yearlyPrice : selectedPlan.monthlyPrice;
-      const targetPriceId = await getOrCreateAvidPriceId(interval, unitAmount);
+      const targetPriceId = await getOrCreatePlanPriceId(plan, interval, unitAmount);
 
       const updated = await stripe.subscriptions.update(user.stripeSubscriptionId, {
         cancel_at_period_end: false,
@@ -1632,7 +1656,7 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       });
     }
 
-    // No existing subscription: create checkout with price_data so amount always matches UI ($3/month, $30/year)
+    // No existing subscription: create checkout with price_data so amount always matches the UI
     const unitAmount = parseInt(billingPeriod === 'yearly' ? selectedPlan.yearlyPrice : selectedPlan.monthlyPrice, 10);
     const displayPrice = (unitAmount / 100).toFixed(2);
     const displayLabel = interval === 'year' ? `$${displayPrice}/year` : `$${displayPrice}/month`;
@@ -1646,7 +1670,7 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
             product_data: {
               name: `${selectedPlan.name} — ${displayLabel}`,
               description: selectedPlan.description || undefined,
-              metadata: { plan: 'avid', amount_cents: String(unitAmount) },
+              metadata: { plan, amount_cents: String(unitAmount) },
             },
             unit_amount: unitAmount,
             recurring: { interval },
@@ -1763,14 +1787,9 @@ app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), asy
         if (user && subscription.items && subscription.items.data.length) {
           const priceObj = subscription.items.data[0].price;
           const priceId = priceObj.id;
-          let plan = user.tier;
-          // Avid = $3/mo (300) or $30/yr (3000), including API-created prices
           const amount = priceObj.unit_amount;
-          const isAvidPrice = priceId === STRIPE_PRICE_AVID_MONTHLY || priceId === STRIPE_PRICE_AVID_YEARLY ||
-            priceId === _cachedAvidPriceMonthlyId || priceId === _cachedAvidPriceYearlyId ||
-            amount === 300 || amount === 3000;
-          if (isAvidPrice) plan = 'avid';
-          user.tier = plan;
+          const matchedPlan = planForStripePrice(priceId, amount);
+          user.tier = matchedPlan || user.tier;
           if (subscription.current_period_start) {
             user.subscriptionStartedAt = new Date(subscription.current_period_start * 1000);
           }
@@ -1794,21 +1813,14 @@ app.post('/api/payments/create-paypal-order', authenticateToken, async (req, res
     }
 
     const { plan } = req.body;
-    
-    if (!plan || plan !== 'avid') {
+
+    if (!plan || !SUBSCRIPTION_PLANS[plan]) {
       return res.status(400).json({ error: 'Invalid plan' });
     }
 
-    const planDetails = {
-      avid: {
-        name: 'Avid Listener',
-        price: '3.00',
-        description: '100 searches per month'
-      }
-    };
+    const selectedPlan = SUBSCRIPTION_PLANS[plan];
 
-    const selectedPlan = planDetails[plan];
-    
+
     if (!isMongoConnected()) {
       return res.status(503).json({ error: 'Database not available' });
     }
@@ -2094,7 +2106,7 @@ const PORT = process.env.PORT || 3001;
       } else {
         console.log(`   ⚠️  Feedback emails: disabled (set RESEND_API_KEY in Render to enable; avoids SMTP timeout)`);
       }
-      validateStripeAvidPrices().catch(() => {});
+      validateStripePlanPrices().catch(() => {});
     });
   })
   .catch((error) => {
