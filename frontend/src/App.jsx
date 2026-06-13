@@ -1009,6 +1009,9 @@ export default function HumApp() {
       const data = await response.json();
 
       if (response.ok && data.success) {
+        // Canceling also releases any attached subscription schedule on the
+        // backend, so drop the locally-cached queued change immediately and then
+        // re-sync from the backend (the source of truth post-release).
         setPendingPlanChange(null);
         // No refund and no instant downgrade — the tier stays until the period ends
         if (data.accessUntil) {
@@ -1017,6 +1020,7 @@ export default function HumApp() {
         } else {
           showToast('subscription canceled — you keep your plan until the end of the billing period', 'success');
         }
+        fetchSubscriptionStatus();
       } else {
         showToast(data.error || 'failed to cancel subscription — please try again', 'error');
       }
