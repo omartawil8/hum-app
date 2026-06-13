@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, ChevronRight, LogOut, User, Eye, EyeOff, ArrowLeft, ArrowRight, XCircle, ShoppingCart } from 'lucide-react';
+import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, ChevronRight, LogOut, User, Eye, EyeOff, ArrowLeft, ArrowRight, XCircle, Menu } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
 import avidListenerIcon from './assets/Avid_Listener.png';
@@ -139,6 +139,9 @@ export default function HumApp() {
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const helpButtonRef = useRef(null);
+  const mobileMenuRef = useRef(null);
+  const closeTipsTimeoutRef = useRef(null);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
   const levelMeterFrameRef = useRef(null);
@@ -2465,11 +2468,32 @@ export default function HumApp() {
     }
   };
 
+  const openProfileModal = async () => {
+    setNicknameInput(nickname || '');
+    setPreviewNickname(nickname || '');
+    setInitialIcon(userIcon || '');
+    setIconInput(userIcon || null);
+    setShowProfileModal(true);
+    // Fetch subscription status when opening profile
+    await fetchSubscriptionStatus();
+  };
+
+  const openTips = () => {
+    // Cancel any in-flight close so hovering from button to dropdown doesn't lose it
+    if (closeTipsTimeoutRef.current) {
+      clearTimeout(closeTipsTimeoutRef.current);
+      closeTipsTimeoutRef.current = null;
+    }
+    setIsClosingTips(false);
+    setShowTips(true);
+  };
+
   const handleCloseTips = () => {
     setIsClosingTips(true);
-    setTimeout(() => {
+    closeTipsTimeoutRef.current = setTimeout(() => {
       setShowTips(false);
       setIsClosingTips(false);
+      closeTipsTimeoutRef.current = null;
     }, 200);
   };
 
@@ -2484,6 +2508,17 @@ export default function HumApp() {
     document.addEventListener('pointerdown', closeOnAnyPress);
     return () => document.removeEventListener('pointerdown', closeOnAnyPress);
   }, [showTips, isClosingTips]);
+
+  // Mobile hamburger menu closes on any tap outside it
+  useEffect(() => {
+    if (!showMobileMenu) return;
+    const closeOnOutsidePress = (e) => {
+      if (mobileMenuRef.current && mobileMenuRef.current.contains(e.target)) return;
+      setShowMobileMenu(false);
+    };
+    document.addEventListener('pointerdown', closeOnOutsidePress);
+    return () => document.removeEventListener('pointerdown', closeOnOutsidePress);
+  }, [showMobileMenu]);
 
   const getDaysUntilReset = () => {
     // If we know when the subscription (or account) started, reset each month on that day.
@@ -4108,37 +4143,29 @@ export default function HumApp() {
               pointerEvents: showTopBar && !(showBookmarks && isMobileViewport) ? 'auto' : 'none'
             }}
           >
-          {/* User Account Button (if logged in) */}
+          {/* User Account Button (if logged in) — desktop/tablet */}
           {user && (
             <button
-              onClick={async () => {
-                setNicknameInput(nickname || '');
-                setPreviewNickname(nickname || '');
-                setInitialIcon(userIcon || '');
-                setIconInput(userIcon || null);
-                setShowProfileModal(true);
-                // Fetch subscription status when opening profile
-                await fetchSubscriptionStatus();
-              }}
-              className={`flex items-center justify-center gap-2 px-2 h-9 w-9 sm:justify-start sm:px-4 sm:h-10 sm:w-auto bg-white/5 hover:bg-white/10 backdrop-blur-sm border rounded-full text-sm text-white/70 hover:border-[#D8B5FE] transition-all ${showProfileModal ? 'border-[#D8B5FE]' : 'border-white/10'}`}
+              onClick={openProfileModal}
+              className={`hidden sm:flex items-center justify-start gap-2 px-4 h-10 bg-white/5 hover:bg-white/10 backdrop-blur-sm border rounded-full text-sm text-white/70 hover:border-[#D8B5FE] transition-all ${showProfileModal ? 'border-[#D8B5FE]' : 'border-white/10'}`}
             >
               {userIcon && getIconImage(userIcon) ? (
-                <img 
-                  src={getIconImage(userIcon)} 
-                  alt={userIcon} 
-                  className={`object-contain flex-shrink-0 ${userIcon === 'shiba' || userIcon === 'ghost' ? 'w-5 h-5 sm:w-7 sm:h-7' : 'w-5 h-5 sm:w-6 sm:h-6'}`}
+                <img
+                  src={getIconImage(userIcon)}
+                  alt={userIcon}
+                  className={`object-contain flex-shrink-0 ${userIcon === 'shiba' || userIcon === 'ghost' ? 'w-7 h-7' : 'w-6 h-6'}`}
                 />
               ) : userIcon ? (
                 <span className="text-lg flex-shrink-0">{userIcon}</span>
               ) : null}
-              <span className="truncate max-w-[150px] hidden sm:inline">{nickname || user.email}</span>
+              <span className="truncate max-w-[150px]">{nickname || user.email}</span>
             </button>
           )}
 
-          {/* Help Button */}
+          {/* Help Button — desktop/tablet */}
         <div
-            className="relative"
-          onMouseEnter={() => setShowTips(true)}
+            className="hidden sm:block"
+          onMouseEnter={openTips}
           onMouseLeave={handleCloseTips}
         >
           <button
@@ -4147,18 +4174,65 @@ export default function HumApp() {
               if (showTips) {
                 handleCloseTips();
               } else {
-                setShowTips(true);
+                openTips();
               }
             }}
-            className={`flex items-center justify-center gap-2 px-2 py-2 h-9 w-9 sm:justify-start sm:px-4 sm:py-2 sm:h-auto sm:w-auto bg-white/5 backdrop-blur-sm border rounded-full hover:bg-white/10 hover:border-[#D8B5FE] transition-all ${showTips ? 'border-[#D8B5FE]' : 'border-white/10'}`}
+            className={`flex items-center justify-start gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm border rounded-full hover:bg-white/10 hover:border-[#D8B5FE] transition-all ${showTips ? 'border-[#D8B5FE]' : 'border-white/10'}`}
           >
-              <span className="text-sm font-bold hidden sm:inline">help!</span>
+              <span className="text-sm font-bold">help!</span>
             <span className="text-base">💡</span>
           </button>
+        </div>
 
-          {/* Help Dropdown */}
+          {/* Mobile hamburger menu — folds profile + tips into one */}
+          <div ref={mobileMenuRef} className="relative sm:hidden">
+            <button
+              onClick={() => setShowMobileMenu((v) => !v)}
+              aria-label="Menu"
+              className={`flex items-center justify-center h-9 w-9 bg-white/5 backdrop-blur-sm border rounded-full hover:bg-white/10 transition-all ${showMobileMenu ? 'border-[#D8B5FE]' : 'border-white/10'}`}
+            >
+              <Menu className="w-4 h-4 text-white/80" strokeWidth={1.5} />
+            </button>
+            {showMobileMenu && (
+              <div className="absolute top-full right-0 mt-2 w-44 bg-[#16121c]/95 backdrop-blur-2xl rounded-2xl p-1.5 border border-[#D8B5FE]/40 shadow-2xl z-50 animate-slide-down">
+                {user && (
+                  <button
+                    onClick={() => {
+                      setShowMobileMenu(false);
+                      openProfileModal();
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-white/10 transition-all text-sm text-white/80"
+                  >
+                    {userIcon && getIconImage(userIcon) ? (
+                      <img src={getIconImage(userIcon)} alt="" className="w-5 h-5 object-contain flex-shrink-0" />
+                    ) : (
+                      <User className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
+                    )}
+                    <span className="truncate">profile</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    setShowMobileMenu(false);
+                    openTips();
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-white/10 transition-all text-sm text-white/80"
+                >
+                  <span className="text-base leading-none">💡</span>
+                  <span>tips</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Help Dropdown — anchored to the top-right cluster so it works from
+              the desktop help button and the mobile menu alike */}
           {showTips && (
-              <div className={`absolute top-full right-0 mt-2 w-80 bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-6 border border-[#D8B5FE] shadow-2xl z-50 ${isClosingTips ? 'animate-slide-up' : 'animate-slide-down'}`}>
+              <div
+                onMouseEnter={openTips}
+                onMouseLeave={handleCloseTips}
+                className={`absolute top-full right-0 mt-2 w-80 max-w-[calc(100vw-3rem)] bg-white/[0.03] backdrop-blur-2xl rounded-2xl p-6 border border-[#D8B5FE] shadow-2xl z-50 ${isClosingTips ? 'animate-slide-up' : 'animate-slide-down'}`}
+              >
                 <h3 className="font-display italic text-2xl mb-2.5">welcome to hüm! 🎶</h3>
               <p className="text-sm text-white/70 mb-3.5 leading-relaxed">
                   you can hum, sing, or play a melody to search for the song name.
@@ -4180,7 +4254,6 @@ export default function HumApp() {
               </ul>
             </div>
           )}
-        </div>
           </div>,
           document.body
         )}
@@ -4254,7 +4327,7 @@ export default function HumApp() {
               </span>
               <span className="text-sm text-purple-300 font-semibold hidden group-hover:inline-flex items-center gap-1 transition-opacity">
                 <Star className="w-3.5 h-3.5 fill-purple-300" />
-                upgrade to hüm pro
+                upgrade
                 <Star className="w-3.5 h-3.5 fill-purple-300" />
               </span>
             </div>
@@ -4736,13 +4809,13 @@ export default function HumApp() {
                     {/* Header with decorative lines */}
                     <div className="flex items-center justify-center gap-3 mb-3">
                       <div className="flex-1 h-px bg-white/20"></div>
-                      <h3 className="text-lg font-semibold text-white/90 whitespace-nowrap">ready to upgrade?</h3>
+                      <h3 className="font-display italic text-xl text-white/90 whitespace-nowrap">sound good?</h3>
                       <div className="flex-1 h-px bg-white/20"></div>
                         </div>
                     <p className="text-center text-white/60 mb-4 text-xs">
                       {userTier === 'avid' && selectedPlan === 'Eat, Breath, Music'
                         ? "you'll only pay the prorated difference — unused time on your current plan is credited automatically"
-                        : 'confirm your plan and continue to secure checkout'}
+                        : 'cancel anytime — no hard feelings'}
                     </p>
                     
                     {/* Checkout button */}
@@ -4766,13 +4839,13 @@ export default function HumApp() {
                             {!disabled && (
                               <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             )}
-                            <ShoppingCart className="w-5 h-5 relative z-10" />
+                            <Music className="w-5 h-5 relative z-10" strokeWidth={1.5} />
                             <span className="relative z-10">
                               {disabled
                                 ? 'already on this plan'
                                 : isPlanChange
-                                ? 'upgrade — pay only the difference'
-                                : 'proceed to checkout'}
+                                ? 'switch plans — only pay the difference'
+                                : "let's keep humming"}
                             </span>
                     </button>
                         );
