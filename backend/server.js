@@ -2,6 +2,8 @@
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
 const axios = require('axios');
 const path = require('path');
@@ -41,8 +43,24 @@ const User = require('./models/User');
 const AnonymousSearch = require('./models/AnonymousSearch');
 
 const app = express();
+
+// Render (and most hosts) put a reverse proxy in front of us, so the real client
+// IP arrives in X-Forwarded-For. Trust one proxy hop so req.ip is the actual
+// client — this is what the rate limiters key on. Without it, every request looks
+// like it comes from the proxy and users would share one rate-limit bucket.
+app.set('trust proxy', 1);
+
+// Baseline security headers. This is a JSON API consumed cross-origin by the SPA,
+// so disable CSP (not meaningful for JSON, and risks breaking nothing of value)
+// and allow the resource to be read cross-origin so CORS isn't undermined.
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  crossOriginEmbedderPolicy: false,
+}));
+
 // Configure multer for larger audio files (50MB limit)
-const upload = multer({ 
+const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 50 * 1024 * 1024 // 50MB
@@ -82,6 +100,62 @@ app.use((req, res, next) => {
   if (req.path === STRIPE_WEBHOOK_PATH) return next();
   urlencodedParser(req, res, next);
 });
+
+// =========================
+// RATE LIMITING
+// Thresholds are deliberately set well above what any real human does, so normal
+// use is never affected — they only stop automated abuse (password guessing,
+// account-creation floods, API-bill running, disk-fill spam). Limits key on the
+// real client IP (see trust proxy above). Responses are JSON 429s.
+// =========================
+const jsonRateMessage = (message) => ({
+  handler: (req, res) => res.status(429).json({ success: false, error: message }),
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Login: only FAILED attempts count (skipSuccessfulRequests), so a legitimate
+// user who logs in is never rate-limited — only repeated wrong guesses are. After
+// 10 failures from one IP in 15 min, that IP is paused. Stops password brute-force.
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  skipSuccessfulRequests: true,
+  ...jsonRateMessage('Too many login attempts. Please wait a few minutes and try again.'),
+});
+
+// Signup: caps automated account-creation floods. 20/hour per IP is far more than
+// a real person needs (shared office/NAT IPs still comfortably fit).
+const signupLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 20,
+  ...jsonRateMessage('Too many accounts created from here. Please try again later.'),
+});
+
+// Search/identify: a human humming can't exceed ~40 requests/min; this only trips
+// scripted abuse that would run up ACRCloud/Spotify costs.
+const searchLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 40,
+  ...jsonRateMessage('Slow down a moment — too many searches in a short time.'),
+});
+
+// Feedback: writes a file to disk, so cap it to bound disk-fill abuse. Real users
+// submit feedback rarely; 30/hour per IP never affects them.
+const feedbackLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 30,
+  ...jsonRateMessage('Too many submissions. Please try again later.'),
+});
+
+// Safety net for everything else: very generous so it never touches normal use,
+// but blunts a flood against any single IP.
+const globalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 300,
+  ...jsonRateMessage('Too many requests. Please slow down.'),
+});
+app.use(globalLimiter);
 
 // =========================
 // STRIPE PAYMENT SETUP
@@ -208,7 +282,7 @@ async function validateStripePlanPrices() {
 }
 
 // Signup endpoint
-app.post('/api/auth/signup', async (req, res) => {
+app.post('/api/auth/signup', signupLimiter, async (req, res) => {
   try {
     const { email, password, usedAnonymousSearch } = req.body;
 
@@ -283,7 +357,7 @@ app.post('/api/auth/signup', async (req, res) => {
 });
 
 // Login endpoint
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -685,7 +759,7 @@ app.get('/api/auth/anonymous-status', async (req, res) => {
 // =========================
 // SMART LYRICS SEARCH (Natural Flow)
 // =========================
-app.post('/api/search-lyrics', authenticateToken, checkSearchLimit, async (req, res) => {
+app.post('/api/search-lyrics', searchLimiter, authenticateToken, checkSearchLimit, async (req, res) => {
   console.log('🔍 /api/search-lyrics endpoint reached');
   console.log('   Lyrics:', req.body?.lyrics?.substring(0, 50) || 'NO LYRICS');
   console.log('   User:', req.user ? req.user.userId : 'anonymous');
@@ -999,7 +1073,7 @@ app.post('/api/find-original', authenticateToken, async (req, res) => {
 // MAIN HYBRID ENDPOINT
 // =========================
 // IMPORTANT: upload.single('audio') must come FIRST to parse the file before other middlewares
-app.post('/api/identify', upload.single('audio'), authenticateToken, checkSearchLimit, async (req, res) => {
+app.post('/api/identify', searchLimiter, upload.single('audio'), authenticateToken, checkSearchLimit, async (req, res) => {
   console.log('🎤 /api/identify endpoint reached');
   console.log('   File received:', req.file ? `${req.file.size} bytes` : 'NO FILE');
   console.log('   User:', req.user ? req.user.userId : 'anonymous');
@@ -1346,7 +1420,7 @@ app.post('/api/identify', upload.single('audio'), authenticateToken, checkSearch
 // =========================
 // FEEDBACK ENDPOINT
 // =========================
-app.post('/api/feedback', upload.single('audio'), async (req, res) => {
+app.post('/api/feedback', feedbackLimiter, upload.single('audio'), async (req, res) => {
   try {
     const { songId, title, artist } = req.body;
     
@@ -2011,7 +2085,13 @@ app.post('/api/payments/verify-payment', authenticateToken, async (req, res) => 
 
     // Verify the session with Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId);
-    
+
+    // Bind the session to the caller: only the user who owns the checkout session
+    // may use it to upgrade. Prevents one account from acting on another's session.
+    if (session.metadata?.userId && session.metadata.userId !== req.user.userId) {
+      return res.status(403).json({ error: 'This payment session does not belong to your account' });
+    }
+
     if (session.payment_status === 'paid' && session.metadata?.userId && session.metadata?.plan) {
       if (!isMongoConnected()) {
         return res.status(503).json({ error: 'Database not available' });
@@ -2152,7 +2232,7 @@ app.post('/api/payments/cancel-pending-change', authenticateToken, async (req, r
     return res.json({ success: true });
   } catch (error) {
     console.error('Cancel pending change error:', error);
-    return res.status(500).json({ error: error.message || 'Failed to cancel pending change' });
+    return res.status(500).json({ error: 'Failed to cancel pending change' });
   }
 });
 
@@ -2223,7 +2303,7 @@ app.post('/api/payments/cancel-subscription', authenticateToken, async (req, res
         });
       }
 
-      res.status(500).json({ error: stripeError?.message || 'Failed to cancel subscription with Stripe' });
+      res.status(500).json({ error: 'Failed to cancel subscription. Please try again or contact support.' });
     }
   } catch (error) {
     console.error('Cancel subscription error:', error);
