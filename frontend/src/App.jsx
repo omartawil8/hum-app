@@ -4848,7 +4848,7 @@ export default function HumApp() {
                       {userTier === 'avid' && selectedPlan === 'Eat, Breath, Music'
                         ? "you'll only pay the prorated difference — unused time on your current plan is credited automatically"
                         : userTier === 'unlimited' && selectedPlan === 'Avid Listener'
-                        ? "no refunds — you'll keep eat, breath, music until your billing period ends, then switch to avid listener"
+                        ? "you'll keep 'eat, breath, music' until your billing period ends, then switch to avid listener"
                         : 'cancel anytime — no hard feelings'}
                     </p>
                     
