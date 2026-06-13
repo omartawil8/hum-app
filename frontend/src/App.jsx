@@ -4904,8 +4904,11 @@ export default function HumApp() {
                       {(() => {
                         const selectedTier = selectedPlan === 'Eat, Breath, Music' ? 'unlimited' : 'avid';
                         const hasSub = hasActiveSubscription && userTier !== 'free';
-                        // Already on this exact plan + interval
-                        const disabled = hasSub && userTier === selectedTier && billingPeriod === currentInterval;
+                        // Already on this exact plan + interval, OR this exact change is already queued
+                        const alreadyQueued = pendingPlanChange &&
+                          pendingPlanChange.tier === selectedTier &&
+                          pendingPlanChange.interval === billingPeriod;
+                        const disabled = (hasSub && userTier === selectedTier && billingPeriod === currentInterval) || !!alreadyQueued;
                         // For an existing subscriber, an in-place change is charged immediately
                         // (prorated) only when the new period costs at least as much as the
                         // current one; otherwise it's scheduled for the end of the period.
@@ -4929,7 +4932,9 @@ export default function HumApp() {
                             )}
                             <Music className="w-5 h-5 relative z-10" strokeWidth={1.5} />
                             <span className="relative z-10">
-                              {disabled
+                              {alreadyQueued
+                                ? 'already queued'
+                                : disabled
                                 ? 'already on this plan'
                                 : !hasSub
                                 ? "let's keep humming"
@@ -5456,91 +5461,76 @@ export default function HumApp() {
                       </div>
                     </div>
                   </div>
-                  {subscriptionEndsAt && userTier !== 'free' ? (
-                    <p className="text-xs text-white/50 text-center leading-relaxed">
+                  {subscriptionEndsAt && userTier !== 'free' && (
+                    <p className="text-xs text-white/50 text-center leading-relaxed mb-3">
                       your plan stays active until{' '}
                       <span className="text-[#D8B5FE]">{formatPlanDate(subscriptionEndsAt)}</span>,
                       then you'll move to the free tier
                     </p>
-                  ) : pendingPlanChange && userTier !== 'free' ? (
-                    <>
-                      <p className="text-xs text-white/50 text-center leading-relaxed mb-3">
-                        switches to{' '}
-                        <span className="text-[#D8B5FE]">
-                          {pendingPlanChange.tier === userTier
-                            ? `${tierLabel(pendingPlanChange.tier)} (${pendingPlanChange.interval || ''})`.trim()
-                            : pendingPlanChange.interval && pendingPlanChange.interval !== currentInterval
-                            ? planLabelWithInterval(pendingPlanChange.tier, pendingPlanChange.interval)
-                            : tierLabel(pendingPlanChange.tier)}
-                        </span>{' '}
-                        on <span className="text-[#D8B5FE]">{formatPlanDate(pendingPlanChange.date)}</span>
-                      </p>
-                      <div className="flex flex-col items-center gap-2">
-                        <button
-                          onClick={handleCancelPendingChange}
-                          className="text-sm text-white/50 hover:text-white/80 underline underline-offset-4 decoration-white/20 hover:decoration-white/40 transition-colors"
-                        >
-                          cancel queued change
-                        </button>
-                        {hasActiveSubscription && (
-                          <button
-                            onClick={handleCancelSubscription}
-                            disabled={isCancelingSubscription}
-                            className="text-sm text-red-300/70 hover:text-red-300 underline underline-offset-4 decoration-red-500/30 hover:decoration-red-400/60 transition-colors disabled:opacity-50 disabled:md:cursor-not-allowed"
-                          >
-                            {isCancelingSubscription ? 'canceling...' : 'cancel subscription'}
-                          </button>
-                        )}
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      {userTier === 'avid' && (
-                        <button
-                          onClick={() => {
-                            setSelectedPlan('Eat, Breath, Music');
-                            setShowUpgradeModal(true);
-                            handleCloseProfile();
-                          }}
-                          className="w-full px-4 py-2 mb-3 rounded-full border-2 border-[#D8B5FE]/40 hover:bg-[#D8B5FE]/30 hover:border-[#D8B5FE]/60 flex items-center justify-center gap-2 transition-all text-sm text-[#D8B5FE] font-semibold"
-                        >
-                          <span className="select-none" aria-hidden="true">✦</span>
-                          <span>upgrade to eat, breath, music</span>
-                        </button>
-                      )}
-                      {userTier === 'unlimited' && (
-                        <button
-                          onClick={() => {
-                            setSelectedPlan('Avid Listener');
-                            setShowUpgradeModal(true);
-                            handleCloseProfile();
-                          }}
-                          className="w-full px-4 py-2 mb-3 rounded-full border border-white/20 hover:border-white/40 hover:bg-white/5 flex items-center justify-center gap-2 transition-all text-sm text-white/70"
-                        >
-                          <span>switch to avid listener</span>
-                        </button>
-                      )}
-                      {hasActiveSubscription && userTier !== 'free' ? (
-                        <button
-                          onClick={handleCancelSubscription}
-                          disabled={isCancelingSubscription}
-                          className="block mx-auto text-sm text-red-300/70 hover:text-red-300 underline underline-offset-4 decoration-red-500/30 hover:decoration-red-400/60 transition-colors disabled:opacity-50 disabled:md:cursor-not-allowed"
-                        >
-                          {isCancelingSubscription ? 'canceling...' : 'cancel subscription'}
-                        </button>
-                      ) : userTier === 'free' ? (
-                        <button
-                          onClick={() => {
-                            setShowUpgradeModal(true);
-                            handleCloseProfile();
-                          }}
-                          className="w-full px-4 py-2 rounded-full border-2 border-[#D8B5FE]/40 hover:bg-[#D8B5FE]/30 hover:border-[#D8B5FE]/60 flex items-center justify-center gap-2 transition-all text-sm text-[#D8B5FE] font-semibold"
-                        >
-                          <span>upgrade</span>
-                        </button>
-                      ) : null}
-                    </>
                   )}
+                  {pendingPlanChange && userTier !== 'free' && (
+                    <p className="text-xs text-white/50 text-center leading-relaxed mb-3">
+                      switches to{' '}
+                      <span className="text-[#D8B5FE]">
+                        {pendingPlanChange.tier === userTier
+                          ? `${tierLabel(pendingPlanChange.tier)} (${pendingPlanChange.interval || ''})`.trim()
+                          : pendingPlanChange.interval && pendingPlanChange.interval !== currentInterval
+                          ? planLabelWithInterval(pendingPlanChange.tier, pendingPlanChange.interval)
+                          : tierLabel(pendingPlanChange.tier)}
+                      </span>{' '}
+                      on <span className="text-[#D8B5FE]">{formatPlanDate(pendingPlanChange.date)}</span>
+                      {' '}·{' '}
+                      <button onClick={handleCancelPendingChange} className="underline underline-offset-2 hover:text-white/80 transition-colors">
+                        undo
+                      </button>
+                    </p>
+                  )}
+                  <>
+                    {userTier === 'avid' && (
+                      <button
+                        onClick={() => {
+                          setSelectedPlan('Eat, Breath, Music');
+                          setShowUpgradeModal(true);
+                          handleCloseProfile();
+                        }}
+                        className="w-full px-4 py-2 mb-3 rounded-full border-2 border-[#D8B5FE]/40 hover:bg-[#D8B5FE]/30 hover:border-[#D8B5FE]/60 flex items-center justify-center gap-2 transition-all text-sm text-[#D8B5FE] font-semibold"
+                      >
+                        <span className="select-none" aria-hidden="true">✦</span>
+                        <span>upgrade to eat, breath, music</span>
+                      </button>
+                    )}
+                    {userTier === 'unlimited' && (
+                      <button
+                        onClick={() => {
+                          setSelectedPlan('Avid Listener');
+                          setShowUpgradeModal(true);
+                          handleCloseProfile();
+                        }}
+                        className="w-full px-4 py-2 mb-3 rounded-full border border-white/20 hover:border-white/40 hover:bg-white/5 flex items-center justify-center gap-2 transition-all text-sm text-white/70"
+                      >
+                        <span>switch to avid listener</span>
+                      </button>
+                    )}
+                    {hasActiveSubscription && userTier !== 'free' ? (
+                      <button
+                        onClick={handleCancelSubscription}
+                        disabled={isCancelingSubscription}
+                        className="block mx-auto text-sm text-red-300/70 hover:text-red-300 underline underline-offset-4 decoration-red-500/30 hover:decoration-red-400/60 transition-colors disabled:opacity-50 disabled:md:cursor-not-allowed"
+                      >
+                        {isCancelingSubscription ? 'canceling...' : 'cancel subscription'}
+                      </button>
+                    ) : userTier === 'free' ? (
+                      <button
+                        onClick={() => {
+                          setShowUpgradeModal(true);
+                          handleCloseProfile();
+                        }}
+                        className="w-full px-4 py-2 rounded-full border-2 border-[#D8B5FE]/40 hover:bg-[#D8B5FE]/30 hover:border-[#D8B5FE]/60 flex items-center justify-center gap-2 transition-all text-sm text-[#D8B5FE] font-semibold"
+                      >
+                        <span>upgrade</span>
+                      </button>
+                    ) : null}
+                  </>
                 </div>
 
                 {/* Save and Logout Buttons */}
