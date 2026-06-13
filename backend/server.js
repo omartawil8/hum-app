@@ -452,12 +452,16 @@ app.get('/api/auth/google', (req, res) => {
   }
 
   const scope = 'openid email profile';
+  // Carry the platform through Google via `state`, so the callback knows whether to
+  // return to the website or deep-link back into the native iOS app.
+  const state = req.query.native ? 'native' : 'web';
   const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
     `client_id=${GOOGLE_CLIENT_ID}&` +
     `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
     `response_type=code&` +
     `scope=${encodeURIComponent(scope)}&` +
     `access_type=online&` +
+    `state=${state}&` +
     `prompt=select_account`;
 
   res.redirect(authUrl);
@@ -471,15 +475,26 @@ app.get('/api/auth/google/callback', async (req, res) => {
     const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
     const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || `https://${req.get('host')}/api/auth/google/callback`;
     const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
-    
-    console.log('🔐 Google OAuth callback - redirect URI:', REDIRECT_URI);
+
+    // The native iOS app passes state=native; return to it via a custom-scheme deep
+    // link (humauth://) that the app intercepts, instead of redirecting to the website.
+    const isNative = req.query.state === 'native';
+    const APP_SCHEME = 'humauth://auth';
+    const successRedirect = (tok) => isNative
+      ? `${APP_SCHEME}?token=${encodeURIComponent(tok)}`
+      : `${FRONTEND_URL}?google_auth_success=true&token=${tok}`;
+    const errorRedirect = (errCode) => isNative
+      ? `${APP_SCHEME}?error=${encodeURIComponent(errCode)}`
+      : `${FRONTEND_URL}?auth_error=${errCode}`;
+
+    console.log('🔐 Google OAuth callback - redirect URI:', REDIRECT_URI, '| native:', isNative);
 
     if (!code) {
-      return res.redirect(`${FRONTEND_URL}?auth_error=no_code`);
+      return res.redirect(errorRedirect('no_code'));
     }
 
     if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-      return res.redirect(`${FRONTEND_URL}?auth_error=not_configured`);
+      return res.redirect(errorRedirect('not_configured'));
     }
 
     // Exchange code for tokens
@@ -503,11 +518,11 @@ app.get('/api/auth/google/callback', async (req, res) => {
     const { email, id: googleId, name, picture } = userInfoResponse.data;
 
     if (!email) {
-      return res.redirect(`${FRONTEND_URL}?auth_error=no_email`);
+      return res.redirect(errorRedirect('no_email'));
     }
 
     if (!isMongoConnected()) {
-      return res.redirect(`${FRONTEND_URL}?auth_error=database_error`);
+      return res.redirect(errorRedirect('database_error'));
     }
 
     // Check if user exists
@@ -556,11 +571,14 @@ app.get('/api/auth/google/callback', async (req, res) => {
       { expiresIn: '30d' }
     );
 
-    // Redirect to frontend with token
-    console.log('🔐 Google OAuth success - redirecting to:', `${FRONTEND_URL}?google_auth_success=true&token=${token.substring(0, 20)}...`);
-    res.redirect(`${FRONTEND_URL}?google_auth_success=true&token=${token}`);
+    // Redirect back: website query string on web, custom-scheme deep link on native.
+    console.log('🔐 Google OAuth success - redirecting', isNative ? 'to app (humauth://)' : 'to website');
+    res.redirect(successRedirect(token));
   } catch (error) {
     console.error('Google OAuth error:', error);
+    if (req.query.state === 'native') {
+      return res.redirect(`humauth://auth?error=oauth_failed`);
+    }
     const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
     res.redirect(`${FRONTEND_URL}?auth_error=oauth_failed`);
   }

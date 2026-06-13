@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { Capacitor } from '@capacitor/core';
+import { Browser } from '@capacitor/browser';
+import { App as CapacitorApp } from '@capacitor/app';
 import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, ChevronRight, LogOut, User, Eye, EyeOff, ArrowLeft, ArrowRight, XCircle, Menu } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
@@ -1337,6 +1340,40 @@ export default function HumApp() {
       // Clean up URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
+  }, []);
+
+  // Native (iOS) Google OAuth return: the backend redirects to humauth://auth?token=…
+  // (or ?error=…) after sign-in. Capacitor fires appUrlOpen with that deep link; we
+  // grab the token, close the in-app browser, and load the user the same way the web
+  // callback does. No-op on the web (isNativePlatform() is false).
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    let listener;
+    CapacitorApp.addListener('appUrlOpen', ({ url }) => {
+      if (!url || !url.startsWith('humauth://')) return;
+      Browser.close().catch(() => {});
+      let params;
+      try {
+        params = new URL(url).searchParams;
+      } catch {
+        return;
+      }
+      const token = params.get('token');
+      const err = params.get('error');
+      if (token) {
+        localStorage.setItem('hum-auth-token', token);
+        checkAuthStatus(token)
+          .then(() => {
+            setShowAuthModal(false);
+            setAuthError('');
+          })
+          .catch(() => setAuthError('Failed to complete Google sign in'));
+      } else if (err) {
+        setAuthError('Google sign in failed. Please try again.');
+      }
+    }).then((l) => { listener = l; });
+    return () => { if (listener) listener.remove(); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Hide/show top bar based on scroll direction
@@ -4611,7 +4648,14 @@ export default function HumApp() {
 
                   <button
                     onClick={() => {
-                      window.location.href = `${API_BASE_URL}/api/auth/google`;
+                      if (Capacitor.isNativePlatform()) {
+                        // Native: Google blocks sign-in inside embedded webviews, so open
+                        // it in the system browser. The backend returns via the humauth://
+                        // deep link (handled by the appUrlOpen listener), not the website.
+                        Browser.open({ url: `${API_BASE_URL}/api/auth/google?native=1` });
+                      } else {
+                        window.location.href = `${API_BASE_URL}/api/auth/google`;
+                      }
                     }}
                     className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-full py-3 font-medium text-base transition-all duration-300 flex items-center justify-center gap-3"
                   >
