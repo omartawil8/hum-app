@@ -139,6 +139,24 @@ async function getOrCreatePlanPriceId(plan, interval, unitAmount) {
   return price.id;
 }
 
+/**
+ * If a subscription is managed by a subscription schedule (e.g. a previously
+ * scheduled downgrade), Stripe blocks direct updates and cancellation. Releasing
+ * the schedule detaches it — the subscription keeps its current price — so we can
+ * manage it directly again. Releasing also drops any pending scheduled change,
+ * which is the desired behavior when the user upgrades or cancels.
+ * Returns true if a schedule was released.
+ */
+async function releaseSubscriptionSchedule(subscription) {
+  if (!subscription || !subscription.schedule) return false;
+  const scheduleId = typeof subscription.schedule === 'string'
+    ? subscription.schedule
+    : subscription.schedule.id;
+  await stripe.subscriptionSchedules.release(scheduleId);
+  console.log(`🔓 Released subscription schedule ${scheduleId} for ${subscription.id}`);
+  return true;
+}
+
 /** Returns the tier ('avid' | 'unlimited' | null) matching a given Stripe price, by id or amount. */
 function planForStripePrice(priceId, unitAmount) {
   for (const [tier, plan] of Object.entries(SUBSCRIPTION_PLANS)) {
@@ -1678,6 +1696,11 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
         });
       }
 
+      // If a downgrade was previously scheduled, the subscription is schedule-managed
+      // and can't be updated directly — release the schedule first (this also cancels
+      // the pending downgrade, which is correct since the user is now upgrading).
+      await releaseSubscriptionSchedule(subscription);
+
       // 'always_invoice' charges the prorated difference immediately: Stripe credits
       // the unused time on the old plan and bills only the gap, so upgrading mid-cycle
       // never double-charges.
@@ -2029,6 +2052,12 @@ app.post('/api/payments/cancel-subscription', authenticateToken, async (req, res
     // billing period runs out. The customer.subscription.deleted webhook fires
     // at that point and downgrades them to free.
     try {
+      // A scheduled downgrade attaches a subscription schedule, which blocks direct
+      // cancellation. Release it first (this also drops the pending downgrade) so we
+      // can set cancel_at_period_end on the subscription itself.
+      const existing = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+      await releaseSubscriptionSchedule(existing);
+
       const subscription = await stripe.subscriptions.update(user.stripeSubscriptionId, {
         cancel_at_period_end: true,
       });
