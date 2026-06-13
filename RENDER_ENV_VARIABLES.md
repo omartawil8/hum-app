@@ -32,8 +32,12 @@ JWT_SECRET=[generate with: openssl rand -base64 32]
 ```
 STRIPE_SECRET_KEY=[copy from backend/.env]
 STRIPE_WEBHOOK_SECRET=[add after webhook setup in Stripe]
+STRIPE_PRICE_AVID_MONTHLY=[price_... from Stripe, $3/month]
+STRIPE_PRICE_AVID_YEARLY=[price_... from Stripe, $30/year]
+STRIPE_PRICE_UNLIMITED_MONTHLY=[price_... from Stripe, $5/month]
+STRIPE_PRICE_UNLIMITED_YEARLY=[price_... from Stripe, $50/year]
 ```
-*Note: Update `STRIPE_WEBHOOK_SECRET` after setting up webhook in Stripe (Step 3 of deployment)*
+*See **[PAYMENTS_SETUP.md](PAYMENTS_SETUP.md)** for the full Stripe walkthrough (prices, webhook, test cards, billing behavior).*
 
 ### Email (Welcome Emails - Resend)
 ```
@@ -76,6 +80,10 @@ ADMIN_SECRET=[generate with: openssl rand -base64 32]
 - [ ] JWT_SECRET
 - [ ] STRIPE_SECRET_KEY
 - [ ] STRIPE_WEBHOOK_SECRET (update after webhook setup)
+- [ ] STRIPE_PRICE_AVID_MONTHLY
+- [ ] STRIPE_PRICE_AVID_YEARLY
+- [ ] STRIPE_PRICE_UNLIMITED_MONTHLY
+- [ ] STRIPE_PRICE_UNLIMITED_YEARLY
 - [ ] RESEND_API_KEY
 - [ ] RESEND_FROM_EMAIL (optional - for production)
 - [ ] FRONTEND_URL (update after deploying frontend)
