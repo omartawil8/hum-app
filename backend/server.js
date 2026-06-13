@@ -2021,7 +2021,9 @@ app.get('/api/payments/status', authenticateToken, async (req, res) => {
 
         // A scheduled plan change attaches a subscription schedule whose next phase
         // holds the target price. Find that phase and report what/when it switches.
-        if (subscription.schedule) {
+        // Skip this entirely if the subscription is canceling at period end — the
+        // plan is ending and moving to free, so any "switches to X" note is moot.
+        if (subscription.schedule && !cancelAtPeriodEnd) {
           const scheduleId = typeof subscription.schedule === 'string'
             ? subscription.schedule
             : subscription.schedule.id;
