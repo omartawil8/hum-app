@@ -1,0 +1,8 @@
+{
+  "appId": "rocks.hum.app",
+  "appName": "hüm",
+  "webDir": "dist",
+  "ios": {
+    "contentInset": "always"
+  }
+}
