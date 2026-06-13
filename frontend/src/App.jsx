@@ -4179,7 +4179,7 @@ export default function HumApp() {
             className="flex items-center gap-2"
             style={{
               position: 'fixed',
-              top: '24px',
+              top: 'max(24px, calc(env(safe-area-inset-top) + 12px))',
               left: '24px',
               // Keep bookmarks button above other chrome; on mobile keep it above the bookmarks panel too
               zIndex: showBookmarks && isMobileViewport ? 10002 : 9999
@@ -4258,7 +4258,7 @@ export default function HumApp() {
             className="flex items-center gap-1 sm:gap-2 transition-opacity duration-300"
             style={{
               position: 'fixed',
-              top: '24px',
+              top: 'max(24px, calc(env(safe-area-inset-top) + 12px))',
               right: '24px',
               zIndex: showBookmarks && isMobileViewport ? 9000 : 9999,
               opacity: showTopBar ? 1 : 0,
@@ -4386,7 +4386,7 @@ export default function HumApp() {
             className="transition-opacity duration-300"
             style={{
               position: 'fixed',
-              top: '24px',
+              top: 'max(24px, calc(env(safe-area-inset-top) + 12px))',
               left: '50%',
               transform: 'translateX(-50%)',
               zIndex: showBookmarks && isMobileViewport ? 9000 : 9999,
