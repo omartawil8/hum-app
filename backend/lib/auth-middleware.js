@@ -62,14 +62,21 @@ async function checkSearchLimit(req, res, next) {
   const ANONYMOUS_LIMIT = 1; // 1 free search without login
   const FREE_SEARCH_LIMIT = 3; // Total free searches (1 anonymous + 2 authenticated)
   const AVID_MONTHLY_LIMIT = 100; // Avid: 100 searches per monthly window
-  // "Unlimited" is generous but not infinite — past these monthly counts we throttle
-  // the *pace* of searches (not a hard block) to stop scripted abuse from running up
-  // ACRCloud/Spotify costs. A real listener never searches fast enough to feel the
-  // soft cooldown; the hard cooldown past 500 is intentionally restrictive.
-  const UNLIMITED_SOFT_LIMIT = 400; // start throttling past this many searches/month
-  const UNLIMITED_HARD_LIMIT = 500; // throttle hard past this
-  const SOFT_COOLDOWN_MS = 8 * 1000;  // min gap between searches in the 400–500 band
-  const HARD_COOLDOWN_MS = 60 * 1000; // min gap between searches past 500
+  // "Unlimited" is generous but not infinite. Past these monthly counts the *pace*
+  // of searches is throttled with escalating cooldowns, then fully cut off at the
+  // top, to stop scripted abuse from running up ACRCloud/Spotify costs. A real
+  // listener never searches fast enough to feel the lower cooldowns.
+  //   400–499 : soft  (8s between searches)
+  //   500–599 : hard  (60s)
+  //   600–699 : very hard (5 min — "very hard to use")
+  //   700+    : hard cutoff (blocked until the monthly window resets)
+  const UNLIMITED_SOFT_LIMIT = 400;
+  const UNLIMITED_HARD_LIMIT = 500;
+  const UNLIMITED_VERY_HARD_LIMIT = 600;
+  const UNLIMITED_CUTOFF_LIMIT = 700;
+  const SOFT_COOLDOWN_MS = 8 * 1000;
+  const HARD_COOLDOWN_MS = 60 * 1000;
+  const VERY_HARD_COOLDOWN_MS = 5 * 60 * 1000;
 
   if (!isMongoConnected()) {
     // Fallback: allow request if MongoDB not connected (will fail gracefully)
@@ -120,21 +127,40 @@ async function checkSearchLimit(req, res, next) {
             requiresUpgrade: true
           });
         }
-        // Unlimited tier: throttle the pace past 400/month, hard-throttle past 500.
+        // Unlimited tier: escalating pace throttles, then a hard monthly cutoff.
         if (user.tier === 'unlimited' && searchCount >= UNLIMITED_SOFT_LIMIT) {
+          // Hard cutoff at 700/month — fully blocked until the monthly window resets.
+          if (searchCount >= UNLIMITED_CUTOFF_LIMIT) {
+            return res.status(429).json({
+              success: false,
+              error: 'Monthly search cap reached',
+              message: "you've hit 700 searches this month — that's the cap. it resets at the start of your next monthly period.",
+              rateLimited: true,
+              capReached: true
+            });
+          }
+          // Below the cap: pick the cooldown for the band the user is in.
           const last = user.lastSearchAt ? user.lastSearchAt.getTime() : 0;
           const sinceLast = Date.now() - last;
-          const hard = searchCount >= UNLIMITED_HARD_LIMIT;
-          const cooldown = hard ? HARD_COOLDOWN_MS : SOFT_COOLDOWN_MS;
+          let cooldown;
+          let message;
+          if (searchCount >= UNLIMITED_VERY_HARD_LIMIT) {
+            cooldown = VERY_HARD_COOLDOWN_MS;
+            message = "you've passed 600 searches this month — searches are heavily limited now. please wait a few minutes between searches.";
+          } else if (searchCount >= UNLIMITED_HARD_LIMIT) {
+            cooldown = HARD_COOLDOWN_MS;
+            message = "you've passed 500 searches this month — searches are rate-limited now. please wait a bit between searches.";
+          } else {
+            cooldown = SOFT_COOLDOWN_MS;
+            message = "you're searching very fast — please wait a few seconds between searches.";
+          }
           if (sinceLast < cooldown) {
             const retryAfterSeconds = Math.ceil((cooldown - sinceLast) / 1000);
             res.set('Retry-After', String(retryAfterSeconds));
             return res.status(429).json({
               success: false,
               error: 'Search rate limited',
-              message: hard
-                ? "you've passed 500 searches this month — searches are heavily rate-limited for the rest of the period to keep things fair. please wait a bit and try again."
-                : "you're searching very fast — please wait a few seconds between searches.",
+              message,
               rateLimited: true,
               retryAfterSeconds
             });
