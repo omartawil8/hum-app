@@ -2,7 +2,9 @@
   "appId": "rocks.hum.app",
   "appName": "hüm",
   "webDir": "dist",
+  "backgroundColor": "#0D0B10",
   "ios": {
-    "contentInset": "always"
+    "contentInset": "always",
+    "backgroundColor": "#0D0B10"
   }
 }
