@@ -1641,8 +1641,18 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       const targetPriceId = await getOrCreatePlanPriceId(plan, interval, unitAmount);
       const currentFullPrice = currentItem.price?.unit_amount || 0;
 
-      // No-op: already on this exact plan + interval
+      // Same exact plan + interval. If the subscription is set to cancel at period
+      // end, re-selecting it means "resubscribe" — clear the cancellation so it
+      // renews normally. Otherwise it's a genuine no-op.
       if (plan === user.tier && interval === currentInterval) {
+        if (subscription.cancel_at_period_end) {
+          await releaseSubscriptionSchedule(subscription);
+          await stripe.subscriptions.update(user.stripeSubscriptionId, {
+            cancel_at_period_end: false,
+          });
+          console.log(`♻️ Reactivated subscription for ${user.email} (cleared cancel_at_period_end)`);
+          return res.json({ success: true, reactivated: true, tier: user.tier, interval: billingPeriod });
+        }
         return res.json({ success: true, upgraded: false, noChange: true, tier: user.tier });
       }
 

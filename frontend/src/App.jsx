@@ -2678,6 +2678,14 @@ export default function HumApp() {
           // Backend sends amountCents/displayPrice so we can verify correct $3/$30 before redirect
           if (data.displayPrice) 
           window.location.href = data.url;
+        } else if (data.success && data.reactivated) {
+          // Cleared a pending cancellation — the plan renews normally again
+          showToast('resubscribed — your plan will renew as usual', 'success');
+          setSubscriptionEndsAt(null);
+          setPendingPlanChange(null);
+          await checkAuthStatus(token);
+          await fetchSubscriptionStatus();
+          handleCloseUpgrade();
         } else if (data.success && data.noChange) {
           showToast('you’re already on this plan', 'info');
           handleCloseUpgrade();
@@ -4944,7 +4952,12 @@ export default function HumApp() {
                         const alreadyQueued = pendingPlanChange &&
                           pendingPlanChange.tier === selectedTier &&
                           pendingPlanChange.interval === billingPeriod;
-                        const disabled = (hasSub && userTier === selectedTier && billingPeriod === currentInterval) || !!alreadyQueued;
+                        const isCurrentExact = hasSub && userTier === selectedTier && billingPeriod === currentInterval;
+                        // Subscription is set to cancel at period end. Re-selecting the
+                        // current plan then means "resubscribe" — keep the button live.
+                        const isCanceling = !!subscriptionEndsAt;
+                        const canReactivate = isCurrentExact && isCanceling;
+                        const disabled = (isCurrentExact && !isCanceling) || !!alreadyQueued;
                         // For an existing subscriber, an in-place change is charged immediately
                         // (prorated) only when the new period costs at least as much as the
                         // current one; otherwise it's scheduled for the end of the period.
@@ -4972,6 +4985,8 @@ export default function HumApp() {
                                 ? 'already queued'
                                 : disabled
                                 ? 'already on this plan'
+                                : canReactivate
+                                ? 'resubscribe — keep my plan'
                                 : !hasSub
                                 ? "let's keep humming"
                                 : isImmediate
