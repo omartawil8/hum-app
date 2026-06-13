@@ -1016,6 +1016,26 @@ export default function HumApp() {
     }
   };
 
+  const handleCancelPendingChange = async () => {
+    if (!confirm("cancel the queued plan change? you'll stay on your current plan.")) return;
+    try {
+      const token = localStorage.getItem('hum-auth-token');
+      const response = await fetch(`${API_BASE_URL}/api/payments/cancel-pending-change`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setPendingPlanChange(null);
+        showToast('queued change canceled — staying on your current plan', 'success');
+      } else {
+        showToast(data.error || 'failed to cancel the queued change', 'error');
+      }
+    } catch {
+      showToast('failed to cancel the queued change — please try again', 'error');
+    }
+  };
+
   const handleCloseAuth = () => {
     setIsClosingAuth(true);
     setTimeout(() => {
@@ -5430,6 +5450,9 @@ export default function HumApp() {
                       <div className="inline-flex items-center gap-1.5 mt-0.5 px-2.5 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-xs text-white/70">
                         {userTier !== 'free' && <Star className="w-3 h-3 text-[#D8B5FE] fill-[#D8B5FE]" />}
                         {userTier === 'unlimited' ? 'eat, breath, music' : userTier === 'avid' ? 'avid listener' : 'free tier'}
+                        {currentInterval && userTier !== 'free' && (
+                          <span className="text-white/40">· {currentInterval}</span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -5452,15 +5475,23 @@ export default function HumApp() {
                         </span>{' '}
                         on <span className="text-[#D8B5FE]">{formatPlanDate(pendingPlanChange.date)}</span>
                       </p>
-                      {hasActiveSubscription && (
+                      <div className="flex flex-col items-center gap-2">
                         <button
-                          onClick={handleCancelSubscription}
-                          disabled={isCancelingSubscription}
-                          className="block mx-auto text-sm text-red-300/70 hover:text-red-300 underline underline-offset-4 decoration-red-500/30 hover:decoration-red-400/60 transition-colors disabled:opacity-50 disabled:md:cursor-not-allowed"
+                          onClick={handleCancelPendingChange}
+                          className="text-sm text-white/50 hover:text-white/80 underline underline-offset-4 decoration-white/20 hover:decoration-white/40 transition-colors"
                         >
-                          {isCancelingSubscription ? 'canceling...' : 'cancel subscription'}
+                          cancel queued change
                         </button>
-                      )}
+                        {hasActiveSubscription && (
+                          <button
+                            onClick={handleCancelSubscription}
+                            disabled={isCancelingSubscription}
+                            className="text-sm text-red-300/70 hover:text-red-300 underline underline-offset-4 decoration-red-500/30 hover:decoration-red-400/60 transition-colors disabled:opacity-50 disabled:md:cursor-not-allowed"
+                          >
+                            {isCancelingSubscription ? 'canceling...' : 'cancel subscription'}
+                          </button>
+                        )}
+                      </div>
                     </>
                   ) : (
                     <>

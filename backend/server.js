@@ -2069,6 +2069,27 @@ app.get('/api/payments/status', authenticateToken, async (req, res) => {
 });
 
 // Cancel subscription
+// Cancel a pending scheduled plan change (release the subscription schedule)
+// without canceling the subscription itself. The user stays on their current plan.
+app.post('/api/payments/cancel-pending-change', authenticateToken, async (req, res) => {
+  try {
+    if (!stripe) return res.status(503).json({ error: 'Payment system not configured' });
+    const user = await User.findById(req.user.userId);
+    if (!user || !user.stripeSubscriptionId) {
+      return res.status(404).json({ error: 'No active subscription found' });
+    }
+    const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+    const released = await releaseSubscriptionSchedule(subscription);
+    if (!released) {
+      return res.status(400).json({ error: 'No pending plan change to cancel' });
+    }
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('Cancel pending change error:', error);
+    return res.status(500).json({ error: error.message || 'Failed to cancel pending change' });
+  }
+});
+
 app.post('/api/payments/cancel-subscription', authenticateToken, async (req, res) => {
   try {
     if (!stripe) {
