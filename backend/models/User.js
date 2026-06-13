@@ -32,6 +32,19 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
+  // Start of the current monthly search-allowance window. Paid tiers (avid,
+  // unlimited) reset their searchCount once a month from this anchor; free tier's
+  // allowance is a one-time trial and is never reset.
+  searchPeriodStart: {
+    type: Date,
+    default: null
+  },
+  // Timestamp of the user's most recent search. Used to throttle the pace of
+  // very high-volume unlimited use (cooldown between searches past a threshold).
+  lastSearchAt: {
+    type: Date,
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now

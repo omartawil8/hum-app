@@ -1967,6 +1967,12 @@ export default function HumApp() {
           localStorage.setItem('hum-anonymous-search-count', ANONYMOUS_SEARCH_LIMIT.toString());
           return;
         }
+        // High-volume throttle (unlimited tier past its monthly soft/hard limit)
+        if (response.status === 429 && data.rateLimited) {
+          setError(data.message || "you're searching too fast — please wait a moment and try again.");
+          setIsProcessing(false);
+          return;
+        }
         throw new Error(data.error || data.message || `Server error: ${response.status}`);
       }
       
@@ -2081,6 +2087,12 @@ export default function HumApp() {
           setIsSearchingLyrics(false);
           setAnonymousSearchCount(ANONYMOUS_SEARCH_LIMIT);
           localStorage.setItem('hum-anonymous-search-count', ANONYMOUS_SEARCH_LIMIT.toString());
+          return;
+        }
+        // High-volume throttle (unlimited tier past its monthly soft/hard limit)
+        if (response.status === 429 && data.rateLimited) {
+          setError(data.message || "you're searching too fast — please wait a moment and try again.");
+          setIsSearchingLyrics(false);
           return;
         }
         throw new Error(data.error || data.message || `Server error: ${response.status}`);

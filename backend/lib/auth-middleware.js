@@ -61,6 +61,15 @@ function getAnonymousId(req) {
 async function checkSearchLimit(req, res, next) {
   const ANONYMOUS_LIMIT = 1; // 1 free search without login
   const FREE_SEARCH_LIMIT = 3; // Total free searches (1 anonymous + 2 authenticated)
+  const AVID_MONTHLY_LIMIT = 100; // Avid: 100 searches per monthly window
+  // "Unlimited" is generous but not infinite — past these monthly counts we throttle
+  // the *pace* of searches (not a hard block) to stop scripted abuse from running up
+  // ACRCloud/Spotify costs. A real listener never searches fast enough to feel the
+  // soft cooldown; the hard cooldown past 500 is intentionally restrictive.
+  const UNLIMITED_SOFT_LIMIT = 400; // start throttling past this many searches/month
+  const UNLIMITED_HARD_LIMIT = 500; // throttle hard past this
+  const SOFT_COOLDOWN_MS = 8 * 1000;  // min gap between searches in the 400–500 band
+  const HARD_COOLDOWN_MS = 60 * 1000; // min gap between searches past 500
 
   if (!isMongoConnected()) {
     // Fallback: allow request if MongoDB not connected (will fail gracefully)
@@ -73,7 +82,27 @@ async function checkSearchLimit(req, res, next) {
     try {
       const user = await User.findById(req.user.userId);
       if (user) {
+        // Paid tiers get a fresh search allowance each month. Roll the window when
+        // a month has elapsed since it started. (Free tier is a one-time trial, so
+        // it is intentionally NOT reset here.)
+        if (user.tier === 'avid' || user.tier === 'unlimited') {
+          let changed = false;
+          if (!user.searchPeriodStart) {
+            user.searchPeriodStart = user.subscriptionStartedAt || user.createdAt || new Date();
+            changed = true;
+          }
+          const windowEnd = new Date(user.searchPeriodStart);
+          windowEnd.setMonth(windowEnd.getMonth() + 1);
+          if (Date.now() >= windowEnd.getTime()) {
+            user.searchCount = 0;
+            user.searchPeriodStart = new Date();
+            changed = true;
+          }
+          if (changed) await user.save();
+        }
+
         const searchCount = user.searchCount || 0;
+
         if (user.tier === 'free' && searchCount >= FREE_SEARCH_LIMIT) {
           return res.status(403).json({
             success: false,
@@ -82,14 +111,34 @@ async function checkSearchLimit(req, res, next) {
             requiresUpgrade: true
           });
         }
-        // Avid tier: 100 searches per month (we'll implement monthly reset later)
-        if (user.tier === 'avid' && searchCount >= 100) {
+        // Avid tier: 100 searches per monthly window
+        if (user.tier === 'avid' && searchCount >= AVID_MONTHLY_LIMIT) {
           return res.status(403).json({
             success: false,
             error: 'Search limit reached',
             message: 'You have reached your monthly search limit. Please upgrade to Avid Listener.',
             requiresUpgrade: true
           });
+        }
+        // Unlimited tier: throttle the pace past 400/month, hard-throttle past 500.
+        if (user.tier === 'unlimited' && searchCount >= UNLIMITED_SOFT_LIMIT) {
+          const last = user.lastSearchAt ? user.lastSearchAt.getTime() : 0;
+          const sinceLast = Date.now() - last;
+          const hard = searchCount >= UNLIMITED_HARD_LIMIT;
+          const cooldown = hard ? HARD_COOLDOWN_MS : SOFT_COOLDOWN_MS;
+          if (sinceLast < cooldown) {
+            const retryAfterSeconds = Math.ceil((cooldown - sinceLast) / 1000);
+            res.set('Retry-After', String(retryAfterSeconds));
+            return res.status(429).json({
+              success: false,
+              error: 'Search rate limited',
+              message: hard
+                ? "you've passed 500 searches this month — searches are heavily rate-limited for the rest of the period to keep things fair. please wait a bit and try again."
+                : "you're searching very fast — please wait a few seconds between searches.",
+              rateLimited: true,
+              retryAfterSeconds
+            });
+          }
         }
       }
     } catch (error) {

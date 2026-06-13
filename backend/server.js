@@ -1033,7 +1033,8 @@ app.post('/api/search-lyrics', searchLimiter, authenticateToken, checkSearchLimi
       try {
         if (req.user) {
           await User.findByIdAndUpdate(req.user.userId, {
-            $inc: { searchCount: 1 }
+            $inc: { searchCount: 1 },
+            $set: { lastSearchAt: new Date() }
           });
         } else {
           const anonymousId = getAnonymousId(req);
