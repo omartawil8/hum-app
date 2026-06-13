@@ -1563,13 +1563,17 @@ export default function HumApp() {
     }
   }, [matchData, savedSongs]);
 
-  // Auto-select a plan when the upgrade modal opens: subscribers see the next
-  // tier up, everyone else starts on Avid Listener
+  // When the upgrade modal opens generically (no plan pre-selected by a specific
+  // CTA), land on the user's CURRENT plan + billing interval so they see what they
+  // have first. Free users start on Avid Listener.
   useEffect(() => {
     if (showUpgradeModal && !selectedPlan) {
-      setSelectedPlan(userTier === 'avid' ? 'Eat, Breath, Music' : 'Avid Listener');
+      setSelectedPlan(userTier === 'unlimited' ? 'Eat, Breath, Music' : 'Avid Listener');
+      if (userTier !== 'free' && currentInterval) {
+        setBillingPeriod(currentInterval);
+      }
     }
-  }, [showUpgradeModal, selectedPlan, userTier]);
+  }, [showUpgradeModal, selectedPlan, userTier, currentInterval]);
 
   // Auto-dismiss the global error banner so it doesn't linger forever
   useEffect(() => {
@@ -5492,6 +5496,7 @@ export default function HumApp() {
                       <button
                         onClick={() => {
                           setSelectedPlan('Eat, Breath, Music');
+                          if (currentInterval) setBillingPeriod(currentInterval);
                           setShowUpgradeModal(true);
                           handleCloseProfile();
                         }}
@@ -5504,13 +5509,13 @@ export default function HumApp() {
                     {userTier === 'unlimited' && (
                       <button
                         onClick={() => {
-                          setSelectedPlan('Avid Listener');
+                          setSelectedPlan(null);
                           setShowUpgradeModal(true);
                           handleCloseProfile();
                         }}
                         className="w-full px-4 py-2 mb-3 rounded-full border border-white/20 hover:border-white/40 hover:bg-white/5 flex items-center justify-center gap-2 transition-all text-sm text-white/70"
                       >
-                        <span>switch to avid listener</span>
+                        <span>manage plan</span>
                       </button>
                     )}
                     {hasActiveSubscription && userTier !== 'free' ? (
