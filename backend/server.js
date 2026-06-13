@@ -1771,7 +1771,7 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
     const displayPrice = (unitAmount / 100).toFixed(2);
     const displayLabel = interval === 'year' ? `$${displayPrice}/year` : `$${displayPrice}/month`;
     console.log(`💳 Creating Checkout with price_data: ${displayLabel} (${unitAmount} cents)`);
-    const session = await stripe.checkout.sessions.create({
+    const checkoutParams = {
       payment_method_types: ['card'],
       line_items: [
         {
@@ -1792,12 +1792,20 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}?payment=canceled`,
       client_reference_id: user._id.toString(),
-      customer_email: user.email,
       metadata: {
         userId: user._id.toString(),
         plan: plan,
       },
-    });
+    };
+    // Reuse the existing Stripe customer so any leftover account credit (e.g. from
+    // a prior cheaper-upgrade proration) carries over and auto-applies to this
+    // purchase. Only fall back to customer_email for brand-new customers.
+    if (user.stripeCustomerId) {
+      checkoutParams.customer = user.stripeCustomerId;
+    } else {
+      checkoutParams.customer_email = user.email;
+    }
+    const session = await stripe.checkout.sessions.create(checkoutParams);
 
     console.log(`✅ Checkout session created: ${session.id} for user ${user.email}`);
     res.json({ 
