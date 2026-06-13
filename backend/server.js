@@ -67,9 +67,37 @@ const upload = multer({
   }
 });
 
-// CORS configuration - allow all origins for file uploads
-app.use(cors({ 
-  origin: '*',
+// CORS: allow the app's own surfaces (production custom domain, every Vercel
+// deploy incl. preview URLs, and local dev) plus anything in ALLOWED_ORIGINS, and
+// reject arbitrary third-party sites from calling the API in a browser. Pattern-
+// based so new preview deploys never break. Requests with no Origin header (curl,
+// server-to-server, some native clients) are allowed — Origin only matters for
+// browser cross-site protection.
+const extraAllowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true; // non-browser clients
+  if (extraAllowedOrigins.includes(origin)) return true;
+  let host;
+  try {
+    host = new URL(origin).hostname;
+  } catch {
+    return false;
+  }
+  return (
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    host === 'hum.rocks' || host.endsWith('.hum.rocks') ||
+    host.endsWith('.vercel.app')
+  );
+};
+app.use(cors({
+  origin: (origin, callback) => {
+    if (isAllowedOrigin(origin)) return callback(null, true);
+    return callback(null, false); // not an error — just no CORS headers, so the browser blocks it
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
