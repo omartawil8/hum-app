@@ -956,7 +956,7 @@ export default function HumApp() {
   };
 
   const formatPlanDate = (iso) =>
-    new Date(iso).toLocaleDateString(undefined, { month: 'long', day: 'numeric' }).toLowerCase();
+    new Date(iso).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }).toLowerCase();
 
   const tierLabel = (tier) =>
     tier === 'unlimited' ? 'eat, breath, music' : tier === 'avid' ? 'avid listener' : 'free';
@@ -1013,26 +1013,6 @@ export default function HumApp() {
       showToast('failed to cancel subscription — please try again', 'error');
     } finally {
       setIsCancelingSubscription(false);
-    }
-  };
-
-  const handleCancelPendingChange = async () => {
-    if (!confirm("cancel the queued plan change? you'll stay on your current plan.")) return;
-    try {
-      const token = localStorage.getItem('hum-auth-token');
-      const response = await fetch(`${API_BASE_URL}/api/payments/cancel-pending-change`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      if (response.ok && data.success) {
-        setPendingPlanChange(null);
-        showToast('queued change canceled — staying on your current plan', 'success');
-      } else {
-        showToast(data.error || 'failed to cancel the queued change', 'error');
-      }
-    } catch {
-      showToast('failed to cancel the queued change — please try again', 'error');
     }
   };
 
@@ -5485,10 +5465,6 @@ export default function HumApp() {
                           : tierLabel(pendingPlanChange.tier)}
                       </span>{' '}
                       on <span className="text-[#D8B5FE]">{formatPlanDate(pendingPlanChange.date)}</span>
-                      {' '}·{' '}
-                      <button onClick={handleCancelPendingChange} className="underline underline-offset-2 hover:text-white/80 transition-colors">
-                        undo
-                      </button>
                     </p>
                   )}
                   <>
