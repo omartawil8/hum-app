@@ -2704,11 +2704,16 @@ export default function HumApp() {
           }
           handleCloseUpgrade();
         } else if (data.success && data.upgraded) {
-          // Existing subscription was changed in place (no Checkout redirect), prorated charge
+          // Existing subscription was changed in place (no Checkout redirect)
           const label = data.interval && data.interval !== currentInterval
             ? planLabelWithInterval(tier, data.interval)
             : tierLabel(tier);
-          showToast(`switched to ${label} — you were only charged the prorated difference`, 'success');
+          if (data.credited) {
+            // Switched to a cheaper-but-higher tier; unused balance is now credit
+            showToast(`switched to ${label} — your remaining balance was applied as credit toward future charges`, 'success');
+          } else {
+            showToast(`switched to ${label} — you were only charged the prorated difference`, 'success');
+          }
           setPendingPlanChange(null);
           await checkAuthStatus(token);
           await fetchSubscriptionStatus();
@@ -4958,12 +4963,19 @@ export default function HumApp() {
                         const isCanceling = !!subscriptionEndsAt;
                         const canReactivate = isCurrentExact && isCanceling;
                         const disabled = (isCurrentExact && !isCanceling) || !!alreadyQueued;
-                        // For an existing subscriber, an in-place change is charged immediately
-                        // (prorated) only when the new period costs at least as much as the
-                        // current one; otherwise it's scheduled for the end of the period.
+                        // Tier-direction rule (mirrors the backend): tier upgrades apply
+                        // immediately, tier downgrades are scheduled for period end, and a
+                        // same-tier interval change is immediate only when it costs at least
+                        // as much (monthly → yearly). When an immediate upgrade is to a
+                        // cheaper plan (avid-yearly → unlimited-monthly), the unused balance
+                        // becomes account credit rather than a prorated charge.
+                        const TIER_RANK = { free: 0, avid: 1, unlimited: 2 };
+                        const isTierUpgrade = (TIER_RANK[selectedTier] ?? 0) > (TIER_RANK[userTier] ?? 0);
+                        const isTierDowngrade = (TIER_RANK[selectedTier] ?? 0) < (TIER_RANK[userTier] ?? 0);
                         const currentFull = PLAN_PRICES[userTier]?.[currentInterval] || 0;
                         const targetFull = PLAN_PRICES[selectedTier]?.[billingPeriod] || 0;
-                        const isImmediate = targetFull >= currentFull;
+                        const isImmediate = isTierDowngrade ? false : isTierUpgrade ? true : targetFull >= currentFull;
+                        const isCredited = isImmediate && targetFull < currentFull;
 
                         return (
                     <button
@@ -4989,6 +5001,8 @@ export default function HumApp() {
                                 ? 'resubscribe — keep my plan'
                                 : !hasSub
                                 ? "let's keep humming"
+                                : isCredited
+                                ? 'switch now — balance becomes credit'
                                 : isImmediate
                                 ? 'switch — only pay the difference'
                                 : 'switch when my billing period ends'}

@@ -1656,18 +1656,25 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
         return res.json({ success: true, upgraded: false, noChange: true, tier: user.tier });
       }
 
-      // Immediate vs. scheduled, refund-safe rule: applying a change immediately
-      // with always_invoice proration is only safe (never a net refund) when the
-      // new period's price is at least the current period's price — the credit for
-      // unused current time can't exceed the current full price. Anything cheaper
-      // (a tier downgrade, OR a yearly→monthly switch where a big prepaid balance
-      // would otherwise be refunded) is deferred to the period end with no refund:
-      // a subscription schedule keeps the current plan until period end, then
-      // rotates onto the target plan. The customer.subscription.updated webhook
-      // flips the stored tier when the new phase starts.
-      const isImmediate = unitAmount >= currentFullPrice;
+      // Tier-direction rule for immediate vs. scheduled:
+      //   - Tier downgrade (unlimited → avid): always scheduled for period end. No
+      //     refund — a subscription schedule keeps the current plan until the period
+      //     ends, then rotates onto the cheaper tier. (Applies even when the new
+      //     period nominally costs more, e.g. unlimited-monthly → avid-yearly.)
+      //   - Tier upgrade (avid → unlimited): always immediate. The user gets the
+      //     better tier right away; how it's billed is decided below.
+      //   - Same tier, interval change: immediate only when the new period costs at
+      //     least as much (monthly → yearly). A yearly → monthly switch is scheduled
+      //     so the big prepaid balance isn't refunded.
+      const TIER_RANK = { free: 0, avid: 1, unlimited: 2 };
+      const isTierUpgrade = (TIER_RANK[plan] ?? 0) > (TIER_RANK[user.tier] ?? 0);
+      const isTierDowngrade = (TIER_RANK[plan] ?? 0) < (TIER_RANK[user.tier] ?? 0);
+      let applyImmediately;
+      if (isTierDowngrade) applyImmediately = false;
+      else if (isTierUpgrade) applyImmediately = true;
+      else applyImmediately = unitAmount >= currentFullPrice;
 
-      if (!isImmediate) {
+      if (!applyImmediately) {
         const periodStart = subscription.current_period_start
           || subscription.items?.data?.[0]?.current_period_start;
         const periodEnd = subscription.current_period_end
@@ -1717,17 +1724,29 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       // the pending downgrade, which is correct since the user is now upgrading).
       await releaseSubscriptionSchedule(subscription);
 
-      // 'always_invoice' charges the prorated difference immediately: Stripe credits
-      // the unused time on the old plan and bills only the gap, so upgrading mid-cycle
-      // never double-charges.
-      const updated = await stripe.subscriptions.update(user.stripeSubscriptionId, {
+      // How to bill the immediate change:
+      //   - Target costs at least as much (e.g. avid → unlimited at the same or
+      //     longer interval): 'always_invoice' charges the prorated difference now.
+      //     Stripe credits unused time on the old plan and bills only the gap.
+      //   - Target is cheaper (e.g. avid-yearly → unlimited-monthly upgrade):
+      //     invoicing now could cut a refund, so use 'create_prorations' — the
+      //     unused balance becomes account credit applied to future invoices — and
+      //     anchor the billing cycle to now so it starts billing on the new
+      //     (shorter) interval immediately.
+      const targetCostsMore = unitAmount >= currentFullPrice;
+      const credited = !targetCostsMore;
+      const updateParams = {
         cancel_at_period_end: false,
-        proration_behavior: 'always_invoice',
+        proration_behavior: targetCostsMore ? 'always_invoice' : 'create_prorations',
         items: [{
           id: currentItem.id,
           price: targetPriceId,
         }],
-      });
+      };
+      if (credited && interval !== currentInterval) {
+        updateParams.billing_cycle_anchor = 'now';
+      }
+      const updated = await stripe.subscriptions.update(user.stripeSubscriptionId, updateParams);
 
       user.tier = plan;
       if (updated.current_period_start) {
@@ -1737,10 +1756,11 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       }
       await user.save();
 
-      console.log(`✅ Subscription updated for ${user.email}: ${updated.id}`);
+      console.log(`✅ Subscription updated for ${user.email}: ${updated.id}${credited ? ' (unused balance credited)' : ''}`);
       return res.json({
         success: true,
         upgraded: true,
+        credited,
         tier: user.tier,
         interval: billingPeriod,
       });
