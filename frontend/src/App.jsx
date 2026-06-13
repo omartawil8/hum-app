@@ -1009,6 +1009,7 @@ export default function HumApp() {
       const data = await response.json();
 
       if (response.ok && data.success) {
+        setPendingPlanChange(null);
         // No refund and no instant downgrade — the tier stays until the period ends
         if (data.accessUntil) {
           setSubscriptionEndsAt(data.accessUntil);
