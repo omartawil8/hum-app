@@ -2666,8 +2666,10 @@ export default function HumApp() {
           const until = data.effectiveDate ? formatPlanDate(data.effectiveDate) : 'the end of your billing period';
           const targetTier = data.targetTier || 'avid';
           const targetInterval = data.targetInterval || billingPeriod;
-          const sameTier = targetTier === userTier;
-          const label = sameTier ? tierLabel(targetTier) : planLabelWithInterval(targetTier, targetInterval);
+          // Show the interval whenever it's changing (otherwise a same-tier
+          // yearly→monthly switch would read as "switch to <same plan>")
+          const intervalChanged = targetInterval !== currentInterval;
+          const label = intervalChanged ? planLabelWithInterval(targetTier, targetInterval) : tierLabel(targetTier);
           showToast(`you'll keep your current plan until ${until}, then switch to ${label}`, 'info');
           if (data.effectiveDate) {
             setPendingPlanChange({ tier: targetTier, interval: targetInterval, date: data.effectiveDate });
