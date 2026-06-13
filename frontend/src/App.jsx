@@ -958,6 +958,14 @@ export default function HumApp() {
     }
   };
 
+  // Load subscription status (currentInterval, pendingPlanChange, etc.) as soon as
+  // the user is authenticated, so the plan modal shows the right badges on first
+  // open without waiting for the profile to be opened.
+  useEffect(() => {
+    if (user) fetchSubscriptionStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
   const formatPlanDate = (iso) =>
     new Date(iso).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }).toLowerCase();
 
