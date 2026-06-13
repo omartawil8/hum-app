@@ -65,9 +65,23 @@ app.use((req, res, next) => {
   next();
 });
 
-// Increase body size limit for audio file uploads (50MB)
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+// Increase body size limit for audio file uploads (50MB).
+// IMPORTANT: the Stripe webhook (/api/payments/webhook) verifies a signature over
+// the RAW request body, so it must NOT be JSON-parsed here — its own express.raw()
+// handles the body. Parsing it globally would consume the stream and make every
+// webhook fail signature verification (silently breaking renewals, cancellations,
+// and scheduled tier changes). So skip the body parsers for that one route.
+const STRIPE_WEBHOOK_PATH = '/api/payments/webhook';
+const jsonParser = express.json({ limit: '50mb' });
+const urlencodedParser = express.urlencoded({ extended: true, limit: '50mb' });
+app.use((req, res, next) => {
+  if (req.path === STRIPE_WEBHOOK_PATH) return next();
+  jsonParser(req, res, next);
+});
+app.use((req, res, next) => {
+  if (req.path === STRIPE_WEBHOOK_PATH) return next();
+  urlencodedParser(req, res, next);
+});
 
 // =========================
 // STRIPE PAYMENT SETUP
@@ -605,6 +619,18 @@ app.put('/api/user/recent-searches', authenticateToken, async (req, res) => {
 // Reset search count endpoint (for debugging)
 app.post('/api/user/reset-search-count', authenticateToken, async (req, res) => {
   try {
+    // Dev-only utility: lets the caller zero their own search count. Disabled
+    // unless explicitly enabled, otherwise any free user could call it directly
+    // to reset their count and bypass the search paywall indefinitely. Returns
+    // 404 so the endpoint isn't advertised in production.
+    if (process.env.ENABLE_DEV_ENDPOINTS !== 'true') {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    if (!req.user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
     if (!isMongoConnected()) {
       return res.status(503).json({ error: 'Database not available' });
     }
