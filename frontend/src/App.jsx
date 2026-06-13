@@ -942,7 +942,10 @@ export default function HumApp() {
         const data = await response.json();
         setHasActiveSubscription(data.hasActiveSubscription || false);
         setSubscriptionEndsAt(data.cancelAtPeriodEnd && data.currentPeriodEnd ? data.currentPeriodEnd : null);
-        setCurrentInterval(data.currentInterval === 'year' ? 'yearly' : data.currentInterval === 'month' ? 'monthly' : null);
+        const interval = data.currentInterval === 'year' ? 'yearly' : data.currentInterval === 'month' ? 'monthly' : null;
+        setCurrentInterval(interval);
+        // Keep billingPeriod in sync so the plan modal shows the right tab immediately on open
+        if (interval) setBillingPeriod(interval);
         setPendingPlanChange(data.pendingPlanTier && data.pendingPlanDate
           ? { tier: data.pendingPlanTier, interval: data.pendingPlanInterval === 'year' ? 'yearly' : 'monthly', date: data.pendingPlanDate }
           : null);
@@ -1013,6 +1016,26 @@ export default function HumApp() {
       showToast('failed to cancel subscription — please try again', 'error');
     } finally {
       setIsCancelingSubscription(false);
+    }
+  };
+
+  const handleCancelPendingChange = async () => {
+    if (!confirm("cancel the queued plan change? you'll stay on your current plan.")) return;
+    try {
+      const token = localStorage.getItem('hum-auth-token');
+      const response = await fetch(`${API_BASE_URL}/api/payments/cancel-pending-change`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setPendingPlanChange(null);
+        showToast('queued change canceled — staying on your current plan', 'success');
+      } else {
+        showToast(data.error || 'failed to cancel the queued change', 'error');
+      }
+    } catch {
+      showToast('failed to cancel the queued change — please try again', 'error');
     }
   };
 
@@ -4663,11 +4686,18 @@ export default function HumApp() {
                         ? 'border-[#D8B5FE] shadow-[0_0_0_2px_rgba(216,181,254,0.5)]' 
                         : 'border-[#D8B5FE]/20 hover:border-[#D8B5FE]/40'
                     }`}>
-                      {/* Current plan badge - only for Avid monthly when viewing monthly billing */}
+                      {/* Current plan badge */}
                       {userTier === 'avid' && billingPeriod === currentInterval && (
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white border border-white/25 text-[10px] font-semibold uppercase tracking-wide text-gray-900 backdrop-blur-md z-20 whitespace-nowrap">
                           current plan
-                      </div>
+                        </div>
+                      )}
+                      {/* Queued badge with cancel */}
+                      {pendingPlanChange?.tier === 'avid' && pendingPlanChange?.interval === billingPeriod && (
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#D8B5FE]/20 border border-[#D8B5FE]/50 text-[10px] font-semibold uppercase tracking-wide text-[#D8B5FE] backdrop-blur-md z-20 whitespace-nowrap">
+                          <span>queued</span>
+                          <button onClick={(e) => { e.stopPropagation(); handleCancelPendingChange(); }} className="hover:text-white transition-colors">✕</button>
+                        </div>
                       )}
                       {/* Star badge - only show for yearly */}
                       {billingPeriod === 'yearly' && (
@@ -4779,7 +4809,14 @@ export default function HumApp() {
                       {userTier === 'unlimited' && billingPeriod === currentInterval && (
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white border border-white/25 text-[10px] font-semibold uppercase tracking-wide text-gray-900 backdrop-blur-md z-20 whitespace-nowrap">
                           current plan
-                      </div>
+                        </div>
+                      )}
+                      {/* Queued badge with cancel */}
+                      {pendingPlanChange?.tier === 'unlimited' && pendingPlanChange?.interval === billingPeriod && (
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#D8B5FE]/20 border border-[#D8B5FE]/50 text-[10px] font-semibold uppercase tracking-wide text-[#D8B5FE] backdrop-blur-md z-20 whitespace-nowrap">
+                          <span>queued</span>
+                          <button onClick={(e) => { e.stopPropagation(); handleCancelPendingChange(); }} className="hover:text-white transition-colors">✕</button>
+                        </div>
                       )}
                       {/* Star badge - only show for yearly */}
                       {billingPeriod === 'yearly' && (
