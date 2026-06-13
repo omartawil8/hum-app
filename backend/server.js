@@ -1636,24 +1636,28 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
         return res.status(400).json({ error: 'Current subscription has no interval information' });
       }
 
-      // Prevent monthly ↔ yearly switches unless we explicitly support them
-      if ((currentInterval === 'month' && billingPeriod === 'yearly') ||
-          (currentInterval === 'year' && billingPeriod === 'monthly')) {
-        return res.status(400).json({ error: 'Switching between monthly and yearly plans is not supported yet.' });
-      }
-
       // Use get-or-create price so existing accounts get the correct plan pricing, not Dashboard prices
       const unitAmount = billingPeriod === 'yearly' ? selectedPlan.yearlyPrice : selectedPlan.monthlyPrice;
       const targetPriceId = await getOrCreatePlanPriceId(plan, interval, unitAmount);
+      const currentFullPrice = currentItem.price?.unit_amount || 0;
 
-      // Downgrades don't refund the difference. The user keeps their current tier
-      // until the end of the billing period, then a subscription schedule rotates
-      // them onto the cheaper plan. The customer.subscription.updated webhook
-      // flips their tier when the new phase starts.
-      const PLAN_RANK = { avid: 1, unlimited: 2 };
-      const isDowngrade = (PLAN_RANK[user.tier] || 0) > (PLAN_RANK[plan] || 0);
+      // No-op: already on this exact plan + interval
+      if (plan === user.tier && interval === currentInterval) {
+        return res.json({ success: true, upgraded: false, noChange: true, tier: user.tier });
+      }
 
-      if (isDowngrade) {
+      // Immediate vs. scheduled, refund-safe rule: applying a change immediately
+      // with always_invoice proration is only safe (never a net refund) when the
+      // new period's price is at least the current period's price — the credit for
+      // unused current time can't exceed the current full price. Anything cheaper
+      // (a tier downgrade, OR a yearly→monthly switch where a big prepaid balance
+      // would otherwise be refunded) is deferred to the period end with no refund:
+      // a subscription schedule keeps the current plan until period end, then
+      // rotates onto the target plan. The customer.subscription.updated webhook
+      // flips the stored tier when the new phase starts.
+      const isImmediate = unitAmount >= currentFullPrice;
+
+      if (!isImmediate) {
         const periodStart = subscription.current_period_start
           || subscription.items?.data?.[0]?.current_period_start;
         const periodEnd = subscription.current_period_end
@@ -1686,12 +1690,14 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
         });
 
         const effectiveDate = new Date(periodEnd * 1000).toISOString();
-        console.log(`🗓️ Scheduled downgrade for ${user.email}: ${user.tier} → ${plan} at ${effectiveDate}`);
+        console.log(`🗓️ Scheduled plan change for ${user.email}: ${user.tier}/${currentInterval} → ${plan}/${interval} at ${effectiveDate}`);
 
         return res.json({
           success: true,
           downgradeScheduled: true,
           tier: user.tier,
+          targetTier: plan,
+          targetInterval: billingPeriod,
           effectiveDate,
         });
       }
@@ -1726,6 +1732,7 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
         success: true,
         upgraded: true,
         tier: user.tier,
+        interval: billingPeriod,
       });
     }
 
@@ -1999,7 +2006,9 @@ app.get('/api/payments/status', authenticateToken, async (req, res) => {
     // "switches to <plan> on X" (scheduled downgrade)
     let cancelAtPeriodEnd = false;
     let currentPeriodEnd = null;
+    let currentInterval = null; // 'month' | 'year'
     let pendingPlanTier = null;
+    let pendingPlanInterval = null; // 'month' | 'year'
     let pendingPlanDate = null;
     if (user.stripeSubscriptionId && stripe) {
       try {
@@ -2008,9 +2017,10 @@ app.get('/api/payments/status', authenticateToken, async (req, res) => {
         const periodEnd = subscription.current_period_end
           || subscription.items?.data?.[0]?.current_period_end;
         currentPeriodEnd = periodEnd ? new Date(periodEnd * 1000).toISOString() : null;
+        currentInterval = subscription.items?.data?.[0]?.price?.recurring?.interval || null;
 
-        // A scheduled downgrade attaches a subscription schedule whose next phase
-        // holds the cheaper price. Find that phase and report what/when it switches.
+        // A scheduled plan change attaches a subscription schedule whose next phase
+        // holds the target price. Find that phase and report what/when it switches.
         if (subscription.schedule) {
           const scheduleId = typeof subscription.schedule === 'string'
             ? subscription.schedule
@@ -2021,10 +2031,17 @@ app.get('/api/payments/status', authenticateToken, async (req, res) => {
           const nextPriceId = upcoming?.items?.[0]?.price;
           if (nextPriceId) {
             let unitAmount;
-            try { unitAmount = (await stripe.prices.retrieve(nextPriceId)).unit_amount; } catch {}
+            let nextInterval;
+            try {
+              const price = await stripe.prices.retrieve(nextPriceId);
+              unitAmount = price.unit_amount;
+              nextInterval = price.recurring?.interval;
+            } catch {}
             const tier = planForStripePrice(nextPriceId, unitAmount);
-            if (tier && tier !== user.tier) {
+            // Report any genuine change — a different tier OR a different interval
+            if (tier && (tier !== user.tier || (nextInterval && nextInterval !== currentInterval))) {
               pendingPlanTier = tier;
+              pendingPlanInterval = nextInterval || null;
               pendingPlanDate = new Date(upcoming.start_date * 1000).toISOString();
             }
           }
@@ -2040,7 +2057,9 @@ app.get('/api/payments/status', authenticateToken, async (req, res) => {
       hasActiveSubscription: !!user.stripeSubscriptionId,
       cancelAtPeriodEnd,
       currentPeriodEnd,
+      currentInterval,
       pendingPlanTier,
+      pendingPlanInterval,
       pendingPlanDate
     });
   } catch (error) {

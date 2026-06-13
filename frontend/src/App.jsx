@@ -78,7 +78,8 @@ export default function HumApp() {
   const [showUnlimitedInfo, setShowUnlimitedInfo] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [subscriptionEndsAt, setSubscriptionEndsAt] = useState(null); // set when canceled but still active until period end
-  const [pendingPlanChange, setPendingPlanChange] = useState(null); // { tier, date } when a downgrade is scheduled
+  const [pendingPlanChange, setPendingPlanChange] = useState(null); // { tier, interval, date } when a plan change is scheduled
+  const [currentInterval, setCurrentInterval] = useState(null); // 'monthly' | 'yearly' — the active subscription's billing interval
   const [isCancelingSubscription, setIsCancelingSubscription] = useState(false);
   const [billingPeriod, setBillingPeriod] = useState('monthly'); // 'monthly' or 'yearly'
   const [subscriptionStartDate, setSubscriptionStartDate] = useState(null); // for monthly reset display
@@ -941,8 +942,9 @@ export default function HumApp() {
         const data = await response.json();
         setHasActiveSubscription(data.hasActiveSubscription || false);
         setSubscriptionEndsAt(data.cancelAtPeriodEnd && data.currentPeriodEnd ? data.currentPeriodEnd : null);
+        setCurrentInterval(data.currentInterval === 'year' ? 'yearly' : data.currentInterval === 'month' ? 'monthly' : null);
         setPendingPlanChange(data.pendingPlanTier && data.pendingPlanDate
-          ? { tier: data.pendingPlanTier, date: data.pendingPlanDate }
+          ? { tier: data.pendingPlanTier, interval: data.pendingPlanInterval === 'year' ? 'yearly' : 'monthly', date: data.pendingPlanDate }
           : null);
         if (data.tier) {
           setUserTier(data.tier);
@@ -958,6 +960,19 @@ export default function HumApp() {
 
   const tierLabel = (tier) =>
     tier === 'unlimited' ? 'eat, breath, music' : tier === 'avid' ? 'avid listener' : 'free';
+
+  // e.g. "avid listener (yearly)" — used when a plan change involves a billing-interval switch
+  const planLabelWithInterval = (tier, interval) => {
+    const norm = interval === 'year' ? 'yearly' : interval === 'month' ? 'monthly' : interval;
+    return norm ? `${tierLabel(tier)} (${norm})` : tierLabel(tier);
+  };
+
+  // Per-plan prices in cents — mirrors SUBSCRIPTION_PLANS on the backend. Used to
+  // label the checkout button (immediate charge vs. scheduled at period end).
+  const PLAN_PRICES = {
+    avid: { monthly: 300, yearly: 3000 },
+    unlimited: { monthly: 500, yearly: 5000 },
+  };
 
   const handleCancelSubscription = async () => {
     if (!confirm("cancel your subscription? no refunds — you'll keep your current plan until the end of your billing period, then move to the free tier.")) {
@@ -2623,18 +2638,30 @@ export default function HumApp() {
           // Backend sends amountCents/displayPrice so we can verify correct $3/$30 before redirect
           if (data.displayPrice) 
           window.location.href = data.url;
+        } else if (data.success && data.noChange) {
+          showToast('you’re already on this plan', 'info');
+          handleCloseUpgrade();
         } else if (data.success && data.downgradeScheduled) {
-          // Downgrade takes effect at the end of the billing period — no refund, no immediate change
+          // Change takes effect at the end of the billing period — no refund, no immediate change
           const until = data.effectiveDate ? formatPlanDate(data.effectiveDate) : 'the end of your billing period';
-          showToast(`you'll keep eat, breath, music until ${until}, then switch to avid listener`, 'info');
+          const targetTier = data.targetTier || 'avid';
+          const targetInterval = data.targetInterval || billingPeriod;
+          const sameTier = targetTier === userTier;
+          const label = sameTier ? tierLabel(targetTier) : planLabelWithInterval(targetTier, targetInterval);
+          showToast(`you'll keep your current plan until ${until}, then switch to ${label}`, 'info');
           if (data.effectiveDate) {
-            setPendingPlanChange({ tier: 'avid', date: data.effectiveDate });
+            setPendingPlanChange({ tier: targetTier, interval: targetInterval, date: data.effectiveDate });
           }
           handleCloseUpgrade();
         } else if (data.success && data.upgraded) {
-          // Existing subscription was upgraded in place (no Checkout redirect)
-          showToast(`upgraded to ${tier === 'unlimited' ? 'eat, breath, music' : 'avid listener'} — you were only charged the prorated difference`, 'success');
+          // Existing subscription was changed in place (no Checkout redirect), prorated charge
+          const label = data.interval && data.interval !== currentInterval
+            ? planLabelWithInterval(tier, data.interval)
+            : tierLabel(tier);
+          showToast(`switched to ${label} — you were only charged the prorated difference`, 'success');
+          setPendingPlanChange(null);
           await checkAuthStatus(token);
+          await fetchSubscriptionStatus();
           handleCloseUpgrade();
         } else {
           console.error('Payment response error:', data);
@@ -4631,7 +4658,7 @@ export default function HumApp() {
                         : 'border-[#D8B5FE]/20 hover:border-[#D8B5FE]/40'
                     }`}>
                       {/* Current plan badge - only for Avid monthly when viewing monthly billing */}
-                      {userTier === 'avid' && billingPeriod === 'monthly' && (
+                      {userTier === 'avid' && billingPeriod === currentInterval && (
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white border border-white/25 text-[10px] font-semibold uppercase tracking-wide text-gray-900 backdrop-blur-md z-20 whitespace-nowrap">
                           current plan
                       </div>
@@ -4743,7 +4770,7 @@ export default function HumApp() {
                         : 'border-[#D8B5FE]/20 hover:border-[#D8B5FE]/40'
                     }`}>
                       {/* Current plan badge */}
-                      {userTier === 'unlimited' && billingPeriod === 'monthly' && (
+                      {userTier === 'unlimited' && billingPeriod === currentInterval && (
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white border border-white/25 text-[10px] font-semibold uppercase tracking-wide text-gray-900 backdrop-blur-md z-20 whitespace-nowrap">
                           current plan
                       </div>
@@ -4856,9 +4883,15 @@ export default function HumApp() {
                     <div className="flex flex-col gap-3 px-1 py-1">
                       {(() => {
                         const selectedTier = selectedPlan === 'Eat, Breath, Music' ? 'unlimited' : 'avid';
-                        const disabled = userTier === selectedTier && billingPeriod === 'monthly';
-                        const isPlanChange = userTier === 'avid' && selectedTier === 'unlimited';
-                        const isDowngrade = userTier === 'unlimited' && selectedTier === 'avid';
+                        const hasSub = hasActiveSubscription && userTier !== 'free';
+                        // Already on this exact plan + interval
+                        const disabled = hasSub && userTier === selectedTier && billingPeriod === currentInterval;
+                        // For an existing subscriber, an in-place change is charged immediately
+                        // (prorated) only when the new period costs at least as much as the
+                        // current one; otherwise it's scheduled for the end of the period.
+                        const currentFull = PLAN_PRICES[userTier]?.[currentInterval] || 0;
+                        const targetFull = PLAN_PRICES[selectedTier]?.[billingPeriod] || 0;
+                        const isImmediate = targetFull >= currentFull;
 
                         return (
                     <button
@@ -4878,11 +4911,11 @@ export default function HumApp() {
                             <span className="relative z-10">
                               {disabled
                                 ? 'already on this plan'
-                                : isPlanChange
-                                ? 'switch plans — only pay the difference'
-                                : isDowngrade
-                                ? 'switch when my billing period ends'
-                                : "let's keep humming"}
+                                : !hasSub
+                                ? "let's keep humming"
+                                : isImmediate
+                                ? 'switch — only pay the difference'
+                                : 'switch when my billing period ends'}
                             </span>
                     </button>
                         );
@@ -5410,7 +5443,13 @@ export default function HumApp() {
                     <>
                       <p className="text-xs text-white/50 text-center leading-relaxed mb-3">
                         switches to{' '}
-                        <span className="text-[#D8B5FE]">{tierLabel(pendingPlanChange.tier)}</span>{' '}
+                        <span className="text-[#D8B5FE]">
+                          {pendingPlanChange.tier === userTier
+                            ? `${tierLabel(pendingPlanChange.tier)} (${pendingPlanChange.interval || ''})`.trim()
+                            : pendingPlanChange.interval && pendingPlanChange.interval !== currentInterval
+                            ? planLabelWithInterval(pendingPlanChange.tier, pendingPlanChange.interval)
+                            : tierLabel(pendingPlanChange.tier)}
+                        </span>{' '}
                         on <span className="text-[#D8B5FE]">{formatPlanDate(pendingPlanChange.date)}</span>
                       </p>
                       {hasActiveSubscription && (
