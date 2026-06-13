@@ -77,6 +77,7 @@ export default function HumApp() {
   const [showAvidInfo, setShowAvidInfo] = useState(false);
   const [showUnlimitedInfo, setShowUnlimitedInfo] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [subscriptionEndsAt, setSubscriptionEndsAt] = useState(null); // set when canceled but still active until period end
   const [isCancelingSubscription, setIsCancelingSubscription] = useState(false);
   const [billingPeriod, setBillingPeriod] = useState('monthly'); // 'monthly' or 'yearly'
   const [subscriptionStartDate, setSubscriptionStartDate] = useState(null); // for monthly reset display
@@ -938,6 +939,7 @@ export default function HumApp() {
       if (response.ok) {
         const data = await response.json();
         setHasActiveSubscription(data.hasActiveSubscription || false);
+        setSubscriptionEndsAt(data.cancelAtPeriodEnd && data.currentPeriodEnd ? data.currentPeriodEnd : null);
         if (data.tier) {
           setUserTier(data.tier);
         }
@@ -947,8 +949,11 @@ export default function HumApp() {
     }
   };
 
+  const formatPlanDate = (iso) =>
+    new Date(iso).toLocaleDateString(undefined, { month: 'long', day: 'numeric' }).toLowerCase();
+
   const handleCancelSubscription = async () => {
-    if (!confirm('Are you sure you want to cancel your subscription? You will be downgraded to the free tier.')) {
+    if (!confirm("cancel your subscription? no refunds — you'll keep your current plan until the end of your billing period, then move to the free tier.")) {
       return;
     }
 
@@ -971,12 +976,13 @@ export default function HumApp() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setHasActiveSubscription(false);
-        setUserTier('free');
-        localStorage.setItem('hum-user-tier', 'free');
-        showToast('subscription canceled — you are back on the free tier', 'success');
-        // Refresh user data
-        await checkAuthStatus(token);
+        // No refund and no instant downgrade — the tier stays until the period ends
+        if (data.accessUntil) {
+          setSubscriptionEndsAt(data.accessUntil);
+          showToast(`subscription canceled — you keep your plan until ${formatPlanDate(data.accessUntil)}`, 'success');
+        } else {
+          showToast('subscription canceled — you keep your plan until the end of the billing period', 'success');
+        }
       } else {
         showToast(data.error || 'failed to cancel subscription — please try again', 'error');
       }
@@ -2610,6 +2616,11 @@ export default function HumApp() {
           // Backend sends amountCents/displayPrice so we can verify correct $3/$30 before redirect
           if (data.displayPrice) 
           window.location.href = data.url;
+        } else if (data.success && data.downgradeScheduled) {
+          // Downgrade takes effect at the end of the billing period — no refund, no immediate change
+          const until = data.effectiveDate ? formatPlanDate(data.effectiveDate) : 'the end of your billing period';
+          showToast(`you'll keep eat, breath, music until ${until}, then switch to avid listener`, 'info');
+          handleCloseUpgrade();
         } else if (data.success && data.upgraded) {
           // Existing subscription was upgraded in place (no Checkout redirect)
           showToast(`upgraded to ${tier === 'unlimited' ? 'eat, breath, music' : 'avid listener'} — you were only charged the prorated difference`, 'success');
@@ -4350,12 +4361,23 @@ export default function HumApp() {
             </span>
           </button>
         ) : userTier === 'unlimited' ? (
-          <div className="px-4 py-2 bg-[#D8B5FE]/10 backdrop-blur-sm border border-[#D8B5FE]/30 rounded-full">
-            <span className="text-sm text-[#D8B5FE] font-semibold inline-flex items-center gap-1.5 whitespace-nowrap">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowUpgradeModal(true);
+            }}
+            className="px-4 py-2 bg-[#D8B5FE]/10 hover:bg-[#D8B5FE]/20 backdrop-blur-sm border border-[#D8B5FE]/30 hover:border-[#D8B5FE]/50 rounded-full transition-all duration-300 hover:scale-105 group md:cursor-pointer"
+          >
+            <span className="text-sm text-[#D8B5FE] font-semibold inline-flex items-center gap-1.5 whitespace-nowrap group-hover:hidden">
               <span className="select-none" aria-hidden="true">✦</span>
               <span className="hidden sm:inline">eat, breath, music — </span>unlimited
             </span>
-          </div>
+            <span className="text-sm text-purple-300 font-semibold hidden group-hover:inline-flex items-center gap-1">
+              <Star className="w-3.5 h-3.5 fill-purple-300" />
+              change your plan
+              <Star className="w-3.5 h-3.5 fill-purple-300" />
+            </span>
+          </button>
         ) : null}
           </div>,
           document.body
@@ -4815,6 +4837,8 @@ export default function HumApp() {
                     <p className="text-center text-white/60 mb-4 text-xs">
                       {userTier === 'avid' && selectedPlan === 'Eat, Breath, Music'
                         ? "you'll only pay the prorated difference — unused time on your current plan is credited automatically"
+                        : userTier === 'unlimited' && selectedPlan === 'Avid Listener'
+                        ? "no refunds — you'll keep eat, breath, music until your billing period ends, then switch to avid listener"
                         : 'cancel anytime — no hard feelings'}
                     </p>
                     
@@ -4824,6 +4848,7 @@ export default function HumApp() {
                         const selectedTier = selectedPlan === 'Eat, Breath, Music' ? 'unlimited' : 'avid';
                         const disabled = userTier === selectedTier && billingPeriod === 'monthly';
                         const isPlanChange = userTier === 'avid' && selectedTier === 'unlimited';
+                        const isDowngrade = userTier === 'unlimited' && selectedTier === 'avid';
 
                         return (
                     <button
@@ -4845,6 +4870,8 @@ export default function HumApp() {
                                 ? 'already on this plan'
                                 : isPlanChange
                                 ? 'switch plans — only pay the difference'
+                                : isDowngrade
+                                ? 'switch when my billing period ends'
                                 : "let's keep humming"}
                             </span>
                     </button>
@@ -5363,43 +5390,60 @@ export default function HumApp() {
                       </div>
                     </div>
                   </div>
-                  {userTier === 'avid' && (
-                    <button
-                      onClick={() => {
-                        setSelectedPlan('Eat, Breath, Music');
-                        setShowUpgradeModal(true);
-                        handleCloseProfile();
-                      }}
-                      className="w-full px-4 py-2 mb-3 rounded-full border-2 border-[#D8B5FE]/40 hover:bg-[#D8B5FE]/30 hover:border-[#D8B5FE]/60 flex items-center justify-center gap-2 transition-all text-sm text-[#D8B5FE] font-semibold"
-                    >
-                      <span className="select-none" aria-hidden="true">✦</span>
-                      <span>upgrade to eat, breath, music</span>
-                    </button>
-                  )}
-                  {userTier === 'unlimited' && (
-                    <p className="text-xs text-white/40 text-center mb-3">
-                      you're on the top plan <span className="text-[#D8B5FE]" aria-hidden="true">✦</span>
+                  {subscriptionEndsAt && userTier !== 'free' ? (
+                    <p className="text-xs text-white/50 text-center leading-relaxed">
+                      your plan stays active until{' '}
+                      <span className="text-[#D8B5FE]">{formatPlanDate(subscriptionEndsAt)}</span>,
+                      then you'll move to the free tier
                     </p>
+                  ) : (
+                    <>
+                      {userTier === 'avid' && (
+                        <button
+                          onClick={() => {
+                            setSelectedPlan('Eat, Breath, Music');
+                            setShowUpgradeModal(true);
+                            handleCloseProfile();
+                          }}
+                          className="w-full px-4 py-2 mb-3 rounded-full border-2 border-[#D8B5FE]/40 hover:bg-[#D8B5FE]/30 hover:border-[#D8B5FE]/60 flex items-center justify-center gap-2 transition-all text-sm text-[#D8B5FE] font-semibold"
+                        >
+                          <span className="select-none" aria-hidden="true">✦</span>
+                          <span>upgrade to eat, breath, music</span>
+                        </button>
+                      )}
+                      {userTier === 'unlimited' && (
+                        <button
+                          onClick={() => {
+                            setSelectedPlan('Avid Listener');
+                            setShowUpgradeModal(true);
+                            handleCloseProfile();
+                          }}
+                          className="w-full px-4 py-2 mb-3 rounded-full border border-white/20 hover:border-white/40 hover:bg-white/5 flex items-center justify-center gap-2 transition-all text-sm text-white/70"
+                        >
+                          <span>switch to avid listener</span>
+                        </button>
+                      )}
+                      {hasActiveSubscription && userTier !== 'free' ? (
+                        <button
+                          onClick={handleCancelSubscription}
+                          disabled={isCancelingSubscription}
+                          className="block mx-auto text-sm text-red-300/70 hover:text-red-300 underline underline-offset-4 decoration-red-500/30 hover:decoration-red-400/60 transition-colors disabled:opacity-50 disabled:md:cursor-not-allowed"
+                        >
+                          {isCancelingSubscription ? 'canceling...' : 'cancel subscription'}
+                        </button>
+                      ) : userTier === 'free' ? (
+                        <button
+                          onClick={() => {
+                            setShowUpgradeModal(true);
+                            handleCloseProfile();
+                          }}
+                          className="w-full px-4 py-2 rounded-full border-2 border-[#D8B5FE]/40 hover:bg-[#D8B5FE]/30 hover:border-[#D8B5FE]/60 flex items-center justify-center gap-2 transition-all text-sm text-[#D8B5FE] font-semibold"
+                        >
+                          <span>upgrade</span>
+                        </button>
+                      ) : null}
+                    </>
                   )}
-                  {hasActiveSubscription && userTier !== 'free' ? (
-                    <button
-                      onClick={handleCancelSubscription}
-                      disabled={isCancelingSubscription}
-                      className="block mx-auto text-sm text-red-300/70 hover:text-red-300 underline underline-offset-4 decoration-red-500/30 hover:decoration-red-400/60 transition-colors disabled:opacity-50 disabled:md:cursor-not-allowed"
-                    >
-                      {isCancelingSubscription ? 'canceling...' : 'cancel subscription'}
-                    </button>
-                  ) : userTier === 'free' ? (
-                    <button
-                      onClick={() => {
-                        setShowUpgradeModal(true);
-                        handleCloseProfile();
-                      }}
-                      className="w-full px-4 py-2 rounded-full border-2 border-[#D8B5FE]/40 hover:bg-[#D8B5FE]/30 hover:border-[#D8B5FE]/60 flex items-center justify-center gap-2 transition-all text-sm text-[#D8B5FE] font-semibold"
-                    >
-                      <span>upgrade</span>
-                    </button>
-                  ) : null}
                 </div>
 
                 {/* Save and Logout Buttons */}

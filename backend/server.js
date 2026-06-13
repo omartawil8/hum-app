@@ -1628,6 +1628,56 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       const unitAmount = billingPeriod === 'yearly' ? selectedPlan.yearlyPrice : selectedPlan.monthlyPrice;
       const targetPriceId = await getOrCreatePlanPriceId(plan, interval, unitAmount);
 
+      // Downgrades don't refund the difference. The user keeps their current tier
+      // until the end of the billing period, then a subscription schedule rotates
+      // them onto the cheaper plan. The customer.subscription.updated webhook
+      // flips their tier when the new phase starts.
+      const PLAN_RANK = { avid: 1, unlimited: 2 };
+      const isDowngrade = (PLAN_RANK[user.tier] || 0) > (PLAN_RANK[plan] || 0);
+
+      if (isDowngrade) {
+        const periodStart = subscription.current_period_start
+          || subscription.items?.data?.[0]?.current_period_start;
+        const periodEnd = subscription.current_period_end
+          || subscription.items?.data?.[0]?.current_period_end;
+        if (!periodStart || !periodEnd) {
+          return res.status(400).json({ error: 'Could not determine the current billing period' });
+        }
+
+        let scheduleId = subscription.schedule;
+        if (!scheduleId) {
+          const schedule = await stripe.subscriptionSchedules.create({
+            from_subscription: user.stripeSubscriptionId,
+          });
+          scheduleId = schedule.id;
+        }
+
+        await stripe.subscriptionSchedules.update(scheduleId, {
+          end_behavior: 'release',
+          phases: [
+            {
+              items: [{ price: currentItem.price.id, quantity: 1 }],
+              start_date: periodStart,
+              end_date: periodEnd,
+            },
+            {
+              items: [{ price: targetPriceId, quantity: 1 }],
+              iterations: 1,
+            },
+          ],
+        });
+
+        const effectiveDate = new Date(periodEnd * 1000).toISOString();
+        console.log(`🗓️ Scheduled downgrade for ${user.email}: ${user.tier} → ${plan} at ${effectiveDate}`);
+
+        return res.json({
+          success: true,
+          downgradeScheduled: true,
+          tier: user.tier,
+          effectiveDate,
+        });
+      }
+
       // 'always_invoice' charges the prorated difference immediately: Stripe credits
       // the unused time on the old plan and bills only the gap, so upgrading mid-cycle
       // never double-charges.
@@ -1922,10 +1972,27 @@ app.get('/api/payments/status', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    // Surface cancel-at-period-end state so the UI can show "active until X"
+    let cancelAtPeriodEnd = false;
+    let currentPeriodEnd = null;
+    if (user.stripeSubscriptionId && stripe) {
+      try {
+        const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+        cancelAtPeriodEnd = !!subscription.cancel_at_period_end;
+        const periodEnd = subscription.current_period_end
+          || subscription.items?.data?.[0]?.current_period_end;
+        currentPeriodEnd = periodEnd ? new Date(periodEnd * 1000).toISOString() : null;
+      } catch (e) {
+        console.warn('Could not retrieve subscription for status:', e.message);
+      }
+    }
+
     res.json({
       tier: user.tier || 'free',
       subscriptionStatus: user.stripeSubscriptionId ? 'active' : null,
-      hasActiveSubscription: !!user.stripeSubscriptionId
+      hasActiveSubscription: !!user.stripeSubscriptionId,
+      cancelAtPeriodEnd,
+      currentPeriodEnd
     });
   } catch (error) {
     console.error('Payment status error:', error);
@@ -1958,21 +2025,26 @@ app.post('/api/payments/cancel-subscription', authenticateToken, async (req, res
       return res.status(400).json({ error: 'No active subscription to cancel' });
     }
 
-    // Cancel the subscription in Stripe
+    // Cancel at period end: no refund, but the user keeps their tier until the
+    // billing period runs out. The customer.subscription.deleted webhook fires
+    // at that point and downgrades them to free.
     try {
-      await stripe.subscriptions.cancel(user.stripeSubscriptionId);
-      
-      // Update user in database
-      user.tier = 'free';
-      user.stripeSubscriptionId = null;
-      await user.save();
-      
-      console.log(`✅ User ${user.email} subscription canceled`);
-      
+      const subscription = await stripe.subscriptions.update(user.stripeSubscriptionId, {
+        cancel_at_period_end: true,
+      });
+
+      const periodEnd = subscription.current_period_end
+        || subscription.items?.data?.[0]?.current_period_end
+        || null;
+      const accessUntil = periodEnd ? new Date(periodEnd * 1000).toISOString() : null;
+
+      console.log(`✅ User ${user.email} subscription set to cancel at period end (${accessUntil || 'unknown date'})`);
+
       res.json({
         success: true,
-        message: 'Subscription canceled successfully',
-        tier: 'free'
+        message: 'Subscription will cancel at the end of the billing period',
+        tier: user.tier,
+        accessUntil,
       });
     } catch (stripeError) {
       console.error('Stripe cancellation error:', stripeError);
