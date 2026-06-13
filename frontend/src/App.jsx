@@ -2756,7 +2756,14 @@ export default function HumApp() {
         `,
         backgroundSize: '100% 100%, 100% 100%, 32px 32px',
         backgroundPosition: '0 0',
-        backgroundAttachment: 'fixed, fixed, fixed'
+        backgroundAttachment: 'fixed, fixed, fixed',
+        // iOS edge-to-edge: the gradient (above) fills the whole screen including
+        // under the notch/home indicator, while these insets keep the actual content
+        // out of those areas. On the web the insets are 0, so no visual change.
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+        paddingLeft: 'env(safe-area-inset-left)',
+        paddingRight: 'env(safe-area-inset-right)'
       }}
       onMouseMove={(e) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -2766,8 +2773,8 @@ export default function HumApp() {
       }}
     >
       {/* Grain overlay - on top of black background */}
-      <div 
-        className="grain-overlay pointer-events-none fixed inset-0" 
+      <div
+        className="grain-overlay pointer-events-none fixed inset-0"
         style={{ zIndex: 1 }}
       />
       
