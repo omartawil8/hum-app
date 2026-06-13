@@ -1995,9 +1995,12 @@ app.get('/api/payments/status', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Surface cancel-at-period-end state so the UI can show "active until X"
+    // Surface pending changes so the UI can show "active until X" (cancel) or
+    // "switches to <plan> on X" (scheduled downgrade)
     let cancelAtPeriodEnd = false;
     let currentPeriodEnd = null;
+    let pendingPlanTier = null;
+    let pendingPlanDate = null;
     if (user.stripeSubscriptionId && stripe) {
       try {
         const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
@@ -2005,6 +2008,27 @@ app.get('/api/payments/status', authenticateToken, async (req, res) => {
         const periodEnd = subscription.current_period_end
           || subscription.items?.data?.[0]?.current_period_end;
         currentPeriodEnd = periodEnd ? new Date(periodEnd * 1000).toISOString() : null;
+
+        // A scheduled downgrade attaches a subscription schedule whose next phase
+        // holds the cheaper price. Find that phase and report what/when it switches.
+        if (subscription.schedule) {
+          const scheduleId = typeof subscription.schedule === 'string'
+            ? subscription.schedule
+            : subscription.schedule.id;
+          const schedule = await stripe.subscriptionSchedules.retrieve(scheduleId);
+          const nowSec = Math.floor(Date.now() / 1000);
+          const upcoming = (schedule.phases || []).find((p) => p.start_date > nowSec);
+          const nextPriceId = upcoming?.items?.[0]?.price;
+          if (nextPriceId) {
+            let unitAmount;
+            try { unitAmount = (await stripe.prices.retrieve(nextPriceId)).unit_amount; } catch {}
+            const tier = planForStripePrice(nextPriceId, unitAmount);
+            if (tier && tier !== user.tier) {
+              pendingPlanTier = tier;
+              pendingPlanDate = new Date(upcoming.start_date * 1000).toISOString();
+            }
+          }
+        }
       } catch (e) {
         console.warn('Could not retrieve subscription for status:', e.message);
       }
@@ -2015,7 +2039,9 @@ app.get('/api/payments/status', authenticateToken, async (req, res) => {
       subscriptionStatus: user.stripeSubscriptionId ? 'active' : null,
       hasActiveSubscription: !!user.stripeSubscriptionId,
       cancelAtPeriodEnd,
-      currentPeriodEnd
+      currentPeriodEnd,
+      pendingPlanTier,
+      pendingPlanDate
     });
   } catch (error) {
     console.error('Payment status error:', error);

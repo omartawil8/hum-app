@@ -78,6 +78,7 @@ export default function HumApp() {
   const [showUnlimitedInfo, setShowUnlimitedInfo] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [subscriptionEndsAt, setSubscriptionEndsAt] = useState(null); // set when canceled but still active until period end
+  const [pendingPlanChange, setPendingPlanChange] = useState(null); // { tier, date } when a downgrade is scheduled
   const [isCancelingSubscription, setIsCancelingSubscription] = useState(false);
   const [billingPeriod, setBillingPeriod] = useState('monthly'); // 'monthly' or 'yearly'
   const [subscriptionStartDate, setSubscriptionStartDate] = useState(null); // for monthly reset display
@@ -940,6 +941,9 @@ export default function HumApp() {
         const data = await response.json();
         setHasActiveSubscription(data.hasActiveSubscription || false);
         setSubscriptionEndsAt(data.cancelAtPeriodEnd && data.currentPeriodEnd ? data.currentPeriodEnd : null);
+        setPendingPlanChange(data.pendingPlanTier && data.pendingPlanDate
+          ? { tier: data.pendingPlanTier, date: data.pendingPlanDate }
+          : null);
         if (data.tier) {
           setUserTier(data.tier);
         }
@@ -951,6 +955,9 @@ export default function HumApp() {
 
   const formatPlanDate = (iso) =>
     new Date(iso).toLocaleDateString(undefined, { month: 'long', day: 'numeric' }).toLowerCase();
+
+  const tierLabel = (tier) =>
+    tier === 'unlimited' ? 'eat, breath, music' : tier === 'avid' ? 'avid listener' : 'free';
 
   const handleCancelSubscription = async () => {
     if (!confirm("cancel your subscription? no refunds — you'll keep your current plan until the end of your billing period, then move to the free tier.")) {
@@ -2620,6 +2627,9 @@ export default function HumApp() {
           // Downgrade takes effect at the end of the billing period — no refund, no immediate change
           const until = data.effectiveDate ? formatPlanDate(data.effectiveDate) : 'the end of your billing period';
           showToast(`you'll keep eat, breath, music until ${until}, then switch to avid listener`, 'info');
+          if (data.effectiveDate) {
+            setPendingPlanChange({ tier: 'avid', date: data.effectiveDate });
+          }
           handleCloseUpgrade();
         } else if (data.success && data.upgraded) {
           // Existing subscription was upgraded in place (no Checkout redirect)
@@ -5396,6 +5406,23 @@ export default function HumApp() {
                       <span className="text-[#D8B5FE]">{formatPlanDate(subscriptionEndsAt)}</span>,
                       then you'll move to the free tier
                     </p>
+                  ) : pendingPlanChange && userTier !== 'free' ? (
+                    <>
+                      <p className="text-xs text-white/50 text-center leading-relaxed mb-3">
+                        switches to{' '}
+                        <span className="text-[#D8B5FE]">{tierLabel(pendingPlanChange.tier)}</span>{' '}
+                        on <span className="text-[#D8B5FE]">{formatPlanDate(pendingPlanChange.date)}</span>
+                      </p>
+                      {hasActiveSubscription && (
+                        <button
+                          onClick={handleCancelSubscription}
+                          disabled={isCancelingSubscription}
+                          className="block mx-auto text-sm text-red-300/70 hover:text-red-300 underline underline-offset-4 decoration-red-500/30 hover:decoration-red-400/60 transition-colors disabled:opacity-50 disabled:md:cursor-not-allowed"
+                        >
+                          {isCancelingSubscription ? 'canceling...' : 'cancel subscription'}
+                        </button>
+                      )}
+                    </>
                   ) : (
                     <>
                       {userTier === 'avid' && (
