@@ -2048,7 +2048,21 @@ app.post('/api/payments/cancel-subscription', authenticateToken, async (req, res
       });
     } catch (stripeError) {
       console.error('Stripe cancellation error:', stripeError);
-      res.status(500).json({ error: 'Failed to cancel subscription with Stripe' });
+
+      // If Stripe has no record of this subscription (wrong key, test/live
+      // mismatch, or a stale/manually-set id), there's nothing to keep them on —
+      // treat them as already canceled and reset to free so they aren't stuck.
+      if (stripeError?.code === 'resource_missing') {
+        user.tier = 'free';
+        user.stripeSubscriptionId = null;
+        await user.save();
+        return res.status(409).json({
+          error: 'We could not find this subscription in Stripe, so your account was reset to the free tier. If you were charged, contact support.',
+          reset: true,
+        });
+      }
+
+      res.status(500).json({ error: stripeError?.message || 'Failed to cancel subscription with Stripe' });
     }
   } catch (error) {
     console.error('Cancel subscription error:', error);
