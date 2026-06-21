@@ -61,22 +61,17 @@ function getAnonymousId(req) {
 async function checkSearchLimit(req, res, next) {
   const ANONYMOUS_LIMIT = 1; // 1 free search without login
   const FREE_SEARCH_LIMIT = 3; // Total free searches (1 anonymous + 2 authenticated)
-  const AVID_MONTHLY_LIMIT = 100; // Avid: 100 searches per monthly window
-  // "Unlimited" is generous but not infinite. Past these monthly counts the *pace*
-  // of searches is throttled with escalating cooldowns, then fully cut off at the
-  // top, to stop scripted abuse from running up ACRCloud/Spotify costs. A real
-  // listener never searches fast enough to feel the lower cooldowns.
-  //   400–499 : soft  (8s between searches)
-  //   500–599 : hard  (60s)
-  //   600–699 : very hard (5 min — "very hard to use")
-  //   700+    : hard cutoff (blocked until the monthly window resets)
-  const UNLIMITED_SOFT_LIMIT = 400;
-  const UNLIMITED_HARD_LIMIT = 500;
-  const UNLIMITED_VERY_HARD_LIMIT = 600;
-  const UNLIMITED_CUTOFF_LIMIT = 700;
-  const SOFT_COOLDOWN_MS = 8 * 1000;
-  const HARD_COOLDOWN_MS = 60 * 1000;
-  const VERY_HARD_COOLDOWN_MS = 5 * 60 * 1000;
+  // hüm+ (single paid plan): generous monthly allowance, with a soft slowdown near
+  // the top, a hard monthly cutoff, and an hourly burst limit to stop scripted abuse.
+  //   ≤120 / month       : normal
+  //   121–149 / month    : slowed (cooldown between searches)
+  //   ≥150 / month       : hard cutoff until the monthly window resets
+  //   >40 searches / hour: blocked for the rest of that hour
+  const PLUS_SOFT_LIMIT = 120;
+  const PLUS_CUTOFF_LIMIT = 150;
+  const PLUS_SOFT_COOLDOWN_MS = 30 * 1000;
+  const HOURLY_LIMIT = 40;
+  const HOUR_MS = 60 * 60 * 1000;
 
   if (!isMongoConnected()) {
     // Fallback: allow request if MongoDB not connected (will fail gracefully)
@@ -89,10 +84,14 @@ async function checkSearchLimit(req, res, next) {
     try {
       const user = await User.findById(req.user.userId);
       if (user) {
-        // Paid tiers get a fresh search allowance each month. Roll the window when
-        // a month has elapsed since it started. (Free tier is a one-time trial, so
-        // it is intentionally NOT reset here.)
-        if (user.tier === 'avid' || user.tier === 'unlimited') {
+        // Anything other than the free tier is the single paid plan (incl. legacy
+        // avid/unlimited subscribers).
+        const isPaid = !!user.tier && user.tier !== 'free';
+        const now = Date.now();
+
+        // Paid plan: roll the monthly allowance window and the hourly burst window.
+        // (Free tier is a one-time trial and is intentionally NOT reset.)
+        if (isPaid) {
           let changed = false;
           if (!user.searchPeriodStart) {
             user.searchPeriodStart = user.subscriptionStartedAt || user.createdAt || new Date();
@@ -100,9 +99,15 @@ async function checkSearchLimit(req, res, next) {
           }
           const windowEnd = new Date(user.searchPeriodStart);
           windowEnd.setMonth(windowEnd.getMonth() + 1);
-          if (Date.now() >= windowEnd.getTime()) {
+          if (now >= windowEnd.getTime()) {
             user.searchCount = 0;
             user.searchPeriodStart = new Date();
+            changed = true;
+          }
+          const hourStart = user.hourlyWindowStart ? new Date(user.hourlyWindowStart).getTime() : 0;
+          if (!hourStart || (now - hourStart) >= HOUR_MS) {
+            user.hourlyCount = 0;
+            user.hourlyWindowStart = new Date();
             changed = true;
           }
           if (changed) await user.save();
@@ -110,7 +115,7 @@ async function checkSearchLimit(req, res, next) {
 
         const searchCount = user.searchCount || 0;
 
-        if (user.tier === 'free' && searchCount >= FREE_SEARCH_LIMIT) {
+        if (!isPaid && searchCount >= FREE_SEARCH_LIMIT) {
           return res.status(403).json({
             success: false,
             error: 'Search limit reached',
@@ -118,52 +123,47 @@ async function checkSearchLimit(req, res, next) {
             requiresUpgrade: true
           });
         }
-        // Avid tier: 100 searches per monthly window
-        if (user.tier === 'avid' && searchCount >= AVID_MONTHLY_LIMIT) {
-          return res.status(403).json({
-            success: false,
-            error: 'Search limit reached',
-            message: 'You have reached your monthly search limit. Please upgrade to Avid Listener.',
-            requiresUpgrade: true
-          });
-        }
-        // Unlimited tier: escalating pace throttles, then a hard monthly cutoff.
-        if (user.tier === 'unlimited' && searchCount >= UNLIMITED_SOFT_LIMIT) {
-          // Hard cutoff at 700/month — fully blocked until the monthly window resets.
-          if (searchCount >= UNLIMITED_CUTOFF_LIMIT) {
-            return res.status(429).json({
-              success: false,
-              error: 'Monthly search cap reached',
-              message: "you've hit 700 searches this month — that's the cap. it resets at the start of your next monthly period.",
-              rateLimited: true,
-              capReached: true
-            });
-          }
-          // Below the cap: pick the cooldown for the band the user is in.
-          const last = user.lastSearchAt ? user.lastSearchAt.getTime() : 0;
-          const sinceLast = Date.now() - last;
-          let cooldown;
-          let message;
-          if (searchCount >= UNLIMITED_VERY_HARD_LIMIT) {
-            cooldown = VERY_HARD_COOLDOWN_MS;
-            message = "you've passed 600 searches this month — searches are heavily limited now. please wait a few minutes between searches.";
-          } else if (searchCount >= UNLIMITED_HARD_LIMIT) {
-            cooldown = HARD_COOLDOWN_MS;
-            message = "you've passed 500 searches this month — searches are rate-limited now. please wait a bit between searches.";
-          } else {
-            cooldown = SOFT_COOLDOWN_MS;
-            message = "you're searching very fast — please wait a few seconds between searches.";
-          }
-          if (sinceLast < cooldown) {
-            const retryAfterSeconds = Math.ceil((cooldown - sinceLast) / 1000);
+
+        if (isPaid) {
+          // Hourly burst limit: >40 searches in the last hour → blocked for the rest
+          // of that hour.
+          if ((user.hourlyCount || 0) >= HOURLY_LIMIT) {
+            const hourStart = user.hourlyWindowStart ? new Date(user.hourlyWindowStart).getTime() : now;
+            const retryAfterSeconds = Math.max(1, Math.ceil((hourStart + HOUR_MS - now) / 1000));
             res.set('Retry-After', String(retryAfterSeconds));
             return res.status(429).json({
               success: false,
               error: 'Search rate limited',
-              message,
+              message: "you've searched a lot in a short time — please take a break and try again in a bit.",
               rateLimited: true,
               retryAfterSeconds
             });
+          }
+          // Hard monthly cutoff at 150.
+          if (searchCount >= PLUS_CUTOFF_LIMIT) {
+            return res.status(429).json({
+              success: false,
+              error: 'Monthly search cap reached',
+              message: "you've reached your searches for this month — it resets at the start of your next billing period.",
+              rateLimited: true,
+              capReached: true
+            });
+          }
+          // Soft slowdown band (121–149): enforce a cooldown between searches.
+          if (searchCount > PLUS_SOFT_LIMIT) {
+            const last = user.lastSearchAt ? new Date(user.lastSearchAt).getTime() : 0;
+            const sinceLast = now - last;
+            if (sinceLast < PLUS_SOFT_COOLDOWN_MS) {
+              const retryAfterSeconds = Math.ceil((PLUS_SOFT_COOLDOWN_MS - sinceLast) / 1000);
+              res.set('Retry-After', String(retryAfterSeconds));
+              return res.status(429).json({
+                success: false,
+                error: 'Search rate limited',
+                message: "you're searching quickly — please wait a moment between searches.",
+                rateLimited: true,
+                retryAfterSeconds
+              });
+            }
           }
         }
       }

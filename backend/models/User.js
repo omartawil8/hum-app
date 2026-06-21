@@ -24,8 +24,10 @@ const userSchema = new mongoose.Schema({
     default: 0
   },
   tier: {
+    // 'plus' is the current single paid plan; 'avid'/'unlimited' are legacy paid
+    // tiers kept in the enum so pre-existing subscriber documents stay valid.
     type: String,
-    enum: ['free', 'avid', 'unlimited'],
+    enum: ['free', 'plus', 'avid', 'unlimited'],
     default: 'free'
   },
   subscriptionStartedAt: {
@@ -40,8 +42,18 @@ const userSchema = new mongoose.Schema({
     default: null
   },
   // Timestamp of the user's most recent search. Used to throttle the pace of
-  // very high-volume unlimited use (cooldown between searches past a threshold).
+  // high-volume use (cooldown between searches in the soft-limit band).
   lastSearchAt: {
+    type: Date,
+    default: null
+  },
+  // Rolling hourly burst window: count of searches since hourlyWindowStart, used to
+  // block >40 searches/hour. Reset when the hour elapses.
+  hourlyCount: {
+    type: Number,
+    default: 0
+  },
+  hourlyWindowStart: {
     type: Date,
     default: null
   },

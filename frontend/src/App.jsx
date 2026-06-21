@@ -7,8 +7,6 @@ import { SplashScreen } from '@capacitor/splash-screen';
 import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, ChevronRight, LogOut, User, Eye, EyeOff, ArrowLeft, ArrowRight, XCircle, Menu } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
-import avidListenerIcon from './assets/Avid_Listener.png';
-import eatBreathMusicIcon from './assets/eat-breath-music.png';
 // Import pixel art icons - make sure these files exist in frontend/src/assets/
 import crownIcon from './assets/crown.png';
 import potionIcon from './assets/potion.png';
@@ -77,9 +75,7 @@ export default function HumApp() {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [searchCount, setSearchCount] = useState(0);
   const [isPro, setIsPro] = useState(false);
-  const [userTier, setUserTier] = useState('free'); // 'free', 'avid'
-  const [showAvidInfo, setShowAvidInfo] = useState(false);
-  const [showUnlimitedInfo, setShowUnlimitedInfo] = useState(false);
+  const [userTier, setUserTier] = useState('free'); // 'free' | 'plus' (legacy: 'avid'/'unlimited')
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [subscriptionEndsAt, setSubscriptionEndsAt] = useState(null); // set when canceled but still active until period end
   const [pendingPlanChange, setPendingPlanChange] = useState(null); // { tier, interval, date } when a plan change is scheduled
@@ -167,9 +163,8 @@ export default function HumApp() {
   
   const ANONYMOUS_SEARCH_LIMIT = 1; // 1 free search without login
   const FREE_SEARCH_LIMIT = 3; // Total free searches (1 anonymous + 2 authenticated)
-  const AVID_LISTENER_LIMIT = 100; // 100 searches per month for $3 tier
-  // Unlimited tier has no limit
-  
+  // hüm+ (paid) limits are enforced server-side (monthly + hourly throttle)
+
   const defaultSearches = [
     { 
       song: "Creepin'", 
@@ -489,10 +484,7 @@ export default function HumApp() {
         // Refresh user data
         await checkAuthStatus(token);
 
-        const tierName = verifyData.tier === 'unlimited' ? 'eat, breath, music' : 'avid listener';
-        const limit = verifyData.tier === 'unlimited' ? 'unlimited searches' : '100 searches/month';
-
-        showToast(`welcome to ${tierName}! you now have ${limit}`, 'success');
+        showToast(`welcome to hüm+! you're all set`, 'success');
       } else {
         // Fallback: check payment status
         const response = await fetch(`${API_BASE_URL}/api/payments/status`, {
@@ -505,9 +497,7 @@ export default function HumApp() {
         
         if (data.hasActiveSubscription) {
           await checkAuthStatus(token);
-          const tierName = data.tier === 'unlimited' ? 'eat, breath, music' : 'avid listener';
-          const limit = data.tier === 'unlimited' ? 'unlimited searches' : '100 searches/month';
-          showToast(`welcome to ${tierName}! you now have ${limit}`, 'success');
+          showToast(`welcome to hüm+! you're all set`, 'success');
         }
       }
     } catch (error) {
@@ -974,7 +964,7 @@ export default function HumApp() {
     new Date(iso).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }).toLowerCase();
 
   const tierLabel = (tier) =>
-    tier === 'unlimited' ? 'eat, breath, music' : tier === 'avid' ? 'avid listener' : 'free';
+    tier && tier !== 'free' ? 'hüm+' : 'free';
 
   // e.g. "avid listener (yearly)" — used when a plan change involves a billing-interval switch
   const planLabelWithInterval = (tier, interval) => {
@@ -985,8 +975,11 @@ export default function HumApp() {
   // Per-plan prices in cents — mirrors SUBSCRIPTION_PLANS on the backend. Used to
   // label the checkout button (immediate charge vs. scheduled at period end).
   const PLAN_PRICES = {
-    avid: { monthly: 300, yearly: 3000 },
-    unlimited: { monthly: 500, yearly: 5000 },
+    plus: { monthly: 299, yearly: 2999 },
+    // Legacy tiers map to the same prices so the checkout math works for any
+    // pre-existing subscriber.
+    avid: { monthly: 299, yearly: 2999 },
+    unlimited: { monthly: 299, yearly: 2999 },
   };
 
   const handleCancelSubscription = async () => {
@@ -1632,7 +1625,7 @@ export default function HumApp() {
   // have first. Free users start on Avid Listener.
   useEffect(() => {
     if (showUpgradeModal && !selectedPlan) {
-      setSelectedPlan(userTier === 'unlimited' ? 'Eat, Breath, Music' : 'Avid Listener');
+      setSelectedPlan('hüm+');
       if (userTier !== 'free' && currentInterval) {
         setBillingPeriod(currentInterval);
       }
@@ -1706,19 +1699,12 @@ export default function HumApp() {
   };
 
   const checkSearchLimit = () => {
-    if (userTier === 'unlimited') {
-      // Eat, Breath, Music: no limits
+    // Paid (hüm+, incl. legacy tiers): the backend enforces the monthly/hourly
+    // throttle and returns a friendly 429; don't gate client-side here.
+    if (userTier && userTier !== 'free') {
       return true;
     }
-    if (userTier === 'avid') {
-      // Avid Listener: 100 searches per month
-      if (searchCount >= AVID_LISTENER_LIMIT) {
-        setShowUpgradeModal(true);
-        return false;
-      }
-      return true;
-    }
-    
+
     // Free tier logic
     if (user) {
       // Authenticated free user: 3 total searches
@@ -2706,7 +2692,7 @@ export default function HumApp() {
   const handleContinueUpgrade = async () => {
     // This is where the actual payment happens
     if (selectedPlan) {
-      const tier = selectedPlan === 'Eat, Breath, Music' ? 'unlimited' : 'avid';
+      const tier = 'plus';
 
       try {
         const token = localStorage.getItem('hum-auth-token');
@@ -4502,24 +4488,7 @@ export default function HumApp() {
               </span>
             </div>
           </button>
-        ) : userTier === 'avid' ? (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowUpgradeModal(true);
-            }}
-            className="px-4 py-2 bg-[#D8B5FE]/10 hover:bg-[#D8B5FE]/20 backdrop-blur-sm border border-[#D8B5FE]/30 hover:border-[#D8B5FE]/50 rounded-full transition-all duration-300 hover:scale-105 group md:cursor-pointer"
-          >
-            <span className="text-sm text-[#D8B5FE] font-semibold group-hover:hidden whitespace-nowrap">
-              🎧 <span className="hidden sm:inline">avid listener — </span>{searchCount}/{AVID_LISTENER_LIMIT}<span className="hidden sm:inline"> this month</span>
-            </span>
-            <span className="text-sm text-purple-300 font-semibold hidden group-hover:inline-flex items-center gap-1">
-              <Star className="w-3.5 h-3.5 fill-purple-300" />
-              upgrade your plan
-              <Star className="w-3.5 h-3.5 fill-purple-300" />
-            </span>
-          </button>
-        ) : userTier === 'unlimited' ? (
+        ) : userTier !== 'free' ? (
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -4529,11 +4498,11 @@ export default function HumApp() {
           >
             <span className="text-sm text-[#D8B5FE] font-semibold inline-flex items-center gap-1.5 whitespace-nowrap group-hover:hidden">
               <span className="select-none" aria-hidden="true">✦</span>
-              <span className="hidden sm:inline">eat, breath, music — </span>unlimited
+              hüm+
             </span>
             <span className="text-sm text-purple-300 font-semibold hidden group-hover:inline-flex items-center gap-1">
               <Star className="w-3.5 h-3.5 fill-purple-300" />
-              change your plan
+              manage plan
               <Star className="w-3.5 h-3.5 fill-purple-300" />
             </span>
           </button>
@@ -4767,33 +4736,23 @@ export default function HumApp() {
                   {billingPeriod === 'yearly' ? 'billed annually' : 'billed monthly'}
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
-                  {/* Avid Listener Plan */}
+                <div className="max-w-xs mx-auto">
+                  {/* hüm+ Plan (single plan) */}
                   <button
-                    onClick={() => handleSelectPlan('Avid Listener')}
-                    className={`relative group rounded-2xl overflow-visible transition-all duration-300 w-full ${
-                      selectedPlan === 'Avid Listener'
-                        ? ''
-                        : 'opacity-60 hover:opacity-90'
-                    }`}
+                    onClick={() => handleSelectPlan('hüm+')}
+                    className="relative w-full rounded-2xl overflow-visible text-left"
                   >
                     {/* Card background */}
-                    <div className={`absolute inset-0 bg-gradient-to-br from-black/30 via-gray-900/20 to-black/25 backdrop-blur-sm rounded-2xl transition-opacity duration-300 ${
-                      selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-50'
-                    }`}></div>
-                    <div className={`relative h-full flex flex-col rounded-2xl p-4 border-2 transition-all duration-300 ${
-                      selectedPlan === 'Avid Listener' 
-                        ? 'border-[#D8B5FE] shadow-[0_0_0_2px_rgba(216,181,254,0.5)]' 
-                        : 'border-[#D8B5FE]/20 hover:border-[#D8B5FE]/40'
-                    }`}>
+                    <div className="absolute inset-0 bg-gradient-to-br from-black/30 via-gray-900/20 to-black/25 backdrop-blur-sm rounded-2xl"></div>
+                    <div className="relative h-full flex flex-col rounded-2xl p-5 border-2 border-[#D8B5FE] shadow-[0_0_0_2px_rgba(216,181,254,0.5)]">
                       {/* Current plan badge */}
-                      {userTier === 'avid' && billingPeriod === currentInterval && (
+                      {userTier !== 'free' && billingPeriod === currentInterval && !subscriptionEndsAt && (
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white border border-white/25 text-[10px] font-semibold uppercase tracking-wide text-gray-900 backdrop-blur-md z-20 whitespace-nowrap">
                           current plan
                         </div>
                       )}
                       {/* Queued badge with cancel */}
-                      {pendingPlanChange?.tier === 'avid' && pendingPlanChange?.interval === billingPeriod && (
+                      {pendingPlanChange?.interval === billingPeriod && (
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#D8B5FE]/20 border border-[#D8B5FE]/50 text-[10px] font-semibold uppercase tracking-wide text-[#D8B5FE] backdrop-blur-md z-20 whitespace-nowrap">
                           <span>queued</span>
                           <button onClick={(e) => { e.stopPropagation(); handleCancelPendingChange(); }} className="hover:text-white transition-colors">✕</button>
@@ -4801,81 +4760,51 @@ export default function HumApp() {
                       )}
                       {/* Star badge - only show for yearly */}
                       {billingPeriod === 'yearly' && (
-                        <div className={`absolute top-4 left-4 ${
-                          selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-40'
-                        }`}>
+                        <div className="absolute top-4 left-4">
                           <Star className="w-5 h-5 text-[#D8B5FE] fill-[#D8B5FE]" />
                         </div>
                       )}
 
-                      {/* Info icon */}
-                      <div 
-                        className="absolute top-4 right-4 group/info"
-                        onMouseEnter={() => setShowAvidInfo(true)}
-                        onMouseLeave={() => setShowAvidInfo(false)}
-                      >
-                        <div className="w-5 h-5 rounded-full border border-white/30 flex items-center justify-center cursor-help hover:border-white/50 transition-colors">
-                          <Info className="w-3.5 h-3.5 text-white/60" />
-                        </div>
-                        
-                        {/* Tooltip */}
-                        <div className={`absolute top-6 right-0 w-48 bg-black/95 backdrop-blur-xl rounded-xl p-3 border border-[#D8B5FE]/40 shadow-2xl z-30 transition-all duration-300 ${
-                          showAvidInfo 
-                            ? 'opacity-100 translate-y-0 pointer-events-auto' 
-                            : 'opacity-0 -translate-y-2 pointer-events-none'
-                        }`}>
-                          <p className="text-sm text-white/90 leading-relaxed">
-                            enjoy <span className="text-[#D8B5FE] font-semibold">100 searches each month,</span> great for casual listeners!
-                            </p>
-                          </div>
-                      </div>
-
                       {/* Price */}
-                      <div className={`text-center mt-2 mb-4 ${
-                        selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-60'
-                      }`}>
+                      <div className="text-center mt-2 mb-4">
                         {billingPeriod === 'monthly' ? (
-                          <div className="text-4xl font-bold mb-1">$3<span className="text-xl text-white/60">/month</span></div>
+                          <div className="text-4xl font-bold mb-1">$2.99<span className="text-xl text-white/60">/month</span></div>
                         ) : (
                           <div>
                             <div className="text-4xl font-bold mb-1">
                               $2.50<span className="text-xl text-white/60">/month</span>
                             </div>
-                            <div className="text-xs text-white/40 mt-1">billed as $30/year</div>
+                            <div className="text-xs text-white/40 mt-1">billed as $29.99/year</div>
                             <div className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 bg-green-500/20 border border-green-500/30 rounded-full">
                               <span className="text-[10px] font-semibold text-green-400">
-                                Save $6/year
+                                Save 17%
                               </span>
                             </div>
                           </div>
                         )}
                       </div>
 
-                      {/* Character illustration */}
-                      <div className={`relative h-40 flex items-center justify-center mb-4 ${
-                        selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-50'
-                      }`}>
+                      {/* Hummingbird illustration */}
+                      <div className="relative h-40 flex items-center justify-center mb-4">
                         <img
-                          src={avidListenerIcon}
-                          alt="avid listener"
-                          className="w-full h-full object-contain drop-shadow-2xl relative z-10"
+                          src={hummingBirdIcon}
+                          alt="hüm+"
+                          className="w-32 h-32 object-contain drop-shadow-2xl relative z-10"
                         />
                         {/* Stars decoration */}
                         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                          <Star className="absolute top-2 left-4 w-5 h-5 text-[#D8B5FE] fill-[#D8B5FE] opacity-80" style={{ zIndex: 1 }} />
-                          <Star className="absolute top-6 right-8 w-4 h-4 text-[#D8B5FE] fill-[#D8B5FE] opacity-60" style={{ zIndex: 1 }} />
-                          <Star className="absolute bottom-8 left-4 w-4 h-4 text-[#D8B5FE] fill-[#D8B5FE] opacity-70" style={{ zIndex: 1 }} />
-                          <Star className="absolute top-12 right-4 w-3 h-3 text-[#D8B5FE] fill-[#D8B5FE] opacity-50" style={{ zIndex: 1 }} />
+                          <Star className="absolute top-3 right-8 w-5 h-5 text-[#D8B5FE] fill-[#D8B5FE] opacity-80" style={{ zIndex: 1 }} />
+                          <Star className="absolute top-10 left-8 w-4 h-4 text-[#D8B5FE] fill-[#D8B5FE] opacity-60" style={{ zIndex: 1 }} />
+                          <Star className="absolute bottom-6 right-10 w-4 h-4 text-[#D8B5FE] fill-[#D8B5FE] opacity-70" style={{ zIndex: 1 }} />
+                          <Star className="absolute bottom-10 left-6 w-3 h-3 text-[#D8B5FE] fill-[#D8B5FE] opacity-50" style={{ zIndex: 1 }} />
                         </div>
                       </div>
 
                       {/* Plan name */}
-                      <div className={`text-center mt-auto ${
-                        selectedPlan === 'Avid Listener' ? 'opacity-100' : 'opacity-60'
-                      }`}>
-                        <h3 className="font-display italic text-xl">avid listener</h3>
-                        <p className="text-xs text-[#D8B5FE]/80 mt-1">100 searches per month</p>
-                        {userTier === 'avid' && (
+                      <div className="text-center mt-auto">
+                        <h3 className="font-display italic text-2xl">hüm+</h3>
+                        <p className="text-xs text-[#D8B5FE]/80 mt-1">way more searches &amp; the full experience</p>
+                        {userTier !== 'free' && !subscriptionEndsAt && (
                           <p className="text-xs text-white/50 mt-2 flex items-center justify-center gap-1">
                             <Clock className="w-3 h-3" />
                             <span>
@@ -4887,116 +4816,6 @@ export default function HumApp() {
                     </div>
                   </button>
 
-                  {/* Eat, Breath, Music Plan */}
-                  <button
-                    onClick={() => handleSelectPlan('Eat, Breath, Music')}
-                    className={`relative group rounded-2xl overflow-visible transition-all duration-300 w-full ${
-                      selectedPlan === 'Eat, Breath, Music'
-                        ? ''
-                        : 'opacity-60 hover:opacity-90'
-                    }`}
-                  >
-                    {/* Card background */}
-                    <div className={`absolute inset-0 bg-gradient-to-br from-black/30 via-gray-900/20 to-black/25 backdrop-blur-sm rounded-2xl transition-opacity duration-300 ${
-                      selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-50'
-                    }`}></div>
-                    <div className={`relative h-full flex flex-col rounded-2xl p-4 border-2 transition-all duration-300 ${
-                      selectedPlan === 'Eat, Breath, Music'
-                        ? 'border-[#D8B5FE] shadow-[0_0_0_2px_rgba(216,181,254,0.5)]'
-                        : 'border-[#D8B5FE]/20 hover:border-[#D8B5FE]/40'
-                    }`}>
-                      {/* Current plan badge */}
-                      {userTier === 'unlimited' && billingPeriod === currentInterval && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white border border-white/25 text-[10px] font-semibold uppercase tracking-wide text-gray-900 backdrop-blur-md z-20 whitespace-nowrap">
-                          current plan
-                        </div>
-                      )}
-                      {/* Queued badge with cancel */}
-                      {pendingPlanChange?.tier === 'unlimited' && pendingPlanChange?.interval === billingPeriod && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#D8B5FE]/20 border border-[#D8B5FE]/50 text-[10px] font-semibold uppercase tracking-wide text-[#D8B5FE] backdrop-blur-md z-20 whitespace-nowrap">
-                          <span>queued</span>
-                          <button onClick={(e) => { e.stopPropagation(); handleCancelPendingChange(); }} className="hover:text-white transition-colors">✕</button>
-                        </div>
-                      )}
-                      {/* Star badge - only show for yearly */}
-                      {billingPeriod === 'yearly' && (
-                        <div className={`absolute top-4 left-4 ${
-                          selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-40'
-                        }`}>
-                          <Star className="w-5 h-5 text-[#D8B5FE] fill-[#D8B5FE]" />
-                        </div>
-                      )}
-
-                      {/* Info icon */}
-                      <div
-                        className="absolute top-4 right-4 group/info"
-                        onMouseEnter={() => setShowUnlimitedInfo(true)}
-                        onMouseLeave={() => setShowUnlimitedInfo(false)}
-                      >
-                        <div className="w-5 h-5 rounded-full border border-white/30 flex items-center justify-center cursor-help hover:border-white/50 transition-colors">
-                          <Info className="w-3.5 h-3.5 text-white/60" />
-                        </div>
-
-                        {/* Tooltip */}
-                        <div className={`absolute top-6 right-0 w-48 bg-black/95 backdrop-blur-xl rounded-xl p-3 border border-[#D8B5FE]/40 shadow-2xl z-30 transition-all duration-300 ${
-                          showUnlimitedInfo
-                            ? 'opacity-100 translate-y-0 pointer-events-auto'
-                            : 'opacity-0 -translate-y-2 pointer-events-none'
-                        }`}>
-                          <p className="text-sm text-white/90 leading-relaxed">
-                            <span className="text-[#D8B5FE] font-semibold">unlimited searches,</span> for those who live and breathe music!
-                            </p>
-                          </div>
-                      </div>
-
-                      {/* Price */}
-                      <div className={`text-center mt-2 mb-4 ${
-                        selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-60'
-                      }`}>
-                        {billingPeriod === 'monthly' ? (
-                          <div className="text-4xl font-bold mb-1">$5<span className="text-xl text-white/60">/month</span></div>
-                        ) : (
-                          <div>
-                            <div className="text-4xl font-bold mb-1">
-                              $4.17<span className="text-xl text-white/60">/month</span>
-                            </div>
-                            <div className="text-xs text-white/40 mt-1">billed as $50/year</div>
-                            <div className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 bg-green-500/20 border border-green-500/30 rounded-full">
-                              <span className="text-[10px] font-semibold text-green-400">
-                                Save $10/year
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Character illustration */}
-                      <div className={`relative h-40 flex items-center justify-center mb-4 ${
-                        selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-50'
-                      }`}>
-                        <img
-                          src={eatBreathMusicIcon}
-                          alt="eat, breath, music"
-                          className="w-full h-full object-contain drop-shadow-2xl relative z-10"
-                        />
-                        {/* Stars decoration */}
-                        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                          <Star className="absolute top-2 right-4 w-5 h-5 text-[#D8B5FE] fill-[#D8B5FE] opacity-80" style={{ zIndex: 1 }} />
-                          <Star className="absolute top-8 left-6 w-4 h-4 text-[#D8B5FE] fill-[#D8B5FE] opacity-60" style={{ zIndex: 1 }} />
-                          <Star className="absolute bottom-6 right-6 w-4 h-4 text-[#D8B5FE] fill-[#D8B5FE] opacity-70" style={{ zIndex: 1 }} />
-                          <Star className="absolute top-14 left-3 w-3 h-3 text-[#D8B5FE] fill-[#D8B5FE] opacity-50" style={{ zIndex: 1 }} />
-                        </div>
-                      </div>
-
-                      {/* Plan name */}
-                      <div className={`text-center mt-auto ${
-                        selectedPlan === 'Eat, Breath, Music' ? 'opacity-100' : 'opacity-60'
-                      }`}>
-                        <h3 className="font-display italic text-xl">eat, breath, music</h3>
-                        <p className="text-xs text-[#D8B5FE]/80 mt-1">unlimited searches</p>
-                      </div>
-                    </div>
-                  </button>
                 </div>
 
                 {/* Payment options (shows when plan selected) */}
@@ -5015,41 +4834,28 @@ export default function HumApp() {
                       <div className="flex-1 h-px bg-white/20"></div>
                         </div>
                     <p className="text-center text-white/60 mb-4 text-xs">
-                      {userTier === 'avid' && selectedPlan === 'Eat, Breath, Music'
-                        ? "you'll only pay the prorated difference — unused time on your current plan is credited automatically"
-                        : userTier === 'unlimited' && selectedPlan === 'Avid Listener'
-                        ? "you'll keep 'eat, breath, music' until your billing period ends, then switch to avid listener"
-                        : 'cancel anytime — no hard feelings'}
+                      cancel anytime — no hard feelings
                     </p>
-                    
+
                     {/* Checkout button */}
                     <div className="flex flex-col gap-3 px-1 py-1">
                       {(() => {
-                        const selectedTier = selectedPlan === 'Eat, Breath, Music' ? 'unlimited' : 'avid';
                         const hasSub = hasActiveSubscription && userTier !== 'free';
-                        // Already on this exact plan + interval, OR this exact change is already queued
-                        const alreadyQueued = pendingPlanChange &&
-                          pendingPlanChange.tier === selectedTier &&
+                        // Single plan, so the only possible change is the billing interval.
+                        const alreadyQueued = !!pendingPlanChange &&
                           pendingPlanChange.interval === billingPeriod;
-                        const isCurrentExact = hasSub && userTier === selectedTier && billingPeriod === currentInterval;
-                        // Subscription is set to cancel at period end. Re-selecting the
-                        // current plan then means "resubscribe" — keep the button live.
+                        const isCurrentExact = hasSub && billingPeriod === currentInterval;
+                        // Subscription set to cancel at period end → re-selecting the current
+                        // interval means "resubscribe", so keep the button live.
                         const isCanceling = !!subscriptionEndsAt;
                         const canReactivate = isCurrentExact && isCanceling;
-                        const disabled = (isCurrentExact && !isCanceling) || !!alreadyQueued;
-                        // Tier-direction rule (mirrors the backend): tier upgrades apply
-                        // immediately, tier downgrades are scheduled for period end, and a
-                        // same-tier interval change is immediate only when it costs at least
-                        // as much (monthly → yearly). When an immediate upgrade is to a
-                        // cheaper plan (avid-yearly → unlimited-monthly), the unused balance
-                        // becomes account credit rather than a prorated charge.
-                        const TIER_RANK = { free: 0, avid: 1, unlimited: 2 };
-                        const isTierUpgrade = (TIER_RANK[selectedTier] ?? 0) > (TIER_RANK[userTier] ?? 0);
-                        const isTierDowngrade = (TIER_RANK[selectedTier] ?? 0) < (TIER_RANK[userTier] ?? 0);
+                        const disabled = (isCurrentExact && !isCanceling) || alreadyQueued;
+                        // Interval change: monthly→yearly is charged now (prorated);
+                        // yearly→monthly is scheduled for period end (no refund).
                         const currentFull = PLAN_PRICES[userTier]?.[currentInterval] || 0;
-                        const targetFull = PLAN_PRICES[selectedTier]?.[billingPeriod] || 0;
-                        const isImmediate = isTierDowngrade ? false : isTierUpgrade ? true : targetFull >= currentFull;
-                        const isCredited = isImmediate && targetFull < currentFull;
+                        const targetFull = PLAN_PRICES['plus']?.[billingPeriod] || 0;
+                        const isImmediate = !hasSub ? true : targetFull >= currentFull;
+                        const isCredited = false;
 
                         return (
                     <button
@@ -5597,7 +5403,7 @@ export default function HumApp() {
                       <label className="block font-display italic text-base text-white/70 mb-1">manage subscriptions</label>
                       <div className="inline-flex items-center gap-1.5 mt-0.5 px-2.5 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-xs text-white/70">
                         {userTier !== 'free' && <Star className="w-3 h-3 text-[#D8B5FE] fill-[#D8B5FE]" />}
-                        {userTier === 'unlimited' ? 'eat, breath, music' : userTier === 'avid' ? 'avid listener' : 'free tier'}
+                        {userTier !== 'free' ? 'hüm+' : 'free tier'}
                         {currentInterval && userTier !== 'free' && (
                           <span className="text-white/40">· {currentInterval}</span>
                         )}

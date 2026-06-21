@@ -197,35 +197,29 @@ if (process.env.STRIPE_SECRET_KEY) {
 
 // Stripe Price IDs for subscriptions (must match UI pricing below).
 // Set in Stripe Dashboard or override via env so checkout and subscription updates charge the correct amount.
-const STRIPE_PRICE_AVID_MONTHLY = process.env.STRIPE_PRICE_AVID_MONTHLY || 'price_1Srsq3ImpMKWmAgdgibsqCvl';
-const STRIPE_PRICE_AVID_YEARLY  = process.env.STRIPE_PRICE_AVID_YEARLY || 'price_1SrsuZImpMKWmAgdKDuftnOV';
-const STRIPE_PRICE_UNLIMITED_MONTHLY = process.env.STRIPE_PRICE_UNLIMITED_MONTHLY || 'price_1Srss2ImpMKWmAgd5XUPpJhc';
-const STRIPE_PRICE_UNLIMITED_YEARLY  = process.env.STRIPE_PRICE_UNLIMITED_YEARLY || 'price_1SrsvCImpMKWmAgdpBrILeVj';
+const STRIPE_PRICE_PLUS_MONTHLY = process.env.STRIPE_PRICE_PLUS_MONTHLY;
+const STRIPE_PRICE_PLUS_YEARLY  = process.env.STRIPE_PRICE_PLUS_YEARLY;
 
 // Subscription plan definitions, keyed by user tier. Single source of truth for
 // pricing used in checkout, subscription updates, and webhook plan detection.
 const SUBSCRIPTION_PLANS = {
-  avid: {
-    name: 'Avid Listener',
-    description: '100 searches per month',
-    monthlyPrice: 300, // $3.00 in cents
-    yearlyPrice: 3000, // $30.00 in cents
-    monthlyPriceId: STRIPE_PRICE_AVID_MONTHLY,
-    yearlyPriceId: STRIPE_PRICE_AVID_YEARLY,
-  },
-  unlimited: {
-    name: 'Eat, Breath, Music',
-    description: 'Unlimited searches',
-    monthlyPrice: 500, // $5.00 in cents
-    yearlyPrice: 5000, // $50.00 in cents
-    monthlyPriceId: STRIPE_PRICE_UNLIMITED_MONTHLY,
-    yearlyPriceId: STRIPE_PRICE_UNLIMITED_YEARLY,
+  plus: {
+    name: 'hüm+',
+    description: 'More searches and the full experience',
+    monthlyPrice: 299, // $2.99 in cents
+    yearlyPrice: 2999, // $29.99 in cents
+    monthlyPriceId: STRIPE_PRICE_PLUS_MONTHLY,
+    yearlyPriceId: STRIPE_PRICE_PLUS_YEARLY,
   },
 };
 
+// Legacy paid amounts (old avid/unlimited tiers) — still recognized as paid so any
+// pre-existing subscribers resolve to the single 'plus' plan on webhook/status.
+const LEGACY_PAID_AMOUNTS = new Set([300, 3000, 500, 5000]);
+
 // Cached Stripe product + price ids per plan — used for subscription updates so existing accounts get correct pricing
 const _cachedPlanProductIds = {};
-const _cachedPlanPriceIds = { avid: {}, unlimited: {} };
+const _cachedPlanPriceIds = { plus: {} };
 
 /** Get or create a Stripe Price for the given plan/interval/amount. Returns price id. */
 async function getOrCreatePlanPriceId(plan, interval, unitAmount) {
@@ -273,7 +267,8 @@ async function releaseSubscriptionSchedule(subscription) {
   return true;
 }
 
-/** Returns the tier ('avid' | 'unlimited' | null) matching a given Stripe price, by id or amount. */
+/** Returns the tier ('plus' | null) matching a given Stripe price, by id or amount.
+ *  Legacy avid/unlimited prices also resolve to 'plus' so old subscribers stay paid. */
 function planForStripePrice(priceId, unitAmount) {
   for (const [tier, plan] of Object.entries(SUBSCRIPTION_PLANS)) {
     if (
@@ -284,6 +279,7 @@ function planForStripePrice(priceId, unitAmount) {
       return tier;
     }
   }
+  if (unitAmount && LEGACY_PAID_AMOUNTS.has(unitAmount)) return 'plus';
   return null;
 }
 
@@ -601,7 +597,7 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
     }
 
     // Backfill subscriptionStartedAt for existing subscribers who upgraded before this field existed
-    if (user.tier === 'avid' && !user.subscriptionStartedAt) {
+    if (user.tier && user.tier !== 'free' && !user.subscriptionStartedAt) {
       user.subscriptionStartedAt = new Date();
       await user.save();
     }
@@ -1051,7 +1047,7 @@ app.post('/api/search-lyrics', searchLimiter, authenticateToken, checkSearchLimi
       try {
         if (req.user) {
           await User.findByIdAndUpdate(req.user.userId, {
-            $inc: { searchCount: 1 },
+            $inc: { searchCount: 1, hourlyCount: 1 },
             $set: { lastSearchAt: new Date() }
           });
         } else {
@@ -1813,9 +1809,13 @@ app.post('/api/payments/create-checkout-session', authenticateToken, async (req,
       //   - Same tier, interval change: immediate only when the new period costs at
       //     least as much (monthly → yearly). A yearly → monthly switch is scheduled
       //     so the big prepaid balance isn't refunded.
-      const TIER_RANK = { free: 0, avid: 1, unlimited: 2 };
-      const isTierUpgrade = (TIER_RANK[plan] ?? 0) > (TIER_RANK[user.tier] ?? 0);
-      const isTierDowngrade = (TIER_RANK[plan] ?? 0) < (TIER_RANK[user.tier] ?? 0);
+      // Single paid plan now, so any paid→paid move is just an interval change:
+      // immediate when the new period costs at least as much (monthly→yearly),
+      // scheduled otherwise (yearly→monthly) so a prepaid balance isn't refunded.
+      // (TIER_RANK keeps free at 0 and all paid tiers equal, incl. legacy avid/unlimited.)
+      const TIER_RANK = { free: 0, avid: 1, unlimited: 1, plus: 1 };
+      const isTierUpgrade = (TIER_RANK[plan] ?? 1) > (TIER_RANK[user.tier] ?? 0);
+      const isTierDowngrade = (TIER_RANK[plan] ?? 1) < (TIER_RANK[user.tier] ?? 0);
       let applyImmediately;
       if (isTierDowngrade) applyImmediately = false;
       else if (isTierUpgrade) applyImmediately = true;
