@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
 import { App as CapacitorApp } from '@capacitor/app';
+import { SplashScreen } from '@capacitor/splash-screen';
 import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, ChevronRight, LogOut, User, Eye, EyeOff, ArrowLeft, ArrowRight, XCircle, Menu } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
@@ -1095,6 +1096,16 @@ export default function HumApp() {
     }, 10);
     return () => clearTimeout(timer);
   }, []);
+
+  // iOS: the native splash is held until the app is actually rendered (launchAutoHide
+  // is false in capacitor.config), then faded out — so there's no flash/glitch of an
+  // empty webview between the launch screen and the UI. Both share the dark bg, so the
+  // crossfade is seamless. No-op on web.
+  useEffect(() => {
+    if (isPageLoaded && Capacitor.isNativePlatform()) {
+      SplashScreen.hide().catch(() => {});
+    }
+  }, [isPageLoaded]);
 
   // Ensure Spotify icon is visible on mobile when bookmark is clicked
   useLayoutEffect(() => {
@@ -5102,7 +5113,11 @@ export default function HumApp() {
             {/* Panel */}
             <div className={`fixed top-0 left-0 h-full w-full sm:w-96 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f15] to-[#0a0a0f] backdrop-blur-2xl border-r border-white/[0.08] z-[10001] md:z-50 overflow-hidden flex flex-col sm:rounded-tr-2xl sm:rounded-br-2xl ${isClosingBookmarks ? 'animate-slide-out' : 'animate-slide-in'}`} style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E")`,
-              backgroundSize: '200px 200px'
+              backgroundSize: '200px 200px',
+              // Keep the panel header clear of the Dynamic Island/notch and the list
+              // clear of the home indicator on iOS (no effect on web — insets are 0).
+              paddingTop: 'env(safe-area-inset-top)',
+              paddingBottom: 'env(safe-area-inset-bottom)'
             }}>
               {/* Header */}
               <div className="px-6 pt-5 pb-4 border-b border-white/[0.06]">

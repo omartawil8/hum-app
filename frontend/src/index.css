@@ -35,7 +35,10 @@ body {
   background-attachment: fixed;
   color: #fff;
   position: relative;
-  overflow-x: hidden;
+  /* `clip` (not `hidden`) prevents sideways scroll WITHOUT turning <body> into a
+     scroll container — so the document keeps its native iOS rubber-band bounce at
+     the top/bottom. `hidden` would force overflow-y to `auto` and kill the bounce. */
+  overflow-x: clip;
 }
 
 /* Editorial serif for display moments (headlines, song titles) */
