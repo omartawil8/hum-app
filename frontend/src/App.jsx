@@ -4883,7 +4883,7 @@ export default function HumApp() {
                       </div>
 
                       {/* Plan illustration: the chill hummingbird (same for both intervals) */}
-                      <div className="relative h-[216px] flex items-center justify-center mb-2">
+                      <div className="relative h-52 flex items-center justify-center mb-2">
                         <img
                           src={chillBirdIcon}
                           alt="hüm+"
