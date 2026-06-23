@@ -4330,10 +4330,10 @@ export default function HumApp() {
                     setShowBookmarks(true);
                   }
                 }}
-                className={`flex items-center gap-2 px-4 py-3 backdrop-blur-sm border rounded-full transition-all duration-300 ease-in-out group ${
+                className={`flex items-center gap-2 px-4 py-3 border rounded-full transition-all duration-300 ease-in-out group ${
                   showBookmarks
-                    ? 'bg-gradient-to-br from-purple-500/20 to-blue-500/20 border-white/10 hover:border-[#D8B5FE]'
-                    : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-[#D8B5FE]'
+                    ? 'bg-gradient-to-br from-purple-500/20 to-blue-500/20 backdrop-blur-sm border-white/10 hover:border-[#D8B5FE]'
+                    : 'bg-transparent border-white/10 hover:bg-white/10 hover:border-[#D8B5FE]'
                 }`}
               >
                 <Bookmark 
@@ -4459,10 +4459,10 @@ export default function HumApp() {
             <button
               onClick={() => setShowMobileMenu((v) => !v)}
               aria-label="Menu"
-              className={`flex items-center justify-center px-4 py-3 backdrop-blur-sm border rounded-full transition-all duration-300 ease-in-out ${
+              className={`flex items-center justify-center px-4 py-3 border rounded-full transition-all duration-300 ease-in-out ${
                 showMobileMenu
-                  ? 'bg-gradient-to-br from-purple-500/20 to-blue-500/20 border-white/10 hover:border-[#D8B5FE]'
-                  : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-[#D8B5FE]'
+                  ? 'bg-gradient-to-br from-purple-500/20 to-blue-500/20 backdrop-blur-sm border-white/10 hover:border-[#D8B5FE]'
+                  : 'bg-transparent border-white/10 hover:bg-white/10 hover:border-[#D8B5FE]'
               }`}
             >
               {userIcon && getIconImage(userIcon) ? (
