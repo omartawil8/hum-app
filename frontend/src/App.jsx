@@ -5826,6 +5826,15 @@ export default function HumApp() {
 
                 <div className="w-full max-w-md mb-16">
                   <div className="relative group">
+                    {/* Soft lavender focus glow — opacity-transitioned (box-shadow doesn't
+                        animate reliably in WebKit/WKWebView) so it fades in/out seamlessly */}
+                    <div
+                      className="absolute -inset-1 rounded-full bg-[#D8B5FE]/25 blur-xl pointer-events-none"
+                      style={{
+                        opacity: isLyricsInputFocused ? 1 : 0,
+                        transition: 'opacity 0.35s ease'
+                      }}
+                    />
                     <div
                       className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center z-10 md:cursor-pointer"
                       style={{ 
@@ -6015,14 +6024,8 @@ export default function HumApp() {
                       disabled={isSearchingLyrics}
                         className="w-full bg-white/10 backdrop-blur-sm border border-white/20 focus:border-purple-400/30 rounded-full py-4 pl-14 pr-14 text-white placeholder-white/50 focus:outline-none transition-all disabled:opacity-50 lyrics-input-smooth"
                         style={{
-                          transition: 'border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.35s ease',
-                          caretColor: 'transparent',
-                          // Glow driven by focus state so it fades in/out via the transition
-                          // above (CSS :focus wasn't animating reliably). Base is the same
-                          // shadow at 0 alpha so box-shadow can interpolate.
-                          boxShadow: isLyricsInputFocused
-                            ? '0 0 0 1px rgba(216, 181, 254, 0.35), 0 0 28px rgba(216, 181, 254, 0.12)'
-                            : '0 0 0 1px rgba(216, 181, 254, 0), 0 0 28px rgba(216, 181, 254, 0)'
+                          transition: 'border-color 0.2s ease, background-color 0.2s ease',
+                          caretColor: 'transparent'
                         }}
                       />
                       {/* Custom animated caret */}
