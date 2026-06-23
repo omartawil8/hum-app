@@ -4852,7 +4852,7 @@ export default function HumApp() {
 
                       {/* Price — fixed min-height so the card doesn't resize when toggling
                           monthly/yearly; the text crossfades via key + price-fade animation */}
-                      <div className="text-center mt-2 mb-4 min-h-[104px] flex flex-col items-center justify-center">
+                      <div className="text-center mt-1 mb-2">
                         <div key={billingPeriod} className="price-fade flex flex-col items-center">
                           {billingPeriod === 'monthly' ? (
                             <>
@@ -4883,11 +4883,11 @@ export default function HumApp() {
                       </div>
 
                       {/* Plan illustration: the chill hummingbird (same for both intervals) */}
-                      <div className="relative h-52 flex items-center justify-center mb-4">
+                      <div className="relative h-56 flex items-center justify-center mb-2">
                         <img
                           src={chillBirdIcon}
                           alt="hüm+"
-                          className="w-52 h-52 object-contain drop-shadow-2xl relative z-10"
+                          className="w-56 h-56 object-contain drop-shadow-2xl relative z-10"
                         />
                         {/* Stars decoration — kept in the clear side strips so the larger
                             bird illustration never covers them */}
