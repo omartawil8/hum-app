@@ -3244,6 +3244,9 @@ export default function HumApp() {
           text-rendering: optimizeLegibility;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
+          /* Transparent base shadow matching the focus glow's structure so the glow can
+             interpolate (fade) in and out instead of snapping. */
+          box-shadow: 0 0 0 1px rgba(216, 181, 254, 0), 0 0 28px rgba(216, 181, 254, 0);
         }
 
         @keyframes caretBlink {
@@ -6020,7 +6023,7 @@ export default function HumApp() {
                       disabled={isSearchingLyrics}
                         className="w-full bg-white/10 backdrop-blur-sm border border-white/20 focus:border-purple-400/30 rounded-full py-4 pl-14 pr-14 text-white placeholder-white/50 focus:outline-none transition-all disabled:opacity-50 lyrics-input-smooth"
                         style={{
-                          transition: 'border-color 0.2s ease, background-color 0.2s ease',
+                          transition: 'border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.3s ease',
                           caretColor: 'transparent'
                         }}
                       />
