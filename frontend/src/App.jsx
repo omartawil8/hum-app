@@ -4887,7 +4887,7 @@ export default function HumApp() {
                         <img
                           src={chillBirdIcon}
                           alt="hüm+"
-                          className="w-[216px] h-[216px] object-contain drop-shadow-2xl relative z-10"
+                          className="w-52 h-52 object-contain drop-shadow-2xl relative z-10"
                         />
                         {/* Stars decoration — kept in the clear side strips so the larger
                             bird illustration never covers them */}
