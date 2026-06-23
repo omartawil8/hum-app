@@ -4383,19 +4383,19 @@ export default function HumApp() {
           <button
             onClick={handleResetApp}
             aria-label="back to home"
-            className="fixed flex items-center justify-center rounded-full transition-all duration-300 ease-out md:cursor-pointer"
+            className="fixed flex items-center justify-center rounded-full bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 hover:border-[#D8B5FE]/40 shadow-lg transition-all duration-300 ease-out md:cursor-pointer"
             style={{
               left: 'max(16px, calc(env(safe-area-inset-left) + 14px))',
               bottom: 'max(20px, calc(env(safe-area-inset-bottom) + 18px))',
               zIndex: 9998,
-              width: '78px',
-              height: '78px',
-              opacity: (hasResult && matchData && !showTopBar) ? 0.5 : 0,
+              width: '66px',
+              height: '66px',
+              opacity: (hasResult && matchData && !showTopBar) ? 0.8 : 0,
               transform: (hasResult && matchData && !showTopBar) ? 'translateY(0) scale(1)' : 'translateY(10px) scale(0.8)',
               pointerEvents: (hasResult && matchData && !showTopBar) ? 'auto' : 'none'
             }}
           >
-            <img src={hummingBirdIcon} alt="" className="w-14 h-14 object-contain drop-shadow-xl" />
+            <img src={hummingBirdIcon} alt="" className="w-10 h-10 object-contain" />
           </button>,
           document.body
         )}
