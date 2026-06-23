@@ -31,14 +31,44 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #0D0B10;
-  background-attachment: fixed;
+  /* This same gradient stack also lives on the main app container (App.jsx). It's
+     duplicated here so the *document canvas* — the area iOS paints in the rubber-band
+     overscroll/bounce region — matches. Both use `background-attachment: fixed`
+     (viewport-relative), so the two layers line up exactly and the bounce reads as a
+     seamless continuation of the background instead of a flat dark seam. */
+  background-color: #0D0B10;
+  background-image:
+    radial-gradient(ellipse 90% 55% at 50% -12%, rgba(216, 181, 254, 0.09), transparent),
+    radial-gradient(ellipse 60% 45% at 92% 108%, rgba(255, 176, 130, 0.05), transparent),
+    radial-gradient(circle, rgba(216, 181, 254, 0.045) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 32px 32px;
+  background-position: 0 0;
+  background-attachment: fixed, fixed, fixed;
   color: #fff;
   position: relative;
   /* `clip` (not `hidden`) prevents sideways scroll WITHOUT turning <body> into a
      scroll container — so the document keeps its native iOS rubber-band bounce at
      the top/bottom. `hidden` would force overflow-y to `auto` and kill the bounce. */
   overflow-x: clip;
+}
+
+/* iOS native shell (class added in App.jsx): make the entire visible base a pure flat
+   #0D0B10 so it exactly matches the scroll view's flat background, making the rubber-band
+   overscroll perfectly seamless. Web (no `.native` class) keeps the full look.
+   - body + main container: drop the gradient (flat color). `!important` guarantees it
+     regardless of the React inline style.
+   - grain overlay: hidden on native. It's `position: fixed`, so it lightens the viewport
+     but NOT the overscroll region — which would otherwise leave a darker seam at the edges. */
+html.native body {
+  background-color: #0D0B10;
+  background-image: none;
+}
+html.native .main-background {
+  background-color: #0D0B10 !important;
+  background-image: none !important;
+}
+html.native .grain-overlay {
+  display: none;
 }
 
 /* Editorial serif for display moments (headlines, song titles) */

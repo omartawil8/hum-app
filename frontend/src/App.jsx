@@ -6,6 +6,7 @@ import { App as CapacitorApp } from '@capacitor/app';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, ChevronRight, LogOut, User, Eye, EyeOff, ArrowLeft, ArrowRight, XCircle, Menu } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
+import chillBirdIcon from './assets/chill-bird.png';
 import sparkleIcon from './assets/sparkle.svg';
 // Import pixel art icons - make sure these files exist in frontend/src/assets/
 import crownIcon from './assets/crown.png';
@@ -1100,6 +1101,15 @@ export default function HumApp() {
     }
   }, [isPageLoaded]);
 
+  // iOS: mark the document as native so the page background goes transparent and the
+  // gradient painted natively behind the (transparent) web view shows through — letting
+  // the rubber-band overscroll blend seamlessly. No-op on web (class never added).
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      document.documentElement.classList.add('native');
+    }
+  }, []);
+
   // Ensure Spotify icon is visible on mobile when bookmark is clicked
   useLayoutEffect(() => {
     if (isBookmarkClicked && spotifyIconRef.current) {
@@ -1289,6 +1299,58 @@ export default function HumApp() {
       document.removeEventListener('touchcancel', handleTouchEnd);
     };
   }, [showBookmarks, isMobileViewport]);
+
+  // Mobile: open the bookmarks panel with a swipe-right that starts near the left edge,
+  // and close it with a swipe-left. Recognised on touchend by horizontal travel so it never
+  // interferes with the panel's own vertical scrolling.
+  useEffect(() => {
+    if (!isMobileViewport) return;
+
+    const EDGE_ZONE = 36;   // px from the left edge where an open-swipe may begin
+    const THRESHOLD = 55;   // px of horizontal travel needed to trigger
+
+    let startX = null;
+    let startY = null;
+    let armed = false;
+
+    const onStart = (e) => {
+      const t = e.touches[0];
+      if (!t) return;
+      startX = t.clientX;
+      startY = t.clientY;
+      // Arm for "close" whenever the panel is open; arm for "open" only from the left edge.
+      armed = showBookmarks || startX <= EDGE_ZONE;
+    };
+
+    const onEnd = (e) => {
+      if (!armed || startX == null) { startX = startY = null; armed = false; return; }
+      const t = e.changedTouches && e.changedTouches[0];
+      if (!t) { startX = startY = null; armed = false; return; }
+      const dx = t.clientX - startX;
+      const dy = t.clientY - startY;
+      const isHorizontal = Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > THRESHOLD;
+
+      if (isHorizontal) {
+        if (!showBookmarks && dx > 0) {
+          setShowBookmarks(true);
+        } else if (showBookmarks && dx < 0 && !isClosingBookmarks) {
+          handleCloseBookmarks();
+        }
+      }
+      startX = startY = null;
+      armed = false;
+    };
+
+    document.addEventListener('touchstart', onStart, { passive: true });
+    document.addEventListener('touchend', onEnd, { passive: true });
+    document.addEventListener('touchcancel', onEnd, { passive: true });
+
+    return () => {
+      document.removeEventListener('touchstart', onStart);
+      document.removeEventListener('touchend', onEnd);
+      document.removeEventListener('touchcancel', onEnd);
+    };
+  }, [showBookmarks, isMobileViewport, isClosingBookmarks]);
 
   // Scroll bookmarks panel to top when it opens (independent of page scroll)
   useEffect(() => {
@@ -2781,9 +2843,13 @@ export default function HumApp() {
       className={`min-h-screen text-white relative overflow-hidden main-background ${isPageLoaded ? 'page-fade-in' : 'opacity-0'}`}
       style={{
         // Warm near-black canvas with a soft lavender glow up top, faint amber at the corner,
-        // and a barely-there dot grid for texture
+        // and a barely-there dot grid for texture.
+        // On native (iOS) we drop the gradient and use a flat #0D0B10 so it matches the
+        // scroll view's flat background exactly — that makes the rubber-band overscroll
+        // perfectly seamless (WKWebView won't reliably paint a gradient into the overscroll
+        // region). Web keeps the full gradient.
         backgroundColor: '#0D0B10',
-        backgroundImage: `
+        backgroundImage: Capacitor.isNativePlatform() ? 'none' : `
           radial-gradient(ellipse 90% 55% at 50% -12%, rgba(216, 181, 254, 0.09), transparent),
           radial-gradient(ellipse 60% 45% at 92% 108%, rgba(255, 176, 130, 0.05), transparent),
           radial-gradient(circle, rgba(216, 181, 254, 0.045) 1px, transparent 1px)
@@ -3124,6 +3190,25 @@ export default function HumApp() {
         /* Ensure initial state is always applied */
         .main-background:not(.page-fade-in) {
           opacity: 0 !important;
+        }
+
+        /* Crossfade the plan price text when toggling monthly/yearly (re-keyed on change) */
+        @keyframes priceFade {
+          from { opacity: 0; transform: translateY(4px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .price-fade {
+          animation: priceFade 0.35s ease-out both;
+        }
+
+        /* Opacity-only fade for the card badges/star on toggle. No transform, so it won't
+           clobber the badges' -translate-x-1/2 horizontal centering. */
+        @keyframes badgeFade {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .badge-fade {
+          animation: badgeFade 0.35s ease-out both;
         }
 
         /* Hide default cursor - desktop only */
@@ -4726,8 +4811,8 @@ export default function HumApp() {
                       yearly
                     </button>
                     {billingPeriod === 'yearly' && (
-                      <span className="absolute -top-1.5 -right-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap shadow-lg z-20">
-                        save 17%
+                      <span className="absolute -top-1.5 -right-1 bg-[#D8B5FE] text-[#1a1325] text-[9px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap shadow-lg z-20">
+                        -17%
                       </span>
                     )}
                   </div>
@@ -4747,56 +4832,70 @@ export default function HumApp() {
                     <div className="relative h-full flex flex-col rounded-2xl p-5 border-2 border-[#D8B5FE] shadow-[0_0_0_2px_rgba(216,181,254,0.5)]">
                       {/* Current plan badge */}
                       {userTier !== 'free' && billingPeriod === currentInterval && !subscriptionEndsAt && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white border border-white/25 text-[10px] font-semibold uppercase tracking-wide text-gray-900 backdrop-blur-md z-20 whitespace-nowrap">
+                        <div key={`cur-${billingPeriod}`} className="badge-fade absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white border border-white/25 text-[10px] font-semibold uppercase tracking-wide text-gray-900 backdrop-blur-md z-20 whitespace-nowrap">
                           current plan
                         </div>
                       )}
                       {/* Queued badge with cancel */}
                       {pendingPlanChange?.interval === billingPeriod && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#D8B5FE]/20 border border-[#D8B5FE]/50 text-[10px] font-semibold uppercase tracking-wide text-[#D8B5FE] backdrop-blur-md z-20 whitespace-nowrap">
+                        <div key={`q-${billingPeriod}`} className="badge-fade absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#D8B5FE]/20 border border-[#D8B5FE]/50 text-[10px] font-semibold uppercase tracking-wide text-[#D8B5FE] backdrop-blur-md z-20 whitespace-nowrap">
                           <span>queued</span>
                           <button onClick={(e) => { e.stopPropagation(); handleCancelPendingChange(); }} className="hover:text-white transition-colors">✕</button>
                         </div>
                       )}
                       {/* Star badge - only show for yearly */}
                       {billingPeriod === 'yearly' && (
-                        <div className="absolute top-4 left-4">
+                        <div key="star-yearly" className="badge-fade absolute top-4 left-4">
                           <Star className="w-5 h-5 text-[#D8B5FE] fill-[#D8B5FE]" />
                         </div>
                       )}
 
-                      {/* Price */}
-                      <div className="text-center mt-2 mb-4">
-                        {billingPeriod === 'monthly' ? (
-                          <div className="text-4xl font-bold mb-1">$2.99<span className="text-xl text-white/60">/month</span></div>
-                        ) : (
-                          <div>
-                            <div className="text-4xl font-bold mb-1">
-                              $2.50<span className="text-xl text-white/60">/month</span>
-                            </div>
-                            <div className="text-xs text-white/40 mt-1">billed as $29.99/year</div>
-                            <div className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 bg-green-500/20 border border-green-500/30 rounded-full">
-                              <span className="text-[10px] font-semibold text-green-400">
-                                Save 17%
-                              </span>
-                            </div>
-                          </div>
-                        )}
+                      {/* Price — fixed min-height so the card doesn't resize when toggling
+                          monthly/yearly; the text crossfades via key + price-fade animation */}
+                      <div className="text-center mt-2 mb-4 min-h-[104px] flex flex-col items-center justify-center">
+                        <div key={billingPeriod} className="price-fade flex flex-col items-center">
+                          {billingPeriod === 'monthly' ? (
+                            <>
+                              <div className="text-4xl font-bold mb-1">
+                                $2.99<span className="text-xl text-white/60">/month</span>
+                              </div>
+                              <div className="text-xs text-white/40 mt-1">billed monthly</div>
+                              <div className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 bg-[#D8B5FE]/20 border border-[#D8B5FE]/40 rounded-full">
+                                <span className="text-[10px] font-semibold text-[#D8B5FE]">
+                                  no commitment
+                                </span>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="text-4xl font-bold mb-1">
+                                $2.50<span className="text-xl text-white/60">/month</span>
+                              </div>
+                              <div className="text-xs text-white/40 mt-1">billed as $29.99/year</div>
+                              <div className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 bg-[#D8B5FE]/20 border border-[#D8B5FE]/40 rounded-full">
+                                <span className="text-[10px] font-semibold text-[#D8B5FE]">
+                                  Save $6
+                                </span>
+                              </div>
+                            </>
+                          )}
+                        </div>
                       </div>
 
-                      {/* Hummingbird illustration */}
-                      <div className="relative h-40 flex items-center justify-center mb-4">
+                      {/* Plan illustration: the chill hummingbird (same for both intervals) */}
+                      <div className="relative h-52 flex items-center justify-center mb-4">
                         <img
-                          src={hummingBirdIcon}
+                          src={chillBirdIcon}
                           alt="hüm+"
-                          className="w-32 h-32 object-contain drop-shadow-2xl relative z-10"
+                          className="w-52 h-52 object-contain drop-shadow-2xl relative z-10"
                         />
-                        {/* Stars decoration */}
+                        {/* Stars decoration — kept in the clear side strips so the larger
+                            bird illustration never covers them */}
                         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                          <Star className="absolute top-3 right-8 w-5 h-5 text-[#D8B5FE] fill-[#D8B5FE] opacity-80" style={{ zIndex: 1 }} />
-                          <Star className="absolute top-10 left-8 w-4 h-4 text-[#D8B5FE] fill-[#D8B5FE] opacity-60" style={{ zIndex: 1 }} />
-                          <Star className="absolute bottom-6 right-10 w-4 h-4 text-[#D8B5FE] fill-[#D8B5FE] opacity-70" style={{ zIndex: 1 }} />
-                          <Star className="absolute bottom-10 left-6 w-3 h-3 text-[#D8B5FE] fill-[#D8B5FE] opacity-50" style={{ zIndex: 1 }} />
+                          <Star className="absolute top-3 right-1 w-5 h-5 text-[#D8B5FE] fill-[#D8B5FE] opacity-80" style={{ zIndex: 1 }} />
+                          <Star className="absolute top-9 left-1 w-4 h-4 text-[#D8B5FE] fill-[#D8B5FE] opacity-60" style={{ zIndex: 1 }} />
+                          <Star className="absolute bottom-6 right-1 w-4 h-4 text-[#D8B5FE] fill-[#D8B5FE] opacity-70" style={{ zIndex: 1 }} />
+                          <Star className="absolute bottom-12 left-1 w-3 h-3 text-[#D8B5FE] fill-[#D8B5FE] opacity-50" style={{ zIndex: 1 }} />
                         </div>
                       </div>
 
@@ -4861,31 +4960,28 @@ export default function HumApp() {
                     <button
                             onClick={disabled ? undefined : handleContinueUpgrade}
                             disabled={disabled}
-                            className={`group relative w-full px-6 py-4 rounded-xl font-semibold text-base transition-all duration-200 flex items-center justify-center gap-3 shadow-lg backdrop-blur-sm
+                            className={`group relative w-full px-6 py-4 rounded-xl font-semibold text-base transition-all duration-200 flex items-center justify-center gap-3
                               ${
                                 disabled
                                   ? 'bg-white/5 border border-white/10 text-white/40 md:cursor-not-allowed'
-                                  : 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 hover:from-purple-500/30 hover:to-blue-500/30 border-2 border-purple-500/40 hover:border-purple-500/60 text-white hover:shadow-xl hover:scale-[1.02]'
+                                  : 'bg-[#D8B5FE] text-[#0D0B10] border border-[#D8B5FE] hover:bg-[#e4ccff] hover:scale-[1.01] shadow-[0_6px_24px_-8px_rgba(216,181,254,0.55)]'
                               }`}
                           >
-                            {!disabled && (
-                              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            )}
-                            <Music className="w-5 h-5 relative z-10" strokeWidth={1.5} />
+                            <Music className="w-5 h-5 relative z-10" strokeWidth={2} />
                             <span className="relative z-10">
                               {alreadyQueued
                                 ? 'already queued'
                                 : disabled
                                 ? 'already on this plan'
                                 : canReactivate
-                                ? 'resubscribe — keep my plan'
+                                ? 'resubscribe'
                                 : !hasSub
                                 ? "let's keep humming"
                                 : isCredited
-                                ? 'switch now — balance becomes credit'
+                                ? 'switch now'
                                 : isImmediate
-                                ? 'switch — only pay the difference'
-                                : 'switch when my billing period ends'}
+                                ? `switch to ${billingPeriod}`
+                                : 'switch at renewal'}
                             </span>
                     </button>
                         );
