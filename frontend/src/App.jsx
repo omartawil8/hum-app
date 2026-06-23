@@ -4350,11 +4350,17 @@ export default function HumApp() {
 
             {/* Return Home Bird Button - Only show when results are displayed */}
             {hasResult && matchData && (
-              <button 
+              <button
                 onClick={handleResetApp}
                 onMouseEnter={() => setIsHoveringBirdButton(false)}
                 onMouseLeave={() => setIsHoveringBirdButton(false)}
-                className="group flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 hover:border-[#D8B5FE]/40 transition-all duration-200 md:cursor-pointer relative"
+                className="group flex items-center justify-center px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 hover:border-[#D8B5FE]/40 transition-all duration-300 md:cursor-pointer relative"
+                style={{
+                  // On scroll-down the bird leaves the top bar and reappears bottom-left.
+                  opacity: showTopBar ? 1 : 0,
+                  transform: showTopBar ? 'scale(1)' : 'scale(0.85)',
+                  pointerEvents: showTopBar ? 'auto' : 'none'
+                }}
               >
                 <img 
                   src={hummingBirdIcon} 
@@ -4368,6 +4374,29 @@ export default function HumApp() {
               </button>
             )}
           </div>,
+          document.body
+        )}
+
+        {/* Scrolled-down: the "back to home" bird relocates to the bottom-left, bigger and
+            translucent, so it stays reachable without taking up the top bar */}
+        {createPortal(
+          <button
+            onClick={handleResetApp}
+            aria-label="back to home"
+            className="fixed flex items-center justify-center rounded-full transition-all duration-300 ease-out md:cursor-pointer"
+            style={{
+              left: 'max(16px, calc(env(safe-area-inset-left) + 14px))',
+              bottom: 'max(20px, calc(env(safe-area-inset-bottom) + 18px))',
+              zIndex: 9998,
+              width: '78px',
+              height: '78px',
+              opacity: (hasResult && matchData && !showTopBar) ? 0.5 : 0,
+              transform: (hasResult && matchData && !showTopBar) ? 'translateY(0) scale(1)' : 'translateY(10px) scale(0.8)',
+              pointerEvents: (hasResult && matchData && !showTopBar) ? 'auto' : 'none'
+            }}
+          >
+            <img src={hummingBirdIcon} alt="" className="w-14 h-14 object-contain drop-shadow-xl" />
+          </button>,
           document.body
         )}
 
