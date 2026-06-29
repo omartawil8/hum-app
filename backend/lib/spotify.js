@@ -189,7 +189,9 @@ async function findMostPopularVersion(songTitle) {
     console.log(`\n🔍 Searching Spotify for most popular version of: "${cleanTitle}"`);
 
     const response = await withRetry(() => axios.get(
-      `https://api.spotify.com/v1/search?q=${encodeURIComponent(cleanTitle)}&type=track&limit=20`,
+      // Dev-Mode apps cap the search limit (≥20 returns 400 "Invalid limit"), so use 10 —
+      // still plenty to filter out variations and find the canonical top result.
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(cleanTitle)}&type=track&limit=10`,
       {
         headers: { 'Authorization': `Bearer ${token}` }
       }
@@ -216,20 +218,34 @@ async function findMostPopularVersion(songTitle) {
         return !isVariation;
       });
 
+      // Spotify omits `popularity` for apps in Development Mode. When it's missing we
+      // fall back to Spotify's search ORDER (results come back ranked by relevance/
+      // popularity), so the first hit is effectively the most popular — and we assign a
+      // proxy popularity from the rank so the downstream "replace cover with canonical"
+      // logic (which compares popularity numbers) still works. Backward compatible: if
+      // real popularity is present we use it.
+      const hasRealPopularity = typeof tracks[0]?.popularity === 'number';
+      const popOf = (track) => {
+        if (typeof track.popularity === 'number') return track.popularity;
+        const rank = tracks.indexOf(track);
+        return Math.max(55, 90 - rank * 4); // top result ≈ 90, decreasing with rank
+      };
+
       if (originalTracks.length === 0) {
         console.log(`   ⚠️  No clear original found, using most popular overall`);
         const mostPopular = tracks[0];
+        const pop = popOf(mostPopular);
         const fallback = {
           title: mostPopular.name,
           artist: mostPopular.artists[0].name,
-          popularity: mostPopular.popularity,
+          popularity: pop,
           album: mostPopular.album.name,
           spotify: {
             id: mostPopular.id,
             title: mostPopular.name,
             artist: mostPopular.artists[0].name,
             album: mostPopular.album.name,
-            popularity: mostPopular.popularity,
+            popularity: pop,
             preview_url: mostPopular.preview_url,
             external_url: mostPopular.external_urls.spotify,
             album_art: mostPopular.album.images[0]?.url
@@ -240,23 +256,26 @@ async function findMostPopularVersion(songTitle) {
         return fallback;
       }
 
-      // Sort by popularity
-      originalTracks.sort((a, b) => b.popularity - a.popularity);
+      // Only sort when real popularity exists; otherwise keep Spotify's search order.
+      if (hasRealPopularity) {
+        originalTracks.sort((a, b) => b.popularity - a.popularity);
+      }
       const mostPopular = originalTracks[0];
+      const pop = popOf(mostPopular);
 
-      console.log(`   ✅ Most popular: "${mostPopular.name}" by ${mostPopular.artists[0].name} (${mostPopular.popularity}/100)`);
+      console.log(`   ✅ Most popular: "${mostPopular.name}" by ${mostPopular.artists[0].name} (${pop}/100${hasRealPopularity ? '' : ' approx'})`);
 
       const result = {
         title: mostPopular.name,
         artist: mostPopular.artists[0].name,
-        popularity: mostPopular.popularity,
+        popularity: pop,
         album: mostPopular.album.name,
         spotify: {
           id: mostPopular.id,
           title: mostPopular.name,
           artist: mostPopular.artists[0].name,
           album: mostPopular.album.name,
-          popularity: mostPopular.popularity,
+          popularity: pop,
           preview_url: mostPopular.preview_url,
           external_url: mostPopular.external_urls.spotify,
           album_art: mostPopular.album.images[0]?.url
