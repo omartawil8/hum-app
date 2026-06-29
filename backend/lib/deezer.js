@@ -15,8 +15,24 @@ const VARIATION_KEYWORDS = [
   'remix', 'mix)', 'edit', 'acoustic', 'live', 'live at', 'remaster',
   'remastered', 'radio edit', 'extended', 'club', 'instrumental',
   'karaoke', 'cover', 'tribute', 'version', 'sped up', 'slowed',
-  'reverb', 'nightcore'
+  'reverb', 'nightcore', 'hardstyle', 'bootleg', 'flip', 'vip',
+  'mashup', 'hyperpop', 'lofi', 'lo-fi', '8d', 'speed up', 'slowed down'
 ];
+
+// Variant descriptors used to reduce a title to its "core" so a remix/hardstyle/nightcore/
+// slowed match resolves to the real original (e.g., "Sweet But Psycho Hardstyle" -> "Sweet
+// But Psycho"). Keep in sync with VARIATION_KEYWORDS above.
+const VARIANT_ALT = 'remix|mix|edit|acoustic|unplugged|live|remaster(?:ed)?|radio edit|extended|club|instrumental|karaoke|cover|tribute|version|sped\\s*up|slowed(?:\\s*down)?|reverb|nightcore|hardstyle|bootleg|flip|vip|mashup|hyperpop|lo-?fi|8d';
+const TRAILING_VARIANT_RE = new RegExp(`[\\s,]+(?:${VARIANT_ALT})\\s*$`, 'i');
+const DASH_VARIANT_RE = new RegExp(`\\s*[-–—]\\s*.*\\b(?:${VARIANT_ALT})\\b.*$`, 'i');
+
+function coreTitle(title) {
+  let t = (title || '').replace(/\s*[\(\[].*?[\)\]]\s*/g, ' ').trim(); // drop (...) and [...]
+  t = t.replace(DASH_VARIANT_RE, '');                                  // drop "- Slowed & Reverb"
+  let prev;                                                            // strip trailing "Hardstyle" etc.
+  do { prev = t; t = t.replace(TRAILING_VARIANT_RE, '').trim(); } while (t !== prev && t);
+  return t.trim() || (title || '').trim();
+}
 
 function normalizeRank(rank) {
   if (typeof rank !== 'number' || rank <= 0) return 0;
@@ -58,10 +74,8 @@ async function getDeezerPopularity(title, artist) {
 async function findMostPopularVersionDeezer(title) {
   if (!global.__humDeezerCanonCache) global.__humDeezerCanonCache = new Map();
 
-  const clean = (title || '')
-    .replace(/\s*[\(\[].*?[\)\]]\s*/g, '')
-    .replace(/\s*-\s*(remix|mix|edit|acoustic|live|remaster).*$/i, '')
-    .trim();
+  // Reduce to the core title so a remix/hardstyle/etc. resolves to the real original.
+  const clean = coreTitle(title);
   if (!clean) return null;
 
   const cacheKey = clean.toLowerCase();
@@ -97,4 +111,4 @@ async function findMostPopularVersionDeezer(title) {
   return result;
 }
 
-module.exports = { getDeezerPopularity, findMostPopularVersionDeezer, normalizeRank };
+module.exports = { getDeezerPopularity, findMostPopularVersionDeezer, normalizeRank, coreTitle };

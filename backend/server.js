@@ -37,7 +37,7 @@ const {
 } = require('./lib/ranking');
 const { identifyAudio } = require('./lib/acr');
 const { withRetry } = require('./lib/http');
-const { getDeezerPopularity } = require('./lib/deezer');
+const { getDeezerPopularity, coreTitle } = require('./lib/deezer');
 
 // Import models
 const User = require('./models/User');
@@ -1225,12 +1225,10 @@ app.post('/api/identify', searchLimiter, upload.single('audio'), authenticateTok
         const titleLower = (match.title || '').toLowerCase();
         const artistLower = (match.artists?.[0]?.name || '').toLowerCase();
 
-        // 1) Detect obvious covers/remixes
-        const isCoverRemix = titleLower.includes('cover') || 
-                            titleLower.includes('remix') || 
-                            titleLower.includes('tribute') ||
-                            titleLower.includes('acoustic') ||
-                            artistLower.includes('cover');
+        // 1) Detect obvious covers/remixes/variants (remix, hardstyle, nightcore, slowed,
+        //    sped up, bootleg, mashup, etc.) so we treat them loosely and map to the original.
+        const VARIANT_TEST = /\b(cover|remix|tribute|acoustic|unplugged|hardstyle|nightcore|slowed|reverb|sped\s*up|speed\s*up|bootleg|flip|vip|mashup|hyperpop|lo-?fi|8d|karaoke|instrumental|live|remaster)\b/i;
+        const isCoverRemix = VARIANT_TEST.test(titleLower) || artistLower.includes('cover');
         
         // 2) Detect "reasonably specific" titles for canonical replacement
         //    - at least two words after cleaning
@@ -1248,8 +1246,10 @@ app.post('/api/identify', searchLimiter, upload.single('audio'), authenticateTok
         // Try to find a more popular canonical version on Spotify
         const mostPopular = await findMostPopularVersion(match.title);
         if (mostPopular && mostPopular.popularity > (match.spotify?.popularity || 0)) {
-          const cleanMatchTitle = cleanTitleForComparison(match.title);
-          const cleanPopularTitle = cleanTitleForComparison(mostPopular.title);
+          // Compare on the core titles (variant descriptors stripped) so e.g.
+          // "Sweet But Psycho Hardstyle" matches the canonical "Sweet But Psycho".
+          const cleanMatchTitle = cleanTitleForComparison(coreTitle(match.title));
+          const cleanPopularTitle = cleanTitleForComparison(coreTitle(mostPopular.title));
           const similarity = calculateSimilarity(cleanMatchTitle, cleanPopularTitle);
 
           // For explicit covers/remixes we can be a bit looser;
