@@ -37,6 +37,7 @@ const {
 } = require('./lib/ranking');
 const { identifyAudio } = require('./lib/acr');
 const { withRetry } = require('./lib/http');
+const { getDeezerPopularity } = require('./lib/deezer');
 
 // Import models
 const User = require('./models/User');
@@ -976,13 +977,17 @@ app.post('/api/search-lyrics', searchLimiter, authenticateToken, checkSearchLimi
         if (spotifyResponse.data.tracks.items && spotifyResponse.data.tracks.items.length > 0) {
           const tracks = spotifyResponse.data.tracks.items;
           
-          // Pick most popular
-          const track = tracks.reduce((best, current) => 
-            current.popularity > best.popularity ? current : best
+          // Spotify no longer returns popularity for Dev-Mode apps, so the reduce below
+          // can't compare it — default to the top (most relevant) result, then source the
+          // real popularity number from Deezer.
+          const track = tracks.reduce((best, current) =>
+            (current.popularity || 0) > (best.popularity || 0) ? current : best
           );
-          
-          console.log(`      ✅ Found: "${track.name}" by ${track.artists[0].name} (${track.popularity}/100)`);
-          
+
+          const deezerPopularity = await getDeezerPopularity(track.name, track.artists[0].name);
+
+          console.log(`      ✅ Found: "${track.name}" by ${track.artists[0].name} (${deezerPopularity}/100)`);
+
           return {
             title: track.name,
             artist: track.artists[0].name,
@@ -994,7 +999,7 @@ app.post('/api/search-lyrics', searchLimiter, authenticateToken, checkSearchLimi
               artist: track.artists[0].name,
               album: track.album.name,
               album_art: track.album.images[0]?.url || '',
-              popularity: track.popularity,
+              popularity: deezerPopularity,
               preview_url: track.preview_url,
               external_url: track.external_urls.spotify,
               uri: track.uri,

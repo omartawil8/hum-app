@@ -1,5 +1,6 @@
 const axios = require('axios');
 const { withRetry } = require('./http');
+const { getDeezerPopularity, findMostPopularVersionDeezer } = require('./deezer');
 
 // =========================
 // SPOTIFY INTEGRATION
@@ -73,6 +74,11 @@ async function getSpotifyTrack(isrc) {
         album_art: track.album.images[0]?.url
       };
 
+      // Spotify omits popularity for Dev-Mode apps — backfill from Deezer.
+      if (result.popularity == null) {
+        result.popularity = await getDeezerPopularity(result.title, result.artist);
+      }
+
       global.__humSpotifyIsrcCache.set(isrc, result);
       return result;
     }
@@ -126,6 +132,11 @@ async function getSpotifyTrackByName(title, artist) {
         album_art: track.album.images[0]?.url
       };
 
+      // Spotify omits popularity for Dev-Mode apps — backfill from Deezer.
+      if (result.popularity == null) {
+        result.popularity = await getDeezerPopularity(result.title, result.artist);
+      }
+
       global.__humSpotifyNameCache.set(cacheKey, result);
       return result;
     }
@@ -163,131 +174,48 @@ async function getSpotifyArtistInfo(artistId) {
   }
 }
 
-// NEW: Find the most popular version of a song on Spotify (catches unlabeled covers!)
+// Find the most popular ("canonical") version of a song. Popularity comes from Deezer
+// (Spotify no longer exposes it for Dev-Mode apps); Spotify is used only for link + art.
 async function findMostPopularVersion(songTitle) {
   if (!global.__humSpotifyCanonicalCache) {
     global.__humSpotifyCanonicalCache = new Map();
   }
 
+  const cacheKey = (songTitle || '').trim().toLowerCase();
+  if (!cacheKey) return null;
+  if (global.__humSpotifyCanonicalCache.has(cacheKey)) {
+    return global.__humSpotifyCanonicalCache.get(cacheKey);
+  }
+
   try {
-    const token = await getSpotifyToken();
-    if (!token) return null;
-
-    // Clean the title - remove everything in parentheses/brackets
-    const cleanTitle = (songTitle || '')
-      .replace(/\s*[\(\[].*?[\)\]]\s*/g, '')
-      .replace(/\s*-\s*(remix|mix|edit|acoustic|live|remaster).*$/i, '')
-      .trim();
-
-    if (!cleanTitle) return null;
-
-    const cacheKey = cleanTitle.toLowerCase();
-    if (global.__humSpotifyCanonicalCache.has(cacheKey)) {
-      return global.__humSpotifyCanonicalCache.get(cacheKey);
+    // Deezer picks the canonical version by its real `rank` (popularity) metric.
+    const canonical = await findMostPopularVersionDeezer(songTitle);
+    if (!canonical || !canonical.title) {
+      global.__humSpotifyCanonicalCache.set(cacheKey, null);
+      return null;
     }
 
-    console.log(`\n🔍 Searching Spotify for most popular version of: "${cleanTitle}"`);
+    console.log(`   ✅ Most popular (Deezer): "${canonical.title}" by ${canonical.artist} (${canonical.popularity}/100)`);
 
-    const response = await withRetry(() => axios.get(
-      // Dev-Mode apps cap the search limit (≥20 returns 400 "Invalid limit"), so use 10 —
-      // still plenty to filter out variations and find the canonical top result.
-      `https://api.spotify.com/v1/search?q=${encodeURIComponent(cleanTitle)}&type=track&limit=10`,
-      {
-        headers: { 'Authorization': `Bearer ${token}` }
-      }
-    ));
+    // Resolve the same recording on Spotify for the link + album art. (getSpotifyTrackByName
+    // also backfills popularity from Deezer, so the numbers stay consistent.)
+    const spotify = await getSpotifyTrackByName(canonical.title, canonical.artist);
 
-    if (response.data.tracks.items.length > 0) {
-      const tracks = response.data.tracks.items;
+    const result = {
+      title: canonical.title,
+      artist: canonical.artist,
+      popularity: canonical.popularity,
+      album: spotify?.album || '',
+      spotify: spotify || {
+        title: canonical.title,
+        artist: canonical.artist,
+        popularity: canonical.popularity,
+      },
+      isrc: undefined,
+    };
 
-      // Filter out variations
-      const variationKeywords = [
-        'remix', 'mix)', 'edit', 'acoustic', 'live', 'live at',
-        'remaster', 'remastered', 'radio edit', 'extended', 'club',
-        'instrumental', 'karaoke', 'cover', 'tribute', 'version',
-        'sped up', 'slowed', 'reverb', 'nightcore'
-      ];
-
-      const originalTracks = tracks.filter(track => {
-        const trackTitle = track.name.toLowerCase();
-        const titleMatch = trackTitle.includes(cleanTitle.toLowerCase()) ||
-                          cleanTitle.toLowerCase().includes(trackTitle.slice(0, Math.max(1, trackTitle.length - 5)));
-        if (!titleMatch) return false;
-
-        const isVariation = variationKeywords.some(keyword => trackTitle.includes(keyword));
-        return !isVariation;
-      });
-
-      // Spotify omits `popularity` for apps in Development Mode. When it's missing we
-      // fall back to Spotify's search ORDER (results come back ranked by relevance/
-      // popularity), so the first hit is effectively the most popular — and we assign a
-      // proxy popularity from the rank so the downstream "replace cover with canonical"
-      // logic (which compares popularity numbers) still works. Backward compatible: if
-      // real popularity is present we use it.
-      const hasRealPopularity = typeof tracks[0]?.popularity === 'number';
-      const popOf = (track) => {
-        if (typeof track.popularity === 'number') return track.popularity;
-        const rank = tracks.indexOf(track);
-        return Math.max(55, 90 - rank * 4); // top result ≈ 90, decreasing with rank
-      };
-
-      if (originalTracks.length === 0) {
-        console.log(`   ⚠️  No clear original found, using most popular overall`);
-        const mostPopular = tracks[0];
-        const pop = popOf(mostPopular);
-        const fallback = {
-          title: mostPopular.name,
-          artist: mostPopular.artists[0].name,
-          popularity: pop,
-          album: mostPopular.album.name,
-          spotify: {
-            id: mostPopular.id,
-            title: mostPopular.name,
-            artist: mostPopular.artists[0].name,
-            album: mostPopular.album.name,
-            popularity: pop,
-            preview_url: mostPopular.preview_url,
-            external_url: mostPopular.external_urls.spotify,
-            album_art: mostPopular.album.images[0]?.url
-          },
-          isrc: mostPopular.external_ids?.isrc
-        };
-        global.__humSpotifyCanonicalCache.set(cacheKey, fallback);
-        return fallback;
-      }
-
-      // Only sort when real popularity exists; otherwise keep Spotify's search order.
-      if (hasRealPopularity) {
-        originalTracks.sort((a, b) => b.popularity - a.popularity);
-      }
-      const mostPopular = originalTracks[0];
-      const pop = popOf(mostPopular);
-
-      console.log(`   ✅ Most popular: "${mostPopular.name}" by ${mostPopular.artists[0].name} (${pop}/100${hasRealPopularity ? '' : ' approx'})`);
-
-      const result = {
-        title: mostPopular.name,
-        artist: mostPopular.artists[0].name,
-        popularity: pop,
-        album: mostPopular.album.name,
-        spotify: {
-          id: mostPopular.id,
-          title: mostPopular.name,
-          artist: mostPopular.artists[0].name,
-          album: mostPopular.album.name,
-          popularity: pop,
-          preview_url: mostPopular.preview_url,
-          external_url: mostPopular.external_urls.spotify,
-          album_art: mostPopular.album.images[0]?.url
-        },
-        isrc: mostPopular.external_ids?.isrc
-      };
-
-      global.__humSpotifyCanonicalCache.set(cacheKey, result);
-      return result;
-    }
-
-    return null;
+    global.__humSpotifyCanonicalCache.set(cacheKey, result);
+    return result;
   } catch (error) {
     console.error('❌ Error finding most popular version:', error.message);
     return null;
