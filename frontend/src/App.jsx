@@ -4,6 +4,7 @@ import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
 import { App as CapacitorApp } from '@capacitor/app';
 import { SplashScreen } from '@capacitor/splash-screen';
+import { SignInWithApple } from '@capacitor-community/apple-sign-in';
 import { Mic, Music, Volume2, Clock, Share2, Bookmark, AlertCircle, ThumbsDown, X, Home, Send, Star, Info, CreditCard, ChevronDown, ChevronRight, LogOut, User, Eye, EyeOff, ArrowLeft, ArrowRight, XCircle, Menu } from 'lucide-react';
 import hummingBirdIcon from './assets/humming-bird.png';
 import chillBirdIcon from './assets/chill-bird.png';
@@ -650,6 +651,41 @@ export default function HumApp() {
       setAuthError('Failed to create account. Please try again.');
     } finally {
       setIsAuthenticating(false);
+    }
+  };
+
+  // Sign in with Apple (native iOS). Apple returns an identity token which we hand to our
+  // backend (/api/auth/apple) for verification, then load the user like any other login.
+  const handleAppleSignIn = async () => {
+    try {
+      const result = await SignInWithApple.authorize({
+        clientId: 'rocks.hum.app',
+        scopes: 'email name',
+      });
+      const identityToken = result?.response?.identityToken;
+      const appleEmail = result?.response?.email || null;
+      if (!identityToken) throw new Error('No identity token from Apple');
+
+      const response = await fetch(`${API_BASE_URL}/api/auth/apple`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identityToken, email: appleEmail }),
+      });
+      const data = await response.json();
+      if (data.success && data.token) {
+        localStorage.setItem('hum-auth-token', data.token);
+        await checkAuthStatus(data.token);
+        setShowAuthModal(false);
+        setAuthError('');
+      } else {
+        setAuthError(data.error || 'Apple sign in failed. Please try again.');
+      }
+    } catch (err) {
+      // User dismissing the native Apple sheet isn't a real error.
+      const msg = String(err?.message || err?.code || '').toLowerCase();
+      if (msg.includes('cancel') || msg.includes('1001')) return;
+      console.error('Apple sign-in error:', err);
+      setAuthError('Apple sign in failed. Please try again.');
     }
   };
 
@@ -4699,6 +4735,19 @@ export default function HumApp() {
                     <span className="text-sm text-white/40">or</span>
                     <div className="flex-1 h-px bg-white/10"></div>
                   </div>
+
+                  {/* Sign in with Apple — iOS only (required by Apple since we offer Google) */}
+                  {Capacitor.isNativePlatform() && (
+                    <button
+                      onClick={handleAppleSignIn}
+                      className="w-full bg-white hover:bg-white/90 text-black rounded-full py-3 mb-3 font-medium text-base transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+                      </svg>
+                      <span>Sign in with Apple</span>
+                    </button>
+                  )}
 
                   <button
                     onClick={() => {
