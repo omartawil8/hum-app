@@ -4602,13 +4602,7 @@ export default function HumApp() {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              // On iOS the purchase modal is disabled (App Store rules), so route "manage
-              // plan" to the profile where the cancel-subscription control lives.
-              if (Capacitor.isNativePlatform()) {
-                openProfileModal();
-              } else {
-                setShowUpgradeModal(true);
-              }
+              setShowUpgradeModal(true);
             }}
             className="px-4 py-2 bg-[#D8B5FE]/10 hover:bg-[#D8B5FE]/20 backdrop-blur-sm border border-[#D8B5FE]/30 hover:border-[#D8B5FE]/50 rounded-full transition-all duration-300 hover:scale-105 group md:cursor-pointer"
           >
@@ -4797,9 +4791,9 @@ export default function HumApp() {
           document.body
         )}
 
-        {/* Upgrade Modal — hidden on native iOS: App Store rules forbid selling digital
-            subscriptions via Stripe in-app, so the whole purchase flow is web-only. */}
-        {showUpgradeModal && !Capacitor.isNativePlatform() && createPortal(
+        {/* Upgrade Modal — shown on all platforms so users can view/manage plans. On native
+            iOS the actual Stripe checkout button is hidden (App Store rules); buying is web-only. */}
+        {showUpgradeModal && createPortal(
           <div 
             className={`fixed inset-0 bg-black/70 backdrop-blur-lg flex items-center justify-center z-[9999] p-4 ${isClosingUpgrade ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'}`}
             onClick={handleCloseUpgrade}
@@ -4962,11 +4956,13 @@ export default function HumApp() {
 
                 </div>
 
-                {/* Payment options (shows when plan selected) */}
-                <div 
+                {/* Payment options — hidden on native iOS (App Store forbids in-app Stripe
+                    checkout). The plans above stay viewable; purchasing is web-only. */}
+                {!Capacitor.isNativePlatform() && (
+                <div
                   className={`mt-6 transition-all duration-300 ease-in-out ${
-                    selectedPlan 
-                      ? 'max-h-80 opacity-100 pb-2' 
+                    selectedPlan
+                      ? 'max-h-80 opacity-100 pb-2'
                       : 'max-h-0 opacity-0 pb-0 overflow-hidden'
                   }`}
                 >
@@ -5042,6 +5038,7 @@ export default function HumApp() {
                       </div>
                         </div>
                       </div>
+                )}
                       </div>
                     </div>
           </div>,
@@ -5574,7 +5571,7 @@ export default function HumApp() {
                     </p>
                   )}
                   <>
-                    {userTier === 'avid' && !Capacitor.isNativePlatform() && (
+                    {userTier === 'avid' && (
                       <button
                         onClick={() => {
                           setSelectedPlan('Eat, Breath, Music');
@@ -5588,7 +5585,7 @@ export default function HumApp() {
                         <span>upgrade to eat, breath, music</span>
                       </button>
                     )}
-                    {userTier === 'unlimited' && !Capacitor.isNativePlatform() && (
+                    {userTier === 'unlimited' && (
                       <button
                         onClick={() => {
                           setSelectedPlan(null);
@@ -5608,7 +5605,7 @@ export default function HumApp() {
                       >
                         {isCancelingSubscription ? 'canceling...' : 'cancel subscription'}
                       </button>
-                    ) : userTier === 'free' && !Capacitor.isNativePlatform() ? (
+                    ) : userTier === 'free' ? (
                       <button
                         onClick={() => {
                           setShowUpgradeModal(true);
