@@ -4602,7 +4602,13 @@ export default function HumApp() {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setShowUpgradeModal(true);
+              // On iOS the purchase modal is disabled (App Store rules), so route "manage
+              // plan" to the profile where the cancel-subscription control lives.
+              if (Capacitor.isNativePlatform()) {
+                openProfileModal();
+              } else {
+                setShowUpgradeModal(true);
+              }
             }}
             className="px-4 py-2 bg-[#D8B5FE]/10 hover:bg-[#D8B5FE]/20 backdrop-blur-sm border border-[#D8B5FE]/30 hover:border-[#D8B5FE]/50 rounded-full transition-all duration-300 hover:scale-105 group md:cursor-pointer"
           >
