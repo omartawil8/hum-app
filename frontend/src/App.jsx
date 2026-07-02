@@ -155,13 +155,6 @@ export default function HumApp() {
   const [showEmojiDropdown, setShowEmojiDropdown] = useState(false);
   const emojiDropdownRef = useRef(null);
   
-  // Blob animation state
-  const [blob1Pos, setBlob1Pos] = useState({ x: 0, y: 0, scale: 1, opacity: 0.2 });
-  const [blob2Pos, setBlob2Pos] = useState({ x: 0, y: 0, scale: 1, opacity: 0.15 });
-  const [blob3Pos, setBlob3Pos] = useState({ x: 0, y: 0, scale: 1, opacity: 0.18 });
-  const animationFrameRef = useRef(null);
-  const timeRef = useRef(0);
-  
   const ANONYMOUS_SEARCH_LIMIT = 1; // 1 free search without login
   const FREE_SEARCH_LIMIT = 3; // Total free searches (1 anonymous + 2 authenticated)
   // hüm+ (paid) limits are enforced server-side (monthly + hourly throttle)
@@ -1508,46 +1501,8 @@ export default function HumApp() {
     };
   }, [showUpgradeModal]);
 
-  // Animate background blobs - smooth, slow, fluid movement
-  useEffect(() => {
-    const animate = () => {
-      timeRef.current += 0.005; // Much slower for fluid movement
-      
-      // Blob 1 - smooth, slow organic movement
-      setBlob1Pos({
-        x: Math.sin(timeRef.current * 0.15) * 100 + Math.cos(timeRef.current * 0.1) * 60,
-        y: Math.cos(timeRef.current * 0.12) * 80 + Math.sin(timeRef.current * 0.18) * 50,
-        scale: 1 + Math.sin(timeRef.current * 0.08) * 0.08, // Subtle scale changes
-        opacity: 0.25 + Math.sin(timeRef.current * 0.1) * 0.1
-      });
-      
-      // Blob 2 - different phase, slower
-      setBlob2Pos({
-        x: Math.cos(timeRef.current * 0.13) * 120 + Math.sin(timeRef.current * 0.16) * 70,
-        y: Math.sin(timeRef.current * 0.11) * 100 + Math.cos(timeRef.current * 0.14) * 60,
-        scale: 1 + Math.cos(timeRef.current * 0.09) * 0.1,
-        opacity: 0.2 + Math.cos(timeRef.current * 0.12) * 0.1
-      });
-      
-      // Blob 3 - slowest, most fluid
-      setBlob3Pos({
-        x: Math.sin(timeRef.current * 0.14) * 110 + Math.cos(timeRef.current * 0.17) * 65,
-        y: Math.cos(timeRef.current * 0.1) * 90 + Math.sin(timeRef.current * 0.15) * 55,
-        scale: 1 + Math.sin(timeRef.current * 0.07) * 0.09,
-        opacity: 0.22 + Math.sin(timeRef.current * 0.11) * 0.1
-      });
-      
-      animationFrameRef.current = requestAnimationFrame(animate);
-    };
-    
-    animationFrameRef.current = requestAnimationFrame(animate);
-    
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, []);
+  // (Removed a dead 60fps requestAnimationFrame loop that set blob-position state which was
+  //  never rendered — it was forcing a full app re-render every frame. No visual change.)
 
   // Track when the listening button becomes clickable (after 6 seconds)
   useEffect(() => {
@@ -5105,9 +5060,11 @@ export default function HumApp() {
                           {/* Album Art */}
                           <div className="w-16 h-16 bg-white/[0.05] rounded-lg overflow-hidden flex-shrink-0 border border-white/[0.08] group-hover:border-white/[0.15] transition-all">
                             {song.albumArt ? (
-                              <img 
-                                src={song.albumArt} 
+                              <img
+                                src={song.albumArt}
                                 alt={song.title}
+                                loading="lazy"
+                                decoding="async"
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                               />
                             ) : (
@@ -6092,9 +6049,11 @@ export default function HumApp() {
                           <div className="flex items-center gap-4">
                             <div className="w-14 h-14 bg-white/10 rounded-lg overflow-hidden flex-shrink-0">
                               {search.albumArt ? (
-                                <img 
-                                  src={search.albumArt} 
+                                <img
+                                  src={search.albumArt}
                                   alt={search.song}
+                                  loading="lazy"
+                                  decoding="async"
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
@@ -6438,9 +6397,11 @@ export default function HumApp() {
                                 <div className="flex items-center gap-4">
                                   <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center border border-white/5 group-hover:bg-white/10 transition-colors overflow-hidden">
                                     {song.spotify?.album_art ? (
-                                      <img 
-                                        src={song.spotify.album_art} 
+                                      <img
+                                        src={song.spotify.album_art}
                                         alt={`${song.title} album art`}
+                                        loading="lazy"
+                                        decoding="async"
                                         className="w-full h-full object-cover"
                                       />
                                     ) : (
