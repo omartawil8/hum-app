@@ -581,6 +581,110 @@ app.get('/api/auth/google/callback', async (req, res) => {
   }
 });
 
+// =========================
+// SIGN IN WITH APPLE (native iOS)
+// The app authenticates with Apple natively and POSTs the identityToken (a JWT) here. We
+// verify it against Apple's public keys, then find/create the user and issue our own JWT —
+// mirroring the Google flow. Apple only sends the email on the FIRST authorization, so we
+// key on the stable `sub` (appleId) thereafter.
+// =========================
+const APPLE_BUNDLE_ID = process.env.APPLE_BUNDLE_ID || 'rocks.hum.app';
+let _appleKeysCache = { keys: null, fetchedAt: 0 };
+
+async function getAppleSigningKey(kid) {
+  const ONE_DAY = 24 * 60 * 60 * 1000;
+  const refresh = async () => {
+    const { data } = await axios.get('https://appleid.apple.com/auth/keys');
+    _appleKeysCache = { keys: data.keys, fetchedAt: Date.now() };
+  };
+  if (!_appleKeysCache.keys || Date.now() - _appleKeysCache.fetchedAt > ONE_DAY) {
+    await refresh();
+  }
+  let jwk = _appleKeysCache.keys.find((k) => k.kid === kid);
+  if (!jwk) { await refresh(); jwk = _appleKeysCache.keys.find((k) => k.kid === kid); }
+  if (!jwk) throw new Error('Apple signing key not found');
+  return crypto.createPublicKey({ key: jwk, format: 'jwk' });
+}
+
+app.post('/api/auth/apple', loginLimiter, async (req, res) => {
+  try {
+    const { identityToken, email: providedEmail } = req.body || {};
+    if (!identityToken || typeof identityToken !== 'string') {
+      return res.status(400).json({ success: false, error: 'Missing identityToken' });
+    }
+
+    // Verify signature + claims against Apple's published keys.
+    let payload;
+    try {
+      const header = JSON.parse(Buffer.from(identityToken.split('.')[0], 'base64').toString());
+      const pubKey = await getAppleSigningKey(header.kid);
+      payload = jwt.verify(identityToken, pubKey, {
+        algorithms: ['RS256'],
+        issuer: 'https://appleid.apple.com',
+        audience: APPLE_BUNDLE_ID,
+      });
+    } catch (e) {
+      console.error('❌ Apple token verification failed:', e.message);
+      return res.status(401).json({ success: false, error: 'Invalid Apple token' });
+    }
+
+    const appleId = payload.sub;
+    if (!appleId) {
+      return res.status(400).json({ success: false, error: 'Invalid Apple token (no subject)' });
+    }
+    // Email is present only on first sign-in; fall back to the app-provided value, then to
+    // a stable placeholder derived from the Apple id.
+    const email = (payload.email || providedEmail || '').toLowerCase();
+
+    if (!isMongoConnected()) {
+      return res.status(503).json({ success: false, error: 'Database unavailable' });
+    }
+
+    let user = await User.findOne({ $or: [{ appleId }, ...(email ? [{ email }] : [])] });
+
+    if (user) {
+      if (!user.appleId) { user.appleId = appleId; await user.save(); }
+    } else {
+      const finalEmail = email || `${appleId.replace(/[^a-zA-Z0-9]/g, '').slice(0, 24)}@privaterelay.appleid.com`;
+      user = new User({
+        email: finalEmail,
+        appleId,
+        password: crypto.randomBytes(32).toString('hex'),
+        searchCount: 0,
+        tier: 'free',
+      });
+      await user.save();
+      console.log(`✅ Apple sign-in user created: ${user._id}`);
+      if (email) {
+        sendWelcomeEmail(user.email, 3).catch((err) => console.error('📧 Welcome email error:', err.message));
+      }
+    }
+
+    const token = jwt.sign(
+      { userId: user._id.toString(), email: user.email },
+      JWT_SECRET,
+      { expiresIn: '30d' }
+    );
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        searchCount: user.searchCount || 0,
+        tier: user.tier || 'free',
+        nickname: user.nickname || null,
+        bookmarks: user.bookmarks || [],
+        recentSearches: user.recentSearches || [],
+      },
+    });
+  } catch (error) {
+    console.error('❌ Apple sign-in error:', error.message);
+    res.status(500).json({ success: false, error: 'Apple sign-in failed' });
+  }
+});
+
 // Check auth status endpoint
 app.get('/api/auth/me', authenticateToken, async (req, res) => {
   if (!req.user) {

@@ -19,6 +19,12 @@ const userSchema = new mongoose.Schema({
     default: null,
     sparse: true // Allows multiple nulls but enforces uniqueness for non-null values
   },
+  appleId: {
+    // Apple's stable user identifier (the `sub` claim from Sign in with Apple).
+    type: String,
+    default: null,
+    sparse: true
+  },
   searchCount: {
     type: Number,
     default: 0
