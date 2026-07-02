@@ -4742,8 +4742,9 @@ export default function HumApp() {
           document.body
         )}
 
-        {/* Upgrade Modal */}
-        {showUpgradeModal && createPortal(
+        {/* Upgrade Modal — hidden on native iOS: App Store rules forbid selling digital
+            subscriptions via Stripe in-app, so the whole purchase flow is web-only. */}
+        {showUpgradeModal && !Capacitor.isNativePlatform() && createPortal(
           <div 
             className={`fixed inset-0 bg-black/70 backdrop-blur-lg flex items-center justify-center z-[9999] p-4 ${isClosingUpgrade ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop'}`}
             onClick={handleCloseUpgrade}
@@ -5518,7 +5519,7 @@ export default function HumApp() {
                     </p>
                   )}
                   <>
-                    {userTier === 'avid' && (
+                    {userTier === 'avid' && !Capacitor.isNativePlatform() && (
                       <button
                         onClick={() => {
                           setSelectedPlan('Eat, Breath, Music');
@@ -5532,7 +5533,7 @@ export default function HumApp() {
                         <span>upgrade to eat, breath, music</span>
                       </button>
                     )}
-                    {userTier === 'unlimited' && (
+                    {userTier === 'unlimited' && !Capacitor.isNativePlatform() && (
                       <button
                         onClick={() => {
                           setSelectedPlan(null);
@@ -5552,7 +5553,7 @@ export default function HumApp() {
                       >
                         {isCancelingSubscription ? 'canceling...' : 'cancel subscription'}
                       </button>
-                    ) : userTier === 'free' ? (
+                    ) : userTier === 'free' && !Capacitor.isNativePlatform() ? (
                       <button
                         onClick={() => {
                           setShowUpgradeModal(true);
@@ -5768,7 +5769,9 @@ export default function HumApp() {
                           <h3 className="font-display italic text-2xl text-rose-300">out of searches</h3>
                         </div>
                         <p className="text-white/70 text-sm">
-                          upgrade to keep humming!
+                          {Capacitor.isNativePlatform()
+                            ? "you've used all your free searches for now."
+                            : 'upgrade to keep humming!'}
                         </p>
                       </div>
                     </div>
@@ -6121,7 +6124,8 @@ export default function HumApp() {
                   )}
                 </div>
 
-                {/* Support Button */}
+                {/* Support Button — hidden on native iOS (external payment link) */}
+                {!Capacitor.isNativePlatform() && (
                 <div className="w-full max-w-md mt-12 text-center">
                   <p className="font-display italic text-xl text-white/60 mb-4">enjoying <span style={{ color: '#D8B5FE' }}>hüm</span>?</p>
                   <a
@@ -6134,6 +6138,7 @@ export default function HumApp() {
                     <span className="text-lg">☕</span>
                   </a>
                 </div>
+                )}
               </div>
             )}
 
@@ -6476,7 +6481,8 @@ export default function HumApp() {
                   search again
                 </button>
 
-                {/* Support Button - Results Page */}
+                {/* Support Button - Results Page — hidden on native iOS (external payment link) */}
+                {!Capacitor.isNativePlatform() && (
                 <div className="w-full mt-8 text-center">
                   <p className="font-display italic text-xl text-white/60 mb-4">enjoying <span style={{ color: '#D8B5FE' }}>hüm</span>?</p>
                   <a
@@ -6489,6 +6495,7 @@ export default function HumApp() {
                     <span className="text-lg">☕</span>
                   </a>
                 </div>
+                )}
               </div>
             )}
           </div>
